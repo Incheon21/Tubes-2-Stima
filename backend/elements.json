@@ -20,6 +20,17 @@
     "tier": 1
   },
   {
+    "image": "",
+    "localImage": "",
+    "name": "Time",
+    "recipes": [
+      {
+        "ingredients": []
+      }
+    ],
+    "tier": 1
+  },
+  {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8a/Planet_2.svg/revision/latest/scale-to-width-down/40",
     "localImage": "images\\Planet_e7b836dc.png",
     "name": "Planet",

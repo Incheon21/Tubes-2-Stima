@@ -20,13 +20,15 @@ type SearchConfig struct {
 	Algorithm     string `json:"algorithm"` // "bfs", "dfs", ato "bidirectional"
 	MaxResults    int    `json:"maxResults"`
 	SinglePath    bool   `json:"singlePath"`
+	Debug         bool   `json:"debug"` // untuk menampilkan traversal order
 }
 
 //hasil dari pencarian elemen
 type SearchResult struct {
-	Paths        [][]Node `json:"paths"`
-	TimeElapsed  int64    `json:"timeElapsed"` //ms
-	NodesVisited int      `json:"nodesVisited"`
+	Paths          [][]Node `json:"paths"`
+	TimeElapsed    int64    `json:"timeElapsed"` //ms
+	NodesVisited   int      `json:"nodesVisited"`
+	TraversalOrder []string `json:"traversalOrder,omitempty"`
 }
 
 //struct node untuk menyimpan elemen dan ingredientnya

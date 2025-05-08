@@ -59,22 +59,34 @@ func (h *Handler) HandleSearch(w http.ResponseWriter, r *http.Request) {
 		config.MaxResults = 1
 	}
 
-	startTime := time.Now()
 	var result model.SearchResult
+
+	startTime := time.Now()
+
+	debug := config.Debug
 
 	switch config.Algorithm {
 	case "bfs":
-		paths, visited := algorithm.BFS(h.elements, config.TargetElement, config.MaxResults, config.SinglePath)
+		paths, visited, traversalOrder := algorithm.BFS(h.elements, config.TargetElement, config.MaxResults, config.SinglePath, debug)
 		result.Paths = paths
 		result.NodesVisited = visited
+		if debug {
+			result.TraversalOrder = traversalOrder
+		}
 	case "dfs":
-		paths, visited := algorithm.DFS(h.elements, config.TargetElement, config.MaxResults, config.SinglePath)
+		paths, visited, traversalOrder := algorithm.DFS(h.elements, config.TargetElement, config.MaxResults, config.SinglePath, debug)
 		result.Paths = paths
 		result.NodesVisited = visited
+		if debug {
+			result.TraversalOrder = traversalOrder
+		}
 	case "bidirectional":
-		paths, visited := algorithm.Bidirectional(h.elements, config.TargetElement, config.MaxResults)
+		paths, visited, traversalOrder := algorithm.Bidirectional(h.elements, config.TargetElement, config.MaxResults, debug)
 		result.Paths = paths
 		result.NodesVisited = visited
+		if debug {
+			result.TraversalOrder = traversalOrder
+		}
 	default:
 		http.Error(w, "Invalid algorithm", http.StatusBadRequest)
 		return

@@ -184,6 +184,7 @@
             
             <button id="searchBtn">Search</button>
             <button id="debugBtn">Enable Debug Mode</button>
+            <button id="showGraphBtn">Show Graph</button>
             
             <h2>Debug Log</h2>
             <div id="log"></div>
@@ -273,11 +274,14 @@
             try {
                 log(`Searching for ${target} using ${algorithm.toUpperCase()}...`);
                 
+                const debugEnabled = document.getElementById('debugBtn').textContent === 'Disable Debug Mode';
+    
                 const requestBody = {
                     targetElement: target,
                     algorithm: algorithm,
                     maxResults: maxResults,
-                    singlePath: singlePath
+                    singlePath: singlePath,
+                    debug: debugEnabled 
                 };
                 
                 const response = await fetch('http://localhost:8080/api/search', {
@@ -314,10 +318,53 @@
                 // Show detailed recipe paths
                 showRecipeDetails(result.paths);
                 
+                // Add this code here:
+                if (debugEnabled && result.traversalOrder) {
+                    showTraversalOrder(result);
+                }
+                
             } catch (error) {
                 log(`Search failed: ${error.message}`, 'error');
             }
         });
+
+        function showTraversalOrder(result) {
+    if (!result.traversalOrder || result.traversalOrder.length === 0) return;
+    
+    const container = document.getElementById('recipe-details');
+    
+    // Create traversal order section
+    const traversalSection = document.createElement('div');
+    traversalSection.innerHTML = '<h3>Traversal Order</h3>';
+    
+    // Create ordered list for traversal steps
+    const list = document.createElement('ol');
+    list.style.padding = '0 0 0 20px';
+    
+    // Add each step to the list
+    result.traversalOrder.forEach((element, index) => {
+        const item = document.createElement('li');
+        item.style.margin = '5px 0';
+        
+        // Create element box
+        const elementBox = document.createElement('span');
+        elementBox.className = `element-box ${["Earth", "Fire", "Water", "Air"].includes(element) ? 'base-element' : ''}`;
+        elementBox.textContent = element;
+        
+        item.appendChild(elementBox);
+        list.appendChild(item);
+        
+        // Log to debug log as well
+        if (index < 20 || index > result.traversalOrder.length - 20) {
+            log(`Visit #${index+1}: ${element}`, 'debug');
+        } else if (index === 20) {
+            log(`... ${result.traversalOrder.length - 40} more elements ...`, 'debug');
+        }
+    });
+    
+    traversalSection.appendChild(list);
+    container.appendChild(traversalSection);
+}
         
         // Enable debug mode
         document.getElementById('debugBtn').addEventListener('click', () => {
@@ -514,6 +561,164 @@
                 container.appendChild(pathDiv);
             });
         }
+        // Show initial graph visualization
+document.getElementById('showGraphBtn').addEventListener('click', () => {
+    if (allElements.length === 0) {
+        log("Please wait for elements to load", "error");
+        return;
+    }
+    
+    log("Generating graph visualization...");
+    
+    // Create a simplified graph from elements data
+    const graph = createElementGraph(allElements);
+    visualizeElementGraph(graph);
+});
+
+// Create a graph structure from elements data
+function createElementGraph(elements) {
+    const nodes = [];
+    const links = [];
+    
+    // First add all elements as nodes
+    const basicElements = ["Earth", "Fire", "Water", "Air"];
+    
+    // Limit to fewer nodes for performance
+    const maxNodes = 50;
+    let nodeCount = 0;
+    
+    // Always include base elements
+    basicElements.forEach(name => {
+        nodes.push({
+            id: name,
+            group: 1,
+            isBase: true
+        });
+        nodeCount++;
+    });
+    
+    // Add some other elements (tier 2-3)
+    for (const element of elements) {
+        if (basicElements.includes(element.name)) continue;
+        
+        // Only include elements with tier 2-3 to avoid overcrowding
+        if (element.tier <= 3 && nodeCount < maxNodes) {
+            nodes.push({
+                id: element.name,
+                group: element.tier
+            });
+            nodeCount++;
+            
+            // Add links from recipes
+            if (element.recipes && element.recipes.length > 0) {
+                for (const recipe of element.recipes) {
+                    if (recipe.ingredients && recipe.ingredients.length === 2) {
+                        // Only add links if both nodes exist
+                        if (basicElements.includes(recipe.ingredients[0]) || 
+                            basicElements.includes(recipe.ingredients[1])) {
+                            links.push({
+                                source: recipe.ingredients[0],
+                                target: element.name,
+                                value: 1
+                            });
+                            links.push({
+                                source: recipe.ingredients[1],
+                                target: element.name,
+                                value: 1
+                            });
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    return { nodes, links };
+}
+
+// Visualize the element graph using D3 force-directed graph
+function visualizeElementGraph(graph) {
+    // Set up dimensions
+    const width = 960;
+    const height = 600;
+    
+    // Clear previous visualization
+    document.getElementById('visualization').innerHTML = '';
+    document.getElementById('recipe-details').innerHTML = 
+        '<p>Base elements shown in yellow, created elements in blue. Hover over nodes to see element names.</p>';
+    
+    // Create SVG
+    const svg = d3.select("#visualization")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+    
+    // Create force simulation
+    const simulation = d3.forceSimulation(graph.nodes)
+        .force("link", d3.forceLink(graph.links).id(d => d.id).distance(100))
+        .force("charge", d3.forceManyBody().strength(-200))
+        .force("center", d3.forceCenter(width / 2, height / 2));
+    
+    // Create links
+    const link = svg.append("g")
+        .attr("class", "links")
+        .selectAll("line")
+        .data(graph.links)
+        .enter().append("line")
+        .attr("stroke", "#999")
+        .attr("stroke-opacity", 0.6)
+        .attr("stroke-width", d => Math.sqrt(d.value));
+    
+    // Create nodes
+    const node = svg.append("g")
+        .attr("class", "nodes")
+        .selectAll("circle")
+        .data(graph.nodes)
+        .enter().append("circle")
+        .attr("r", 8)
+        .attr("fill", d => d.isBase ? "#FFC107" : "#6495ED")
+        .call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended));
+    
+    // Add tooltips
+    node.append("title")
+        .text(d => d.id);
+    
+    // Update positions on tick
+    simulation.on("tick", () => {
+        link
+            .attr("x1", d => d.source.x)
+            .attr("y1", d => d.source.y)
+            .attr("x2", d => d.target.x)
+            .attr("y2", d => d.target.y);
+        
+        node
+            .attr("cx", d => d.x)
+            .attr("cy", d => d.y);
+    });
+    
+    // Drag functions
+    function dragstarted(event) {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        event.subject.fx = event.subject.x;
+        event.subject.fy = event.subject.y;
+    }
+    
+    function dragged(event) {
+        event.subject.fx = event.x;
+        event.subject.fy = event.y;
+    }
+    
+    function dragended(event) {
+        if (!event.active) simulation.alphaTarget(0);
+        event.subject.fx = null;
+        event.subject.fy = null;
+    }
+    
+    log("Graph visualization generated", "success");
+}
     </script>
 </body>
 </html>
