@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Little Alchemy 2 Recipe Debugger</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+        }
+        .panel {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .control-panel {
+            flex: 1;
+            max-width: 400px;
+        }
+        .visualization-panel {
+            flex: 2;
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #log {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f9f9f9;
+            font-family: monospace;
+            margin-bottom: 15px;
+        }
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .stat-box {
+            flex: 1;
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+            background: #f0f0f0;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .debug {
+            color: #777;
+        }
+        .error {
+            color: #d32f2f;
+        }
+        .success {
+            color: #388e3c;
+        }
+        .node circle {
+            fill: #fff;
+            stroke: steelblue;
+            stroke-width: 2px;
+        }
+        .node text {
+            font: 12px sans-serif;
+        }
+        .link {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 2px;
+        }
+        #visualization {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ddd;
+            overflow: auto;
+        }
+        #recipe-details {
+            margin-top: 15px;
+        }
+        .recipe-path {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        .recipe-step {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .plus {
+            margin: 0 10px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .element-box {
+            background: #e1f5fe;
+            border: 1px solid #81d4fa;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .base-element {
+            background: #fff9c4;
+            border: 1px solid #fff176;
+        }
+        .result-element {
+            background: #c8e6c9;
+            border: 1px solid #81c784;
+        }
+    </style>
+</head>
+<body>
+    <h1>Little Alchemy 2 Recipe Debugger</h1>
+    
+    <div class="container">
+        <div class="control-panel panel">
+            <h2>Search Configuration</h2>
+            
+            <div class="form-group">
+                <label for="target">Target Element:</label>
+                <input type="text" id="target" placeholder="e.g., Brick">
+            </div>
+            
+            <div class="form-group">
+                <label for="algorithm">Algorithm:</label>
+                <select id="algorithm">
+                    <option value="bfs">BFS</option>
+                    <option value="dfs">DFS</option>
+                    <option value="bidirectional">Bidirectional</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="maxResults">Max Results:</label>
+                <input type="number" id="maxResults" value="3" min="1" max="10">
+            </div>
+            
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="singlePath"> Single Path Only
+                </label>
+            </div>
+            
+            <button id="searchBtn">Search</button>
+            <button id="debugBtn">Enable Debug Mode</button>
+            
+            <h2>Debug Log</h2>
+            <div id="log"></div>
+            
+            <div class="stats">
+                <div class="stat-box">
+                    <div>Time (ms)</div>
+                    <div class="stat-value" id="time-stat">0</div>
+                </div>
+                <div class="stat-box">
+                    <div>Nodes Visited</div>
+                    <div class="stat-value" id="nodes-stat">0</div>
+                </div>
+                <div class="stat-box">
+                    <div>Paths Found</div>
+                    <div class="stat-value" id="paths-stat">0</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="visualization-panel panel">
+            <h2>Recipe Visualization</h2>
+            <div id="visualization"></div>
+            
+            <div id="recipe-details">
+                <!-- Recipe details will be shown here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elements cache
+        let allElements = [];
+        
+        // Log function
+        function log(message, type = 'debug') {
+            const logElement = document.getElementById('log');
+            const logEntry = document.createElement('div');
+            logEntry.className = type;
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logElement.appendChild(logEntry);
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        // Fetch all elements when page loads
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                log('Fetching all elements...');
+                const response = await fetch('http://localhost:8080/api/elements');
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status}`);
+                }
+                
+                allElements = await response.json();
+                log(`Successfully loaded ${allElements.length} elements`, 'success');
+                
+                // Populate target datalist
+                const uniqueTargets = [...new Set(allElements.map(e => e.name))].sort();
+                const datalist = document.createElement('datalist');
+                datalist.id = 'element-list';
+                
+                uniqueTargets.forEach(target => {
+                    const option = document.createElement('option');
+                    option.value = target;
+                    datalist.appendChild(option);
+                });
+                
+                document.body.appendChild(datalist);
+                document.getElementById('target').setAttribute('list', 'element-list');
+            } catch (error) {
+                log(`Failed to fetch elements: ${error.message}`, 'error');
+            }
+        });
+        
+        // Search button click handler
+        document.getElementById('searchBtn').addEventListener('click', async () => {
+            const target = document.getElementById('target').value;
+            const algorithm = document.getElementById('algorithm').value;
+            const maxResults = parseInt(document.getElementById('maxResults').value);
+            const singlePath = document.getElementById('singlePath').checked;
+            
+            if (!target) {
+                log('Please enter a target element', 'error');
+                return;
+            }
+            
+            try {
+                log(`Searching for ${target} using ${algorithm.toUpperCase()}...`);
+                
+                const requestBody = {
+                    targetElement: target,
+                    algorithm: algorithm,
+                    maxResults: maxResults,
+                    singlePath: singlePath
+                };
+                
+                const response = await fetch('http://localhost:8080/api/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                // Update stats
+                document.getElementById('time-stat').textContent = result.timeElapsed || 0;
+                document.getElementById('nodes-stat').textContent = result.nodesVisited || 0;
+                document.getElementById('paths-stat').textContent = result.paths?.length || 0;
+                
+                if (!result.paths || result.paths.length === 0) {
+                    log(`No paths found for ${target}`, 'error');
+                    document.getElementById('visualization').innerHTML = '<div style="padding: 20px; text-align: center;">No paths found</div>';
+                    document.getElementById('recipe-details').innerHTML = '';
+                    return;
+                }
+                
+                log(`Found ${result.paths.length} paths for ${target}`, 'success');
+                
+                // Visualize the recipes
+                visualizePaths(result.paths, target);
+                
+                // Show detailed recipe paths
+                showRecipeDetails(result.paths);
+                
+            } catch (error) {
+                log(`Search failed: ${error.message}`, 'error');
+            }
+        });
+        
+        // Enable debug mode
+        document.getElementById('debugBtn').addEventListener('click', () => {
+            const btn = document.getElementById('debugBtn');
+            const isDebugEnabled = btn.textContent === 'Disable Debug Mode';
+            
+            if (isDebugEnabled) {
+                btn.textContent = 'Enable Debug Mode';
+                log('Debug mode disabled');
+            } else {
+                btn.textContent = 'Disable Debug Mode';
+                log('Debug mode enabled - will show detailed traversal information');
+            }
+        });
+        
+        // Visualize recipe paths using D3.js
+        function visualizePaths(paths, targetElement) {
+            // Transform the first path into a tree structure for visualization
+            if (!paths || paths.length === 0) return;
+            
+            const firstPath = paths[0];
+            
+            // Build hierarchical data for tree visualization
+            const treeData = buildTreeFromPath(firstPath, targetElement);
+            
+            // Set up dimensions
+            const margin = {top: 20, right: 90, bottom: 30, left: 90};
+            const width = 960 - margin.left - margin.right;
+            const height = 500 - margin.top - margin.bottom;
+            
+            // Clear previous visualization
+            document.getElementById('visualization').innerHTML = '';
+            
+            // Create SVG
+            const svg = d3.select("#visualization")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // Create tree layout
+            const treeLayout = d3.tree().size([height, width]);
+            
+            // Convert data to hierarchy
+            const root = d3.hierarchy(treeData);
+            
+            // Assign x and y coordinates
+            treeLayout(root);
+            
+            // Add links
+            svg.selectAll(".link")
+                .data(root.links())
+                .enter()
+                .append("path")
+                .attr("class", "link")
+                .attr("d", d => {
+                    return `M${d.target.y},${d.target.x}
+                            C${(d.source.y + d.target.y) / 2},${d.target.x}
+                             ${(d.source.y + d.target.y) / 2},${d.source.x}
+                             ${d.source.y},${d.source.x}`;
+                });
+            
+            // Add nodes
+            const node = svg.selectAll(".node")
+                .data(root.descendants())
+                .enter()
+                .append("g")
+                .attr("class", "node")
+                .attr("transform", d => `translate(${d.y},${d.x})`);
+            
+            // Add node circles
+            node.append("circle")
+                .attr("r", 10)
+                .style("fill", d => {
+                    if (d.data.name === targetElement) return "#4CAF50";
+                    if (["Earth", "Fire", "Water", "Air"].includes(d.data.name)) return "#FFC107";
+                    return "lightsteelblue";
+                });
+            
+            // Add node labels
+            node.append("text")
+                .attr("dy", ".35em")
+                .attr("x", d => d.children ? -13 : 13)
+                .style("text-anchor", d => d.children ? "end" : "start")
+                .text(d => d.data.name);
+        }
+        
+        // Build tree structure from path
+        function buildTreeFromPath(path, targetElement) {
+            // Simple approach: convert flat path to hierarchical tree
+            const root = { name: targetElement, children: [] };
+            
+            // Process the path in reverse to build the tree (from target back to ingredients)
+            for (let i = path.length - 1; i >= 0; i--) {
+                const node = path[i];
+                if (!node.ingredients || node.ingredients.length !== 2) continue;
+                
+                // Find where to attach this node in tree
+                let currentNode = root;
+                if (node.element === targetElement) {
+                    // This is the final combination that creates the target
+                    currentNode.children = [
+                        { name: node.ingredients[0], children: [] },
+                        { name: node.ingredients[1], children: [] }
+                    ];
+                } else {
+                    // Find where this node should attach in the tree
+                    const nodeToAttachTo = findNodeByName(root, node.element);
+                    if (nodeToAttachTo) {
+                        nodeToAttachTo.children = [
+                            { name: node.ingredients[0], children: [] },
+                            { name: node.ingredients[1], children: [] }
+                        ];
+                    }
+                }
+            }
+            
+            return root;
+        }
+        
+        // Helper to find a node by name in the tree
+        function findNodeByName(root, name) {
+            if (root.name === name) return root;
+            if (!root.children) return null;
+            
+            for (const child of root.children) {
+                const found = findNodeByName(child, name);
+                if (found) return found;
+            }
+            
+            return null;
+        }
+        
+        // Show detailed recipe information
+        function showRecipeDetails(paths) {
+            const container = document.getElementById('recipe-details');
+            container.innerHTML = '<h3>Recipe Paths</h3>';
+            
+            paths.forEach((path, index) => {
+                const pathDiv = document.createElement('div');
+                pathDiv.className = 'recipe-path';
+                pathDiv.innerHTML = `<h4>Path ${index + 1}</h4>`;
+                
+                // Create a representation of the recipe path
+                let currentElements = new Set(); // Track available elements
+                const baseElements = ["Earth", "Fire", "Water", "Air"];
+                
+                // Start with base elements
+                baseElements.forEach(elem => currentElements.add(elem));
+                
+                // Process each step
+                for (let i = 0; i < path.length; i++) {
+                    const node = path[i];
+                    if (!node.ingredients || node.ingredients.length !== 2) continue;
+                    
+                    const step = document.createElement('div');
+                    step.className = 'recipe-step';
+                    
+                    // Format the step: Ingredient1 + Ingredient2 = Result
+                    const elem1 = document.createElement('span');
+                    elem1.className = `element-box ${baseElements.includes(node.ingredients[0]) ? 'base-element' : ''}`;
+                    elem1.textContent = node.ingredients[0];
+                    
+                    const plus = document.createElement('span');
+                    plus.className = 'plus';
+                    plus.textContent = '+';
+                    
+                    const elem2 = document.createElement('span');
+                    elem2.className = `element-box ${baseElements.includes(node.ingredients[1]) ? 'base-element' : ''}`;
+                    elem2.textContent = node.ingredients[1];
+                    
+                    const equals = document.createElement('span');
+                    equals.className = 'plus';
+                    equals.textContent = '=';
+                    
+                    const result = document.createElement('span');
+                    result.className = 'element-box result-element';
+                    result.textContent = node.element;
+                    
+                    step.appendChild(elem1);
+                    step.appendChild(plus);
+                    step.appendChild(elem2);
+                    step.appendChild(equals);
+                    step.appendChild(result);
+                    
+                    // Add to recipe display
+                    pathDiv.appendChild(step);
+                    
+                    // Update available elements
+                    currentElements.add(node.element);
+                }
+                
+                container.appendChild(pathDiv);
+            });
+        }
+    </script>
+</body>
+</html>
