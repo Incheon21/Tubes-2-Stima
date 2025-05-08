@@ -1,3 +1,4 @@
+d/debug.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -57,6 +58,8 @@
             cursor: pointer;
             border-radius: 4px;
             font-size: 14px;
+            margin-right: 8px;
+            margin-bottom: 8px;
         }
         button:hover {
             background-color: #45a049;
@@ -139,6 +142,9 @@
             border: 1px solid #81d4fa;
             padding: 5px 10px;
             border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         .base-element {
             background: #fff9c4;
@@ -148,6 +154,45 @@
             background: #c8e6c9;
             border: 1px solid #81c784;
         }
+        .tree-selector {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .tree-selector button {
+            margin: 0 5px;
+        }
+        .active-button {
+            background-color: #2196F3 !important;
+        }
+        .tree-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #fafafa;
+        }
+        .tree-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .element-image {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+        .test-connection-panel {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -155,7 +200,15 @@
     
     <div class="container">
         <div class="control-panel panel">
-            <h2>Search Configuration</h2>
+            <h2>Recipe Tree Visualization</h2>
+            
+            <div class="test-connection-panel">
+                <div class="form-group">
+                    <label for="serverUrl">Server URL:</label>
+                    <input type="text" id="serverUrl" value="http://localhost:8080" placeholder="e.g., http://localhost:8080">
+                </div>
+                <button id="testConnBtn">Test Connection</button>
+            </div>
             
             <div class="form-group">
                 <label for="target">Target Element:</label>
@@ -163,27 +216,20 @@
             </div>
             
             <div class="form-group">
-                <label for="algorithm">Algorithm:</label>
-                <select id="algorithm">
-                    <option value="bfs">BFS</option>
-                    <option value="dfs">DFS</option>
-                    <option value="bidirectional">Bidirectional</option>
+                <label for="treeType">Tree Type:</label>
+                <select id="treeType">
+                    <option value="best-recipes-tree">Best Recipe Tree</option>
+                    <option value="multiple-recipes-tree">Multiple Recipe Trees</option>
                 </select>
             </div>
             
             <div class="form-group">
-                <label for="maxResults">Max Results:</label>
-                <input type="number" id="maxResults" value="3" min="1" max="10">
+                <label for="treeCount">Number of Trees:</label>
+                <input type="number" id="treeCount" value="3" min="1" max="5">
             </div>
             
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" id="singlePath"> Single Path Only
-                </label>
-            </div>
-            
-            <button id="searchBtn">Search</button>
-            <button id="debugBtn">Enable Debug Mode</button>
+            <button id="visualizeBtn">Visualize Recipe Trees</button>
+            <button id="clearBtn">Clear Visualization</button>
             
             <h2>Debug Log</h2>
             <div id="log"></div>
@@ -198,14 +244,19 @@
                     <div class="stat-value" id="nodes-stat">0</div>
                 </div>
                 <div class="stat-box">
-                    <div>Paths Found</div>
-                    <div class="stat-value" id="paths-stat">0</div>
+                    <div>Trees Found</div>
+                    <div class="stat-value" id="trees-stat">0</div>
                 </div>
             </div>
         </div>
         
         <div class="visualization-panel panel">
-            <h2>Recipe Visualization</h2>
+            <h2>Tree Visualization</h2>
+            
+            <div id="tree-selector" class="tree-selector" style="display: none;">
+                <!-- Tree selector buttons will be added here -->
+            </div>
+            
             <div id="visualization"></div>
             
             <div id="recipe-details">
@@ -217,6 +268,13 @@
     <script>
         // Elements cache
         let allElements = [];
+        let currentTrees = [];
+        let currentTreeIndex = 0;
+        
+        // Get server URL
+        function getServerUrl() {
+            return document.getElementById('serverUrl').value.trim();
+        }
         
         // Log function
         function log(message, type = 'debug') {
@@ -228,11 +286,36 @@
             logElement.scrollTop = logElement.scrollHeight;
         }
 
-        // Fetch all elements when page loads
-        window.addEventListener('DOMContentLoaded', async () => {
+        // Test connection button
+        document.getElementById('testConnBtn').addEventListener('click', async () => {
+            const serverUrl = getServerUrl();
+            log(`Testing connection to ${serverUrl}...`);
+            
             try {
+                const response = await fetch(`${serverUrl}/api/elements`);
+                if (response.ok) {
+                    log(`Connection successful! Server is running at ${serverUrl}`, 'success');
+                    
+                    // Try to load elements
+                    await loadElements();
+                } else {
+                    log(`Connection failed: Server responded with status ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`Connection failed: ${error.message}`, 'error');
+                log('Please check that:');
+                log('1. The server is running');
+                log('2. The URL is correct');
+                log('3. CORS is enabled on the server');
+            }
+        });
+
+        // Load elements from server
+        async function loadElements() {
+            try {
+                const serverUrl = getServerUrl();
                 log('Fetching all elements...');
-                const response = await fetch('http://localhost:8080/api/elements');
+                const response = await fetch(`${serverUrl}/api/elements`);
                 if (!response.ok) {
                     throw new Error(`HTTP Error: ${response.status}`);
                 }
@@ -242,6 +325,13 @@
                 
                 // Populate target datalist
                 const uniqueTargets = [...new Set(allElements.map(e => e.name))].sort();
+                
+                // Remove existing datalist if any
+                const existingDatalist = document.getElementById('element-list');
+                if (existingDatalist) {
+                    existingDatalist.remove();
+                }
+                
                 const datalist = document.createElement('datalist');
                 datalist.id = 'element-list';
                 
@@ -253,17 +343,29 @@
                 
                 document.body.appendChild(datalist);
                 document.getElementById('target').setAttribute('list', 'element-list');
+                return true;
             } catch (error) {
                 log(`Failed to fetch elements: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // Fetch all elements when page loads
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await loadElements();
+            } catch (error) {
+                log('Could not automatically load elements on page load.', 'debug');
+                log('Use the "Test Connection" button to connect to the server.', 'debug');
             }
         });
         
-        // Search button click handler
-        document.getElementById('searchBtn').addEventListener('click', async () => {
+        // Visualize button click handler
+        document.getElementById('visualizeBtn').addEventListener('click', async () => {
+            const serverUrl = getServerUrl();
             const target = document.getElementById('target').value;
-            const algorithm = document.getElementById('algorithm').value;
-            const maxResults = parseInt(document.getElementById('maxResults').value);
-            const singlePath = document.getElementById('singlePath').checked;
+            const treeType = document.getElementById('treeType').value;
+            const treeCount = parseInt(document.getElementById('treeCount').value);
             
             if (!target) {
                 log('Please enter a target element', 'error');
@@ -271,85 +373,113 @@
             }
             
             try {
-                log(`Searching for ${target} using ${algorithm.toUpperCase()}...`);
+                log(`Fetching ${treeType} for ${target}...`);
                 
-                const requestBody = {
-                    targetElement: target,
-                    algorithm: algorithm,
-                    maxResults: maxResults,
-                    singlePath: singlePath
-                };
+                const url = `${serverUrl}/api/${treeType}/${encodeURIComponent(target)}?count=${treeCount}`;
+                log(`Requesting URL: ${url}`);
                 
-                const response = await fetch('http://localhost:8080/api/search', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(requestBody)
-                });
+                const response = await fetch(url);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP Error: ${response.status}`);
                 }
                 
                 const result = await response.json();
+                log('Data received successfully', 'success');
                 
                 // Update stats
                 document.getElementById('time-stat').textContent = result.timeElapsed || 0;
                 document.getElementById('nodes-stat').textContent = result.nodesVisited || 0;
-                document.getElementById('paths-stat').textContent = result.paths?.length || 0;
                 
-                if (!result.paths || result.paths.length === 0) {
-                    log(`No paths found for ${target}`, 'error');
-                    document.getElementById('visualization').innerHTML = '<div style="padding: 20px; text-align: center;">No paths found</div>';
+                if (!result.trees || result.trees.length === 0) {
+                    log(`No recipe trees found for ${target}`, 'error');
+                    document.getElementById('visualization').innerHTML = '<div style="padding: 20px; text-align: center;">No recipe trees found</div>';
+                    document.getElementById('tree-selector').style.display = 'none';
                     document.getElementById('recipe-details').innerHTML = '';
+                    document.getElementById('trees-stat').textContent = 0;
                     return;
                 }
                 
-                log(`Found ${result.paths.length} paths for ${target}`, 'success');
+                // Store the trees for navigation
+                currentTrees = result.trees;
+                currentTreeIndex = 0;
                 
-                // Visualize the recipes
-                visualizePaths(result.paths, target);
+                // Update trees count
+                document.getElementById('trees-stat').textContent = currentTrees.length;
                 
-                // Show detailed recipe paths
-                showRecipeDetails(result.paths);
+                log(`Found ${currentTrees.length} recipe trees for ${target}`, 'success');
+                
+                // Setup tree selector if multiple trees
+                setupTreeSelector(currentTrees.length);
+                
+                // Visualize the first tree
+                visualizeTree(currentTrees[0], target);
                 
             } catch (error) {
-                log(`Search failed: ${error.message}`, 'error');
+                log(`Visualization failed: ${error.message}`, 'error');
             }
         });
         
-        // Enable debug mode
-        document.getElementById('debugBtn').addEventListener('click', () => {
-            const btn = document.getElementById('debugBtn');
-            const isDebugEnabled = btn.textContent === 'Disable Debug Mode';
+        // Clear button click handler
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            document.getElementById('visualization').innerHTML = '';
+            document.getElementById('recipe-details').innerHTML = '';
+            document.getElementById('tree-selector').style.display = 'none';
+            currentTrees = [];
+            currentTreeIndex = 0;
             
-            if (isDebugEnabled) {
-                btn.textContent = 'Enable Debug Mode';
-                log('Debug mode disabled');
-            } else {
-                btn.textContent = 'Disable Debug Mode';
-                log('Debug mode enabled - will show detailed traversal information');
-            }
+            // Reset stats
+            document.getElementById('time-stat').textContent = 0;
+            document.getElementById('nodes-stat').textContent = 0;
+            document.getElementById('trees-stat').textContent = 0;
+            
+            log('Visualization cleared');
         });
         
-        // Visualize recipe paths using D3.js
-        function visualizePaths(paths, targetElement) {
-            // Transform the first path into a tree structure for visualization
-            if (!paths || paths.length === 0) return;
+        // Setup tree selector buttons
+        function setupTreeSelector(treeCount) {
+            const selector = document.getElementById('tree-selector');
+            selector.innerHTML = '';
             
-            const firstPath = paths[0];
+            if (treeCount <= 1) {
+                selector.style.display = 'none';
+                return;
+            }
             
-            // Build hierarchical data for tree visualization
-            const treeData = buildTreeFromPath(firstPath, targetElement);
+            selector.style.display = 'block';
             
-            // Set up dimensions
-            const margin = {top: 20, right: 90, bottom: 30, left: 90};
-            const width = 960 - margin.left - margin.right;
-            const height = 500 - margin.top - margin.bottom;
-            
+            for (let i = 0; i < treeCount; i++) {
+                const button = document.createElement('button');
+                button.textContent = `Tree ${i + 1}`;
+                button.dataset.index = i;
+                if (i === 0) button.classList.add('active-button');
+                
+                button.addEventListener('click', (e) => {
+                    // Update active button
+                    document.querySelectorAll('#tree-selector button').forEach(btn => {
+                        btn.classList.remove('active-button');
+                    });
+                    e.target.classList.add('active-button');
+                    
+                    // Update tree display
+                    const index = parseInt(e.target.dataset.index);
+                    currentTreeIndex = index;
+                    visualizeTree(currentTrees[index], document.getElementById('target').value);
+                });
+                
+                selector.appendChild(button);
+            }
+        }
+        
+        // Visualize a recipe tree using D3.js
+        function visualizeTree(treeData, targetElement) {
             // Clear previous visualization
             document.getElementById('visualization').innerHTML = '';
+            
+            // Set up dimensions
+            const margin = {top: 40, right: 90, bottom: 50, left: 90};
+            const width = 960 - margin.left - margin.right;
+            const height = 500 - margin.top - margin.bottom;
             
             // Create SVG
             const svg = d3.select("#visualization")
@@ -359,11 +489,23 @@
                 .append("g")
                 .attr("transform", `translate(${margin.left},${margin.top})`);
             
+            // Add title
+            svg.append("text")
+                .attr("x", width / 2)
+                .attr("y", -20)
+                .attr("text-anchor", "middle")
+                .style("font-size", "16px")
+                .style("font-weight", "bold")
+                .text(`Recipe Tree for ${targetElement}`);
+            
+            // Process the data for d3 hierarchy
+            const hierarchyData = processTreeData(treeData);
+            
             // Create tree layout
             const treeLayout = d3.tree().size([height, width]);
             
             // Convert data to hierarchy
-            const root = d3.hierarchy(treeData);
+            const root = d3.hierarchy(hierarchyData);
             
             // Assign x and y coordinates
             treeLayout(root);
@@ -393,8 +535,8 @@
             node.append("circle")
                 .attr("r", 10)
                 .style("fill", d => {
-                    if (d.data.name === targetElement) return "#4CAF50";
-                    if (["Earth", "Fire", "Water", "Air"].includes(d.data.name)) return "#FFC107";
+                    if (d.data.isBaseElement) return "#FFC107";
+                    if (d.depth === 0) return "#4CAF50"; // Root node
                     return "lightsteelblue";
                 });
             
@@ -404,116 +546,129 @@
                 .attr("x", d => d.children ? -13 : 13)
                 .style("text-anchor", d => d.children ? "end" : "start")
                 .text(d => d.data.name);
+            
+            // Show detail panel for the tree
+            showTreeDetails(treeData);
         }
         
-        // Build tree structure from path
-        function buildTreeFromPath(path, targetElement) {
-            // Simple approach: convert flat path to hierarchical tree
-            const root = { name: targetElement, children: [] };
-            
-            // Process the path in reverse to build the tree (from target back to ingredients)
-            for (let i = path.length - 1; i >= 0; i--) {
-                const node = path[i];
-                if (!node.ingredients || node.ingredients.length !== 2) continue;
-                
-                // Find where to attach this node in tree
-                let currentNode = root;
-                if (node.element === targetElement) {
-                    // This is the final combination that creates the target
-                    currentNode.children = [
-                        { name: node.ingredients[0], children: [] },
-                        { name: node.ingredients[1], children: [] }
-                    ];
-                } else {
-                    // Find where this node should attach in the tree
-                    const nodeToAttachTo = findNodeByName(root, node.element);
-                    if (nodeToAttachTo) {
-                        nodeToAttachTo.children = [
-                            { name: node.ingredients[0], children: [] },
-                            { name: node.ingredients[1], children: [] }
-                        ];
-                    }
-                }
+        // Convert API tree format to D3 hierarchy format
+        // ...existing code...
+// Convert API tree format to D3 hierarchy format
+function processTreeData(treeData) {
+    function convertNode(node) {
+        const result = {
+            name: node.name,
+            isBaseElement: node.isBaseElement || false,
+            isCircularReference: node.isCircularReference || false,
+            noRecipe: node.noRecipe || false,
+            imagePath: node.imagePath || null,
+            children: []
+        };
+        
+        if (node.ingredients && Array.isArray(node.ingredients)) {
+            // Always include all ingredients, even if they're circular references
+            result.children = node.ingredients.map(ing => convertNode(ing));
+        }
+        
+        return result;
+    }
+    
+    return convertNode(treeData);
+}
+
+// Show detailed tree information
+function showTreeDetails(treeData) {
+    const container = document.getElementById('recipe-details');
+    container.innerHTML = '<h3>Recipe Tree Details</h3>';
+    
+    // Create container for tree info
+    const treeContainer = document.createElement('div');
+    treeContainer.className = 'tree-container';
+    
+    // Add title for this tree with image
+    const treeTitle = document.createElement('div');
+    treeTitle.className = 'tree-title';
+    
+    // Add image if available
+    if (treeData.imagePath) {
+        const img = document.createElement('img');
+        img.src = treeData.imagePath;
+        img.alt = treeData.name;
+        img.className = 'element-image';
+        treeTitle.appendChild(img);
+    }
+    
+    const titleText = document.createElement('span');
+    titleText.textContent = `Recipe for ${treeData.name}`;
+    treeTitle.appendChild(titleText);
+    
+    treeContainer.appendChild(treeTitle);
+    
+    // Function to recursively display the tree
+    function displayTree(node, container, depth = 0, visited = new Set()) {
+        const nodeDiv = document.createElement('div');
+        nodeDiv.style.paddingLeft = `${depth * 20}px`;
+        nodeDiv.style.marginBottom = '5px';
+        
+        // Create element display
+        const elementSpan = document.createElement('span');
+        elementSpan.className = `element-box ${node.isBaseElement ? 'base-element' : (depth === 0 ? 'result-element' : '')}`;
+        
+        // Add image if available
+        if (node.imagePath) {
+            const img = document.createElement('img');
+            img.src = node.imagePath;
+            img.alt = node.name;
+            img.className = 'element-image';
+            elementSpan.appendChild(img);
+        }
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = node.name;
+        elementSpan.appendChild(nameSpan);
+        
+        nodeDiv.appendChild(elementSpan);
+        
+        // Add special indicators
+        if (node.isCircularReference) {
+            const circRef = document.createElement('span');
+            circRef.textContent = ' (circular reference)';
+            circRef.style.color = '#F44336';
+            nodeDiv.appendChild(circRef);
+        }
+        
+        if (node.noRecipe) {
+            const noRecipe = document.createElement('span');
+            noRecipe.textContent = ' (no recipe)';
+            noRecipe.style.color = '#FF9800';
+            nodeDiv.appendChild(noRecipe);
+        }
+        
+        container.appendChild(nodeDiv);
+        
+        // Process ingredients if any
+        if (node.ingredients && node.ingredients.length > 0) {
+            // Add a "made from" text if this node has ingredients
+            if (depth === 0) {
+                const madeFrom = document.createElement('div');
+                madeFrom.style.paddingLeft = `${depth * 20 + 10}px`;
+                madeFrom.textContent = 'Made from:';
+                madeFrom.style.fontWeight = 'bold';
+                madeFrom.style.marginTop = '5px';
+                container.appendChild(madeFrom);
             }
             
-            return root;
-        }
-        
-        // Helper to find a node by name in the tree
-        function findNodeByName(root, name) {
-            if (root.name === name) return root;
-            if (!root.children) return null;
-            
-            for (const child of root.children) {
-                const found = findNodeByName(child, name);
-                if (found) return found;
-            }
-            
-            return null;
-        }
-        
-        // Show detailed recipe information
-        function showRecipeDetails(paths) {
-            const container = document.getElementById('recipe-details');
-            container.innerHTML = '<h3>Recipe Paths</h3>';
-            
-            paths.forEach((path, index) => {
-                const pathDiv = document.createElement('div');
-                pathDiv.className = 'recipe-path';
-                pathDiv.innerHTML = `<h4>Path ${index + 1}</h4>`;
-                
-                // Create a representation of the recipe path
-                let currentElements = new Set(); // Track available elements
-                const baseElements = ["Earth", "Fire", "Water", "Air"];
-                
-                // Start with base elements
-                baseElements.forEach(elem => currentElements.add(elem));
-                
-                // Process each step
-                for (let i = 0; i < path.length; i++) {
-                    const node = path[i];
-                    if (!node.ingredients || node.ingredients.length !== 2) continue;
-                    
-                    const step = document.createElement('div');
-                    step.className = 'recipe-step';
-                    
-                    // Format the step: Ingredient1 + Ingredient2 = Result
-                    const elem1 = document.createElement('span');
-                    elem1.className = `element-box ${baseElements.includes(node.ingredients[0]) ? 'base-element' : ''}`;
-                    elem1.textContent = node.ingredients[0];
-                    
-                    const plus = document.createElement('span');
-                    plus.className = 'plus';
-                    plus.textContent = '+';
-                    
-                    const elem2 = document.createElement('span');
-                    elem2.className = `element-box ${baseElements.includes(node.ingredients[1]) ? 'base-element' : ''}`;
-                    elem2.textContent = node.ingredients[1];
-                    
-                    const equals = document.createElement('span');
-                    equals.className = 'plus';
-                    equals.textContent = '=';
-                    
-                    const result = document.createElement('span');
-                    result.className = 'element-box result-element';
-                    result.textContent = node.element;
-                    
-                    step.appendChild(elem1);
-                    step.appendChild(plus);
-                    step.appendChild(elem2);
-                    step.appendChild(equals);
-                    step.appendChild(result);
-                    
-                    // Add to recipe display
-                    pathDiv.appendChild(step);
-                    
-                    // Update available elements
-                    currentElements.add(node.element);
-                }
-                
-                container.appendChild(pathDiv);
+            // Recursively display each ingredient - always show, even if circular
+            node.ingredients.forEach(ingredient => {
+                displayTree(ingredient, container, depth + 1);
             });
         }
+    }
+    
+    // Display the tree
+    displayTree(treeData, treeContainer);
+    container.appendChild(treeContainer);
+}
     </script>
 </body>
 </html>

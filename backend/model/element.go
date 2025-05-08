@@ -8,7 +8,7 @@ type ElementRecipe struct {
 //struktur untuk elemen
 type Element struct {
 	Name       string          `json:"name"`
-	Image      string          `json:"image,omitempty"`
+	ImagePath    string          `json:"image,omitempty"`
 	LocalImage string          `json:"localImage,omitempty"`
 	Recipes    []ElementRecipe `json:"recipes,omitempty"`
 	Tier       int             `json:"tier"`
@@ -32,5 +32,8 @@ type SearchResult struct {
 //struct node untuk menyimpan elemen dan ingredientnya
 type Node struct {
 	Element     string   `json:"element"`
+	ImagePath		string   `json:"image,omitempty"`
 	Ingredients []string `json:"ingredients,omitempty"`
 }
+
+

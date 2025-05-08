@@ -20292,6 +20292,12 @@
       },
       {
         "ingredients": [
+          "Clay",
+          "Stone"
+        ]
+      },
+      {
+        "ingredients": [
           "Mud",
           "Sun"
         ]
@@ -20306,12 +20312,6 @@
         "ingredients": [
           "Clay",
           "Sun"
-        ]
-      },
-      {
-        "ingredients": [
-          "Clay",
-          "Stone"
         ]
       }
     ],
