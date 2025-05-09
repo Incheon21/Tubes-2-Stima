@@ -156,7 +156,9 @@ func (h *Handler) HandleBestRecipes(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) HandleMultipleRecipesTree(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+
 	log.Printf("DEBUG: Starting HandleMultipleRecipesTree request")
+
 	pathParts := strings.Split(strings.TrimPrefix(r.URL.Path, "/api/multiple-recipes-tree/"), "/")
 	if len(pathParts) < 1 {
 		http.Error(w, "Invalid URL format. Use /api/multiple-recipes-tree/{elementName}?count=N&algorithm=algo", http.StatusBadRequest)
@@ -174,7 +176,7 @@ func (h *Handler) HandleMultipleRecipesTree(w http.ResponseWriter, r *http.Reque
 	}
 	log.Printf("DEBUG: Requested recipe tree count: %d", count)
 
-	algorithm := "dfs" // Default to DFS
+	algorithm := "dfs"
 	if algoParam := r.URL.Query().Get("algorithm"); algoParam != "" {
 		algorithm = strings.ToLower(algoParam)
 	}
@@ -205,6 +207,7 @@ func (h *Handler) HandleMultipleRecipesTree(w http.ResponseWriter, r *http.Reque
 				}},
 				"nodesVisited": 1,
 				"timeElapsed":  0,
+				"algorithm":    algorithm,
 			}
 
 			if err := json.NewEncoder(w).Encode(result); err != nil {
@@ -217,136 +220,61 @@ func (h *Handler) HandleMultipleRecipesTree(w http.ResponseWriter, r *http.Reque
 
 	startTime := time.Now()
 	g := utils.CreateElementGraph(h.elements)
-	node := g.Nodes[elementName]
 
-	candidateTrees := make([]map[string]interface{}, 0)
-	treeVisitCounts := make([]int, 0)
-	totalVisitedNodesCount := 0
+	var finalTrees []map[string]interface{}
+	var totalVisitedNodesCount int
 
-	if len(node.RecipesToMakeThisElement) == 0 {
-		tree := map[string]interface{}{
-			"name":        elementName,
-			"imagePath":   element.ImagePath,
-			"ingredients": []interface{}{},
-			"noRecipe":    true,
-		}
-		candidateTrees = append(candidateTrees, tree)
-		treeVisitCounts = append(treeVisitCounts, 0)
-	} else {
-		for _, recipe := range node.RecipesToMakeThisElement {
-			if len(recipe.Ingredients) == 0 {
-				continue
-			}
-			log.Printf("DEBUG: Processing recipe with ingredients: %v", recipe.Ingredients)
-			recipeVisitCount := 0
-			generatedTrees := utils.GenerateTreesForRecipe(
-				g, elementName, element.ImagePath, recipe, &recipeVisitCount, count, algorithm)
-			for _, tree := range generatedTrees {
-				treeIngredients, _ := tree["ingredients"].([]interface{})
-				if len(treeIngredients) != len(recipe.Ingredients) {
-					log.Printf("DEBUG: Skipping tree with incomplete ingredients (%d/%d)",
-						len(treeIngredients), len(recipe.Ingredients))
-					continue
-				}
+	if algorithm == "bfs" {
+		paths, visited := alg.MultiThreadedBFS(h.elements, elementName, count*3, false)
+		totalVisitedNodesCount = visited
 
-				isUnique := true
-				for _, existingTree := range candidateTrees {
-					if utils.CompareTreeIngredientsDeep(existingTree, tree) {
-						isUnique = false
-						break
-					}
-				}
+		uniqueTrees := make([]map[string]interface{}, 0)
+		uniqueSignatures := make(map[string]bool)
 
-				if isUnique {
-					candidateTrees = append(candidateTrees, tree)
-					treeVisitCounts = append(treeVisitCounts, recipeVisitCount)
-					totalVisitedNodesCount += recipeVisitCount
-					log.Printf("DEBUG: Added recipe tree with unique ingredient paths (nodes visited: %d)",
-						recipeVisitCount)
-				}
-			}
-		}
-	}
-	if len(candidateTrees) < count {
-		explorationLimit := count * 3
-		if explorationLimit > 20 {
-			explorationLimit = 20
-		}
-		log.Printf("DEBUG: Trying %s to find additional paths (exploration limit: %d)",
-			strings.ToUpper(algorithm), explorationLimit)
-		var paths [][]model.Node
-		var visited int
-		switch algorithm {
-		case "bfs":
-			paths, visited = alg.MultiThreadedBFS(h.elements, elementName, explorationLimit, false)
-		case "dfs":
-			paths, visited = alg.DFS(h.elements, elementName, explorationLimit, true)
-		}
-		totalVisitedNodesCount += visited
 		for _, path := range paths {
-			if len(candidateTrees) >= count*2 {
-				break
-			}
 			if len(path) < 2 {
 				continue
 			}
+
 			pathVisitCount := 0
 			tree := utils.ConvertPathToCompleteTree(path, h.elements, &pathVisitCount, algorithm)
-			isUnique := true
-			for _, existingTree := range candidateTrees {
-				if utils.CompareTreeIngredientsDeep(existingTree, tree) {
-					isUnique = false
+
+			signature := utils.GenerateDetailedTreeSignature(tree)
+			if !uniqueSignatures[signature] {
+				uniqueSignatures[signature] = true
+				uniqueTrees = append(uniqueTrees, tree)
+				totalVisitedNodesCount += pathVisitCount
+
+				if len(uniqueTrees) >= count {
 					break
 				}
 			}
-			if isUnique {
-				verifyResult := utils.VerifyTreeIngredientsComplete(tree, node.RecipesToMakeThisElement)
-				if verifyResult {
-					candidateTrees = append(candidateTrees, tree)
-					treeVisitCounts = append(treeVisitCounts, pathVisitCount)
-					totalVisitedNodesCount += pathVisitCount
-					log.Printf("DEBUG: Added unique recipe tree from %s path (nodes visited: %d) using %s",
-						strings.ToUpper(algorithm), pathVisitCount, algorithm)
-				}
-			}
 		}
+
+		finalTrees = uniqueTrees
+	} else {
+		trees, visited := utils.GenerateAllRecipeVariations(g, elementName, element.ImagePath, count)
+		finalTrees = trees
+		totalVisitedNodesCount = visited
+		log.Printf("DEBUG: Generated %d unique recipe trees after visiting %d nodes",
+			len(trees), visited)
 	}
-	if len(candidateTrees) == 0 {
+
+	if len(finalTrees) == 0 {
 		visited := make(map[string]bool)
 		visitCount := 0
 		var tree map[string]interface{}
+
 		if algorithm == "bfs" {
 			tree = utils.BuildElementTreeBFS(g, elementName, visited, &visitCount)
-		} else if algorithm == "dfs" {
-			tree = utils.BuildElementTreeDFS(g, elementName, visited, &visitCount)
+		} else {
+			tree = utils.BuildElementTreeBFS(g, elementName, visited, &visitCount)
 		}
-		candidateTrees = append(candidateTrees, tree)
-		treeVisitCounts = append(treeVisitCounts, visitCount)
+
+		finalTrees = []map[string]interface{}{tree}
 		totalVisitedNodesCount += visitCount
 		log.Printf("DEBUG: Added fallback element tree using %s (nodes visited: %d)",
 			strings.ToUpper(algorithm), visitCount)
-	}
-
-	type TreeWithCost struct {
-		Tree map[string]interface{}
-		Cost int
-	}
-
-	rankedTrees := make([]TreeWithCost, 0, len(candidateTrees))
-	for i, tree := range candidateTrees {
-		rankedTrees = append(rankedTrees, TreeWithCost{
-			Tree: tree,
-			Cost: treeVisitCounts[i],
-		})
-	}
-
-	sort.Slice(rankedTrees, func(i, j int) bool {
-		return rankedTrees[i].Cost < rankedTrees[j].Cost
-	})
-	finalTrees := make([]map[string]interface{}, 0, count)
-	for i := 0; i < len(rankedTrees) && i < count; i++ {
-		finalTrees = append(finalTrees, rankedTrees[i].Tree)
-		log.Printf("DEBUG: Selected tree %d with cost %d", i+1, rankedTrees[i].Cost)
 	}
 
 	result := map[string]interface{}{
@@ -361,8 +289,6 @@ func (h *Handler) HandleMultipleRecipesTree(w http.ResponseWriter, r *http.Reque
 		log.Printf("Error encoding response: %v", err)
 		return
 	}
-
-	log.Printf("DEBUG: Successfully sent response with %d recipe trees", len(finalTrees))
 }
 
 func (h *Handler) HandleBestRecipesTree(w http.ResponseWriter, r *http.Request) {

@@ -373,22 +373,10 @@ func BuildElementTreeBFS(g *graph.ElementGraph, elementName string, visited map[
 	}
 }
 func BuildElementTreeDFS(g *graph.ElementGraph, elementName string, visited map[string]bool, visitedCount *int) map[string]interface{} {
-	if visited[elementName] {
-		node := g.Nodes[elementName]
-		return map[string]interface{}{
-			"name":                elementName,
-			"imagePath":           node.ImagePath,
-			"isCircularReference": true,
-		}
-	}
-
-	visited[elementName] = true
 	*visitedCount++
-
 	node := g.Nodes[elementName]
 	baseElements := []string{"Water", "Fire", "Earth", "Air"}
 
-	// Check if it's a base element
 	for _, base := range baseElements {
 		if elementName == base {
 			return map[string]interface{}{
@@ -401,7 +389,7 @@ func BuildElementTreeDFS(g *graph.ElementGraph, elementName string, visited map[
 	}
 
 	if len(node.RecipesToMakeThisElement) == 0 {
-		// No recipe found, might be a base element not in our list
+		// No recipe found
 		return map[string]interface{}{
 			"name":        elementName,
 			"imagePath":   node.ImagePath,
@@ -409,21 +397,11 @@ func BuildElementTreeDFS(g *graph.ElementGraph, elementName string, visited map[
 			"noRecipe":    true,
 		}
 	}
+
 	var bestRecipe *graph.Recipe
 	var bestPathLength = 9999
 
 	for _, recipe := range node.RecipesToMakeThisElement {
-		selfReferential := false
-		for _, ing := range recipe.Ingredients {
-			if ing == elementName {
-				selfReferential = true
-				break
-			}
-		}
-		if selfReferential {
-			continue
-		}
-
 		totalPathLength := 0
 		for _, ingredient := range recipe.Ingredients {
 			if IsBaseElementName(ingredient, baseElements) {
@@ -436,19 +414,23 @@ func BuildElementTreeDFS(g *graph.ElementGraph, elementName string, visited map[
 				}
 			}
 		}
+
 		if totalPathLength < bestPathLength {
 			bestPathLength = totalPathLength
 			bestRecipe = recipe
 		}
 	}
+
 	if bestRecipe == nil && len(node.RecipesToMakeThisElement) > 0 {
 		bestRecipe = node.RecipesToMakeThisElement[0]
 	}
+
 	ingredients := make([]interface{}, 0, len(bestRecipe.Ingredients))
 	for _, ingredientName := range bestRecipe.Ingredients {
 		ingredientTree := BuildElementTreeDFS(g, ingredientName, visited, visitedCount)
 		ingredients = append(ingredients, ingredientTree)
 	}
+
 	return map[string]interface{}{
 		"name":        elementName,
 		"imagePath":   node.ImagePath,

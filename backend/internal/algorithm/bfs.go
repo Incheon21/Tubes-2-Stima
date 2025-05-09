@@ -14,7 +14,6 @@ import (
 
 // parameternya -> graf yg ud dibuat, target yg mau dicari, max hasil yg mau diambil, singlePath buat ambil satu path doang
 func BFS(elements map[string]model.Element, target string, maxResults int, singlePath bool) ([][]model.Node, int) {
-	// Build the graph once
 	g := graph.NewElementGraph(elements)
 
 	//validasi ada ato engga
