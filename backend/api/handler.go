@@ -47,6 +47,8 @@ func (h *Handler) HandleSearch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Printf("Received search request: %+v", config)
+
 	if config.TargetElement == "" {
 		http.Error(w, "Target element is required", http.StatusBadRequest)
 		return
