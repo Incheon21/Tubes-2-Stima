@@ -389,12 +389,17 @@ document.getElementById('visualizeBtn').addEventListener('click', async () => {
         log(`Fetching ${treeType} for ${target} using ${algorithm} algorithm...`);
         
         let url;
-        // Use the specific BFS endpoint when BFS algorithm is selected
+        // Use different endpoints based on algorithm and tree type
         if (algorithm === 'bfs') {
-            // Make sure we explicitly request multiple paths
+            // Use dedicated BFS endpoint for BFS algorithm
             url = `${serverUrl}/api/bfs/${encodeURIComponent(target)}?count=${treeCount}&singlePath=false`;
             log(`Using dedicated BFS endpoint: ${url}`);
+        } else if (algorithm === 'dfs' && treeType === 'multiple-recipes-tree') {
+            // For DFS with multiple recipes, use the specialized endpoint
+            url = `${serverUrl}/api/multiple-recipes-tree/${encodeURIComponent(target)}?count=${treeCount}&algorithm=dfs`;
+            log(`Using DFS multiple recipes tree endpoint: ${url}`);
         } else {
+            // Default endpoint format
             url = `${serverUrl}/api/${treeType}/${encodeURIComponent(target)}?count=${treeCount}&algorithm=${algorithm}`;
             log(`Requesting URL: ${url}`);
         }
@@ -411,6 +416,8 @@ document.getElementById('visualizeBtn').addEventListener('click', async () => {
         // Add explicit logging for debugging
         if (algorithm === 'bfs' && result.paths) {
             log(`Received ${result.paths.length} BFS paths`);
+        } else if (result.trees) {
+            log(`Received ${result.trees.length} recipe trees`);
         }
         
         // Update stats
@@ -458,7 +465,12 @@ document.getElementById('visualizeBtn').addEventListener('click', async () => {
             if (currentTrees.length > 0) {
                 currentTreeIndex = 0;
                 visualizeTree(currentTrees[0], target);
-                log(`Visualizing recipe tree for ${target}`, 'success');
+                log(`Visualizing recipe tree 1 of ${currentTrees.length} for ${target}`, 'success');
+                
+                // Show a summary of all recipe trees
+                if (currentTrees.length > 1) {
+                    showRecipeTreesSummary(currentTrees, target);
+                }
             } else {
                 log('No recipe trees found', 'error');
                 document.getElementById('visualization').innerHTML = 
@@ -470,6 +482,217 @@ document.getElementById('visualizeBtn').addEventListener('click', async () => {
         log(`Visualization failed: ${error.message}`, 'error');
     }
 });
+
+// Add this new function to display a summary of all recipe trees
+function showRecipeTreesSummary(trees, targetElement) {
+    const container = document.getElementById('recipe-details');
+    
+    // Clear previous content
+    container.innerHTML = '<h3>Recipe Trees Summary</h3>';
+    
+    // Create a container for all trees
+    const treesContainer = document.createElement('div');
+    treesContainer.className = 'trees-summary';
+    
+    // Add summary for each tree
+    trees.forEach((tree, index) => {
+        const treeDiv = document.createElement('div');
+        treeDiv.className = 'recipe-path';
+        
+        // Create header
+        const header = document.createElement('div');
+        header.style.display = 'flex';
+        header.style.justifyContent = 'space-between';
+        header.style.alignItems = 'center';
+        header.style.marginBottom = '10px';
+        
+        // Create tree title
+        const treeTitle = document.createElement('h4');
+        treeTitle.style.margin = '0';
+        
+        // Count ingredients at the first level
+        const ingredientCount = tree.ingredients ? tree.ingredients.length : 0;
+        treeTitle.textContent = `Recipe Tree ${index + 1}: ${tree.name} (${ingredientCount} direct ingredients)`;
+        header.appendChild(treeTitle);
+        
+        // Add view button
+        const viewButton = document.createElement('button');
+        viewButton.textContent = 'View This Tree';
+        viewButton.style.marginLeft = 'auto';
+        viewButton.addEventListener('click', () => {
+            // Update tree selector
+            document.querySelectorAll('#tree-selector button').forEach(btn => {
+                btn.classList.remove('active-button');
+            });
+            
+            // Make sure the button exists before trying to access it
+            const targetButton = document.querySelector(`#tree-selector button[data-index="${index}"]`);
+            if (targetButton) {
+                targetButton.classList.add('active-button');
+            }
+            
+            // Update visualization
+            currentTreeIndex = index;
+            visualizeTree(currentTrees[index], targetElement);
+            
+            // Scroll to visualization
+            document.getElementById('visualization').scrollIntoView({behavior: 'smooth'});
+        });
+        header.appendChild(viewButton);
+        
+        treeDiv.appendChild(header);
+        
+        // Show a preview of the recipe
+        const recipePreview = document.createElement('div');
+        recipePreview.className = 'recipe-preview';
+        
+        // Create an element box for the target
+        const targetBox = document.createElement('div');
+        targetBox.className = 'element-box result-element';
+        
+        // Add image if available
+        if (tree.imagePath) {
+            const img = document.createElement('img');
+            img.src = tree.imagePath;
+            img.className = 'element-image';
+            img.alt = tree.name;
+            targetBox.appendChild(img);
+        }
+        
+        const targetName = document.createElement('span');
+        targetName.textContent = tree.name;
+        targetBox.appendChild(targetName);
+        
+        // Create a label for the recipe
+        const recipeLabel = document.createElement('div');
+        recipeLabel.textContent = 'Made from:';
+        recipeLabel.style.fontWeight = 'bold';
+        recipeLabel.style.margin = '5px 0';
+        
+        recipePreview.appendChild(targetBox);
+        recipePreview.appendChild(recipeLabel);
+        
+        // Show the ingredients
+        if (tree.ingredients && tree.ingredients.length > 0) {
+            const ingredientsContainer = document.createElement('div');
+            ingredientsContainer.className = 'ingredients-preview';
+            ingredientsContainer.style.display = 'flex';
+            ingredientsContainer.style.flexWrap = 'wrap';
+            ingredientsContainer.style.gap = '8px';
+            ingredientsContainer.style.marginLeft = '20px';
+            
+            // List all first-level ingredients
+            tree.ingredients.forEach((ingredient, i) => {
+                const ingredientBox = document.createElement('div');
+                ingredientBox.className = 'element-box';
+                
+                if (ingredient.isBaseElement) {
+                    ingredientBox.classList.add('base-element');
+                }
+                
+                // Add image if available
+                if (ingredient.imagePath) {
+                    const img = document.createElement('img');
+                    img.src = ingredient.imagePath;
+                    img.className = 'element-image';
+                    img.alt = ingredient.name;
+                    ingredientBox.appendChild(img);
+                }
+                
+                const ingredientName = document.createElement('span');
+                ingredientName.textContent = ingredient.name;
+                ingredientBox.appendChild(ingredientName);
+                
+                // Add a plus sign between ingredients, except the last one
+                if (i < tree.ingredients.length - 1) {
+                    const container = document.createElement('div');
+                    container.style.display = 'flex';
+                    container.style.alignItems = 'center';
+                    
+                    container.appendChild(ingredientBox);
+                    
+                    const plus = document.createElement('div');
+                    plus.className = 'plus';
+                    plus.textContent = '+';
+                    container.appendChild(plus);
+                    
+                    ingredientsContainer.appendChild(container);
+                } else {
+                    ingredientsContainer.appendChild(ingredientBox);
+                }
+            });
+            
+            recipePreview.appendChild(ingredientsContainer);
+        } else {
+            // No ingredients
+            const noIngredients = document.createElement('div');
+            noIngredients.textContent = 'No ingredients (base element or missing recipe)';
+            noIngredients.style.fontStyle = 'italic';
+            noIngredients.style.marginLeft = '20px';
+            recipePreview.appendChild(noIngredients);
+        }
+        
+        treeDiv.appendChild(recipePreview);
+        treesContainer.appendChild(treeDiv);
+        
+        // Add a section showing sub-recipes (recipes for the ingredients)
+        if (tree.ingredients && tree.ingredients.length > 0) {
+            const subRecipesTitle = document.createElement('div');
+            subRecipesTitle.textContent = 'Sub-recipes:';
+            subRecipesTitle.style.fontWeight = 'bold';
+            subRecipesTitle.style.margin = '10px 0 5px 0';
+            treeDiv.appendChild(subRecipesTitle);
+            
+            const subRecipesContainer = document.createElement('div');
+            subRecipesContainer.className = 'sub-recipes';
+            subRecipesContainer.style.marginLeft = '20px';
+            
+            tree.ingredients.forEach(ingredient => {
+                if (ingredient.ingredients && ingredient.ingredients.length > 0) {
+                    const subRecipe = document.createElement('div');
+                    subRecipe.className = 'sub-recipe';
+                    subRecipe.style.marginBottom = '5px';
+                    
+                    // Create element name
+                    const elementName = document.createElement('span');
+                    elementName.textContent = `${ingredient.name}: `;
+                    elementName.style.fontWeight = 'bold';
+                    subRecipe.appendChild(elementName);
+                    
+                    // List sub-ingredients
+                    const subIngredients = ingredient.ingredients.map(i => i.name).join(' + ');
+                    const subIngredientsSpan = document.createElement('span');
+                    subIngredientsSpan.textContent = subIngredients;
+                    subRecipe.appendChild(subIngredientsSpan);
+                    
+                    subRecipesContainer.appendChild(subRecipe);
+                }
+            });
+            
+            // Only add if there are sub-recipes
+            if (subRecipesContainer.children.length > 0) {
+                treeDiv.appendChild(subRecipesContainer);
+            }
+        }
+    });
+    
+    container.appendChild(treesContainer);
+    
+    // Add some styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .trees-summary {
+            margin-top: 15px;
+        }
+        .recipe-preview {
+            margin-bottom: 10px;
+        }
+        .sub-recipe {
+            padding: 3px 0;
+        }
+    `;
+    document.head.appendChild(style);
+}
 
 // Add this new function to display a summary of all BFS paths
 function showBfsPathsSummary(paths, targetElement) {

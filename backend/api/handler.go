@@ -14,6 +14,365 @@ import (
 	"time"
 )
 
+// Helper function to generate recipe variations considering all possible subtrees
+func GenerateAllRecipeVariations(
+    g *graph.ElementGraph, 
+    elementName string,
+    imagePath string,
+    maxCount int) ([]map[string]interface{}, int) {
+    
+    totalVisitedCount := 0
+    node := g.Nodes[elementName]
+    baseElements := []string{"Water", "Fire", "Earth", "Air"}
+    
+    // Check if it's a base element
+    for _, base := range baseElements {
+        if elementName == base {
+            return []map[string]interface{}{{
+                "name":          elementName,
+                "imagePath":     imagePath,
+                "ingredients":   []interface{}{},
+                "isBaseElement": true,
+            }}, 1
+        }
+    }
+    
+    // If no recipes, return empty ingredient list
+    if node == nil || len(node.RecipesToMakeThisElement) == 0 {
+        return []map[string]interface{}{{
+            "name":        elementName,
+            "imagePath":   imagePath,
+            "ingredients": []interface{}{},
+            "noRecipe":    true,
+        }}, 1
+    }
+    
+    // For each recipe of the target element, generate all possible variations
+    allTrees := make([]map[string]interface{}, 0)
+    uniqueSignatures := make(map[string]bool)
+    
+    // Process each recipe
+    for _, recipe := range node.RecipesToMakeThisElement {
+        if len(recipe.Ingredients) == 0 {
+            continue // Skip empty recipes
+        }
+        
+        // Generate all variations for this recipe's ingredients
+        generateRecipeVariationsWithSubIngredients(
+            g, elementName, imagePath, recipe, &allTrees, &uniqueSignatures, 
+            &totalVisitedCount, maxCount, 0, 3) // Limit depth to 3 levels to prevent explosion
+    }
+    
+    // If we ended up with no trees, create a simple one
+    if len(allTrees) == 0 {
+        visitCount := 0
+        visited := make(map[string]bool)
+        tree := buildElementTreeDFSNoCircular(g, elementName, visited, &visitCount)
+        allTrees = append(allTrees, tree)
+        totalVisitedCount += visitCount
+    }
+    
+    // Limit to requested count
+    if len(allTrees) > maxCount {
+        allTrees = allTrees[:maxCount]
+    }
+    
+    return allTrees, totalVisitedCount
+}
+
+// Helper function to recursively generate all variations of recipes with all possible sub-ingredient combinations
+func generateRecipeVariationsWithSubIngredients(
+    g *graph.ElementGraph,
+    elementName string,
+    imagePath string,
+    recipe *graph.Recipe,
+    allTrees *[]map[string]interface{},
+    uniqueSignatures *map[string]bool,
+    totalVisitedCount *int,
+    maxCount int,
+    currentDepth int,
+    maxDepth int) {
+    
+    // Stop if we've reached depth limit or found enough trees
+    if currentDepth > maxDepth || (len(*allTrees) >= maxCount && maxCount > 0) {
+        return
+    }
+    
+    // For each ingredient in this recipe, get all possible ways to make it
+    ingredientVariations := make([][]map[string]interface{}, len(recipe.Ingredients))
+    
+    // First, gather all variations for each ingredient
+    for i, ingredient := range recipe.Ingredients {
+        ingredientNode := g.Nodes[ingredient]
+        *totalVisitedCount++
+        
+        if ingredientNode == nil {
+            // Skip invalid ingredients
+            continue
+        }
+        
+        // Generate all trees for this ingredient
+        var ingredientTrees []map[string]interface{}
+        
+        // For base elements, just create one variation
+        baseElements := []string{"Water", "Fire", "Earth", "Air"}
+        isBase := false
+        for _, base := range baseElements {
+            if ingredient == base {
+                isBase = true
+                ingredientTrees = []map[string]interface{}{{
+                    "name":          ingredient,
+                    "imagePath":     ingredientNode.ImagePath,
+                    "ingredients":   []interface{}{},
+                    "isBaseElement": true,
+                }}
+                break
+            }
+        }
+        
+        // If not a base element, get all possible ways to make it
+        if !isBase {
+            if len(ingredientNode.RecipesToMakeThisElement) == 0 {
+                // No recipes for this ingredient
+                ingredientTrees = []map[string]interface{}{{
+                    "name":        ingredient,
+                    "imagePath":   ingredientNode.ImagePath,
+                    "ingredients": []interface{}{},
+                    "noRecipe":    true,
+                }}
+            } else if currentDepth >= maxDepth-1 {
+                // At max depth, just use one standard recipe
+                visited := make(map[string]bool)
+                visitCount := 0
+                tree := buildElementTreeDFSNoCircular(g, ingredient, visited, &visitCount)
+                *totalVisitedCount += visitCount
+                ingredientTrees = []map[string]interface{}{tree}
+            } else {
+                // Generate all variations for each recipe of this ingredient
+                for _, subRecipe := range ingredientNode.RecipesToMakeThisElement {
+                    // Recursively generate variations for this sub-recipe
+                    subVariations := make([]map[string]interface{}, 0)
+                    tempSigs := make(map[string]bool)
+                    
+                    // Use a temporary slice to avoid modifying allTrees directly
+                    generateRecipeVariationsWithSubIngredients(
+                        g, ingredient, ingredientNode.ImagePath, subRecipe, 
+                        &subVariations, &tempSigs, totalVisitedCount, 
+                        2, currentDepth+1, maxDepth)
+                    
+                    // Add all generated variations
+                    for _, variation := range subVariations {
+                        ingredientTrees = append(ingredientTrees, variation)
+                    }
+                    
+                    // If we don't have any variations, create a simple tree
+                    if len(subVariations) == 0 {
+                        visited := make(map[string]bool)
+                        visitCount := 0
+                        tree := buildElementTreeDFSNoCircular(g, ingredient, visited, &visitCount)
+                        *totalVisitedCount += visitCount
+                        ingredientTrees = append(ingredientTrees, tree)
+                    }
+                }
+            }
+        }
+        
+        // If we couldn't generate any trees for this ingredient, create a simple one
+        if len(ingredientTrees) == 0 {
+            ingredientTrees = []map[string]interface{}{{
+                "name":        ingredient,
+                "imagePath":   ingredientNode.ImagePath,
+                "ingredients": []interface{}{},
+            }}
+        }
+        
+        // Store all variations for this ingredient
+        ingredientVariations[i] = ingredientTrees
+    }
+    
+    // Now, generate all combinations of ingredient variations
+    generateTreeCombinations(
+        g, elementName, imagePath, recipe.Ingredients, 
+        ingredientVariations, 0, []map[string]interface{}{}, 
+        allTrees, uniqueSignatures, totalVisitedCount, maxCount)
+}
+
+// Helper function to generate all possible combinations of ingredient trees
+func generateTreeCombinations(
+    g *graph.ElementGraph,
+    elementName string,
+    imagePath string,
+    ingredientNames []string,
+    ingredientVariations [][]map[string]interface{},
+    currentIndex int,
+    currentCombination []map[string]interface{},
+    allTrees *[]map[string]interface{},
+    uniqueSignatures *map[string]bool,
+    totalVisitedCount *int,
+    maxCount int) {
+    
+    // Stop if we've found enough trees
+    if len(*allTrees) >= maxCount && maxCount > 0 {
+        return
+    }
+    
+    // If we've processed all ingredients, create a tree from this combination
+    if currentIndex >= len(ingredientVariations) {
+        // Create a tree for this combination
+        tree := map[string]interface{}{
+            "name":        elementName,
+            "imagePath":   imagePath,
+            "ingredients": make([]interface{}, len(currentCombination)),
+        }
+        
+        // Add all ingredients
+        for i, ingTree := range currentCombination {
+            tree["ingredients"].([]interface{})[i] = ingTree
+        }
+        
+        // Check if this tree is unique
+        signature := generateDetailedTreeSignature(tree)
+        if !(*uniqueSignatures)[signature] {
+            (*uniqueSignatures)[signature] = true
+            *allTrees = append(*allTrees, tree)
+            
+            // Log that we found a new unique tree
+            log.Printf("DEBUG: Generated unique recipe tree variation with signature: %s", signature)
+        }
+        
+        return
+    }
+    
+    // If there are no variations for this ingredient, skip it
+    if len(ingredientVariations[currentIndex]) == 0 {
+        generateTreeCombinations(
+            g, elementName, imagePath, ingredientNames,
+            ingredientVariations, currentIndex+1, currentCombination,
+            allTrees, uniqueSignatures, totalVisitedCount, maxCount)
+        return
+    }
+    
+    // Try each variation of the current ingredient
+    for _, variation := range ingredientVariations[currentIndex] {
+        // Add this variation to the current combination
+        newCombination := append(currentCombination, variation)
+        
+        // Recursive call to process next ingredient
+        generateTreeCombinations(
+            g, elementName, imagePath, ingredientNames,
+            ingredientVariations, currentIndex+1, newCombination,
+            allTrees, uniqueSignatures, totalVisitedCount, maxCount)
+        
+        // Stop if we've found enough trees
+        if len(*allTrees) >= maxCount && maxCount > 0 {
+            return
+        }
+    }
+}
+
+// Generate a detailed signature for a tree that includes recursive ingredient paths
+func generateDetailedTreeSignature(tree map[string]interface{}) string {
+    name := tree["name"].(string)
+    ingredients, ok := tree["ingredients"].([]interface{})
+    
+    if !ok || len(ingredients) == 0 {
+        return name + "|[]"
+    }
+    
+    // Recursively generate signatures for all ingredients
+    subSigs := make([]string, 0, len(ingredients))
+    
+    for _, ing := range ingredients {
+        if ingMap, ok := ing.(map[string]interface{}); ok {
+            subSig := generateDetailedTreeSignature(ingMap)
+            subSigs = append(subSigs, subSig)
+        }
+    }
+    
+    // Sort for consistent signatures regardless of order
+    sort.Strings(subSigs)
+    
+    return name + "|[" + strings.Join(subSigs, ";") + "]"
+}
+
+// buildElementTreeDFSNoCircular is a variation of DFS tree building without circular reference checks
+func buildElementTreeDFSNoCircular(g *graph.ElementGraph, elementName string, visited map[string]bool, visitedCount *int) map[string]interface{} {
+    // No need to check for circular references since tier rules prevent it
+    
+    *visitedCount++
+    node := g.Nodes[elementName]
+    baseElements := []string{"Water", "Fire", "Earth", "Air"}
+    
+    // Check if it's a base element
+    for _, base := range baseElements {
+        if elementName == base {
+            return map[string]interface{}{
+                "name":          elementName,
+                "imagePath":     node.ImagePath,
+                "ingredients":   []interface{}{},
+                "isBaseElement": true,
+            }
+        }
+    }
+    
+    // Get the recipes to make this element
+    if len(node.RecipesToMakeThisElement) == 0 {
+        // No recipe found
+        return map[string]interface{}{
+            "name":        elementName,
+            "imagePath":   node.ImagePath,
+            "ingredients": []interface{}{},
+            "noRecipe":    true,
+        }
+    }
+    
+    // Find the recipe with the shortest combined ingredient path length
+    var bestRecipe *graph.Recipe
+    var bestPathLength = 9999 // Start with a high value
+    
+    // Try all recipes
+    for _, recipe := range node.RecipesToMakeThisElement {
+        // Calculate approximate path length without fully exploring
+        totalPathLength := 0
+        for _, ingredient := range recipe.Ingredients {
+            // Base elements have path length 1
+            if isBaseElementName(ingredient, baseElements) {
+                totalPathLength += 1
+            } else if ingNode, exists := g.Nodes[ingredient]; exists {
+                // Add 1 for each level of recipes needed
+                if len(ingNode.RecipesToMakeThisElement) > 0 {
+                    totalPathLength += 2
+                } else {
+                    totalPathLength += 1
+                }
+            }
+        }
+        
+        // Choose this recipe if it's the shortest so far
+        if totalPathLength < bestPathLength {
+            bestPathLength = totalPathLength
+            bestRecipe = recipe
+        }
+    }
+    
+    // If no valid recipe was found, use the first one
+    if bestRecipe == nil && len(node.RecipesToMakeThisElement) > 0 {
+        bestRecipe = node.RecipesToMakeThisElement[0]
+    }
+    
+    // Build the ingredients tree
+    ingredients := make([]interface{}, 0, len(bestRecipe.Ingredients))
+    for _, ingredientName := range bestRecipe.Ingredients {
+        ingredientTree := buildElementTreeDFSNoCircular(g, ingredientName, visited, visitedCount)
+        ingredients = append(ingredients, ingredientTree)
+    }
+    
+    return map[string]interface{}{
+        "name":        elementName,
+        "imagePath":   node.ImagePath,
+        "ingredients": ingredients,
+    }
+}
 type Handler struct {
 	elements map[string]model.Element
 }
@@ -455,262 +814,457 @@ func (h *Handler) HandleBestRecipesTree(w http.ResponseWriter, r *http.Request) 
 	log.Printf("DEBUG: Successfully sent response with %d recipe trees", len(recipeTrees))
 }
 
+// MultiThreadedElementTreeDFS generates multiple recipe trees using multiple goroutines
+// It considers variations in child element recipes as well
+func MultiThreadedElementTreeDFS(g *graph.ElementGraph, elementName string, count int) ([]map[string]interface{}, int) {
+    totalVisitedCount := 0
+    resultTrees := make([]map[string]interface{}, 0, count)
+    uniqueSignatures := make(map[string]bool)
+    
+    // Create a channel to collect results from goroutines
+    resultChan := make(chan map[string]interface{}, count*3) // Increased buffer size
+    visitCountChan := make(chan int, count*3)
+    
+    // Generate trees for each recipe of the target element
+    node := g.Nodes[elementName]
+    if node == nil || len(node.RecipesToMakeThisElement) == 0 {
+        // Handle case with no recipes
+        visitCount := 0
+        visited := make(map[string]bool)
+        tree := buildElementTreeDFSNoCircular(g, elementName, visited, &visitCount)
+        return []map[string]interface{}{tree}, visitCount
+    }
+    
+    // Start a separate goroutine for each recipe of the target element
+    activeGoroutines := 0
+    for _, recipe := range node.RecipesToMakeThisElement {
+        // Skip recipes with no ingredients
+        if len(recipe.Ingredients) == 0 {
+            continue
+        }
+        
+        // For each recipe of the target element, generate multiple variations
+        // based on different ways to make each ingredient
+        generateRecipeVariations(g, elementName, node.ImagePath, recipe, &activeGoroutines, 
+                                resultChan, visitCountChan, 0, count)
+    }
+    
+    log.Printf("DEBUG: Started %d goroutines to explore recipe variations", activeGoroutines)
+    
+    // If no goroutines were started, return a default tree
+    if activeGoroutines == 0 {
+        visitCount := 0
+        visited := make(map[string]bool)
+        tree := buildElementTreeDFSNoCircular(g, elementName, visited, &visitCount)
+        return []map[string]interface{}{tree}, visitCount
+    }
+    
+    // Collect results from goroutines
+    for i := 0; i < activeGoroutines; i++ {
+        tree := <-resultChan
+        visitCount := <-visitCountChan
+        
+        // Check if this tree is unique
+        signature := generateTreeSignature(tree)
+        if !uniqueSignatures[signature] {
+            uniqueSignatures[signature] = true
+            resultTrees = append(resultTrees, tree)
+            totalVisitedCount += visitCount
+            
+            // If we have enough unique trees, we can stop collecting
+            // but we still need to drain the channels
+            if len(resultTrees) >= count {
+                log.Printf("DEBUG: Reached target count of %d unique trees, will stop adding more", count)
+                // Continue receiving from channels to avoid goroutine leaks
+                continue
+            }
+        }
+    }
+    
+    // If we didn't get enough trees, generate more using the standard approach
+    if len(resultTrees) < count {
+        log.Printf("DEBUG: Only found %d unique trees from goroutines, generating %d more trees", 
+                  len(resultTrees), count-len(resultTrees))
+        
+        for i := len(resultTrees); i < count; i++ {
+            visitCount := 0
+            visited := make(map[string]bool)
+            tree := buildElementTreeDFSNoCircular(g, elementName, visited, &visitCount)
+            
+            // Check if this tree is unique
+            signature := generateTreeSignature(tree)
+            if !uniqueSignatures[signature] {
+                uniqueSignatures[signature] = true
+                resultTrees = append(resultTrees, tree)
+                totalVisitedCount += visitCount
+            }
+            
+            // Break if we can't generate more unique trees
+            if len(resultTrees) >= count || len(uniqueSignatures) >= count*2 {
+                break
+            }
+        }
+    }
+    
+    log.Printf("DEBUG: Final result contains %d unique trees", len(resultTrees))
+    return resultTrees, totalVisitedCount
+}
+
+// Helper function to generate variations of recipes based on different paths to make ingredients
+func generateRecipeVariations(
+    g *graph.ElementGraph, 
+    elementName string, 
+    imagePath string, 
+    recipe *graph.Recipe, 
+    activeGoroutines *int,
+    resultChan chan<- map[string]interface{},
+    visitCountChan chan<- int,
+    depth int,
+    maxCount int,
+) {
+    // Base case: if we're too deep in the recursion, just generate one variation
+    if depth >= 2 {
+        *activeGoroutines++
+        go func() {
+            // Create a tree for this recipe
+            visitCount := 0
+            tree := map[string]interface{}{
+                "name":        elementName,
+                "imagePath":   imagePath,
+                "ingredients": make([]interface{}, 0, len(recipe.Ingredients)),
+            }
+            
+            // Build subtrees for each ingredient
+            for _, ingredientName := range recipe.Ingredients {
+                visited := make(map[string]bool)
+                ingredientVisitCount := 0
+                ingredientTree := buildElementTreeDFSNoCircular(g, ingredientName, visited, &ingredientVisitCount)
+                tree["ingredients"] = append(tree["ingredients"].([]interface{}), ingredientTree)
+                visitCount += ingredientVisitCount
+            }
+            
+            resultChan <- tree
+            visitCountChan <- visitCount
+        }()
+        return
+    }
+    
+    // Check if this recipe has any ingredient with multiple recipes
+    hasMultipleRecipes := false
+    for _, ingredient := range recipe.Ingredients {
+        if ingNode := g.Nodes[ingredient]; ingNode != nil && len(ingNode.RecipesToMakeThisElement) > 1 {
+            hasMultipleRecipes = true
+            break
+        }
+    }
+    
+    // If no ingredient has multiple recipes, just generate one variation
+    if !hasMultipleRecipes {
+        *activeGoroutines++
+        go func() {
+            // Create a tree for this recipe
+            visitCount := 0
+            tree := map[string]interface{}{
+                "name":        elementName,
+                "imagePath":   imagePath,
+                "ingredients": make([]interface{}, 0, len(recipe.Ingredients)),
+            }
+            
+            // Build subtrees for each ingredient
+            for _, ingredientName := range recipe.Ingredients {
+                visited := make(map[string]bool)
+                ingredientVisitCount := 0
+                ingredientTree := buildElementTreeDFSNoCircular(g, ingredientName, visited, &ingredientVisitCount)
+                tree["ingredients"] = append(tree["ingredients"].([]interface{}), ingredientTree)
+                visitCount += ingredientVisitCount
+            }
+            
+            resultChan <- tree
+            visitCountChan <- visitCount
+        }()
+        return
+    }
+    
+    // Find ingredients with multiple recipes
+    ingredientsWithMultipleRecipes := make([]string, 0)
+    for _, ingredient := range recipe.Ingredients {
+        if ingNode := g.Nodes[ingredient]; ingNode != nil && len(ingNode.RecipesToMakeThisElement) > 1 {
+            ingredientsWithMultipleRecipes = append(ingredientsWithMultipleRecipes, ingredient)
+        }
+    }
+    
+    // Limit the number of variations to explore
+    maxVariations := maxCount / 2
+    if maxVariations < 1 {
+        maxVariations = 1
+    }
+    
+    // Generate variations based on the first ingredient with multiple recipes
+    if len(ingredientsWithMultipleRecipes) > 0 {
+        variationIngredient := ingredientsWithMultipleRecipes[0]
+        ingNode := g.Nodes[variationIngredient]
+        
+        // For each recipe of this ingredient, generate a variation
+        numRecipes := len(ingNode.RecipesToMakeThisElement)
+        recipesToExplore := numRecipes
+        if recipesToExplore > maxVariations {
+            recipesToExplore = maxVariations
+        }
+        
+        for i := 0; i < recipesToExplore; i++ {
+            *activeGoroutines++
+            
+            // Capture the recipe index to use
+            recipeIndex := i % numRecipes
+            
+            go func(ingredientRecipeIndex int) {
+                // Create a tree for this recipe
+                visitCount := 0
+                tree := map[string]interface{}{
+                    "name":        elementName,
+                    "imagePath":   imagePath,
+                    "ingredients": make([]interface{}, 0, len(recipe.Ingredients)),
+                }
+                
+                // Build subtrees for each ingredient
+                for _, ingredientName := range recipe.Ingredients {
+                    var ingredientTree map[string]interface{}
+                    visited := make(map[string]bool)
+                    ingredientVisitCount := 0
+                    
+                    // For the variation ingredient, use a specific recipe
+                    if ingredientName == variationIngredient {
+                        // Use specific recipe for this ingredient
+                        ingredientTree = buildIngredientTreeWithSpecificRecipe(
+                            g, ingredientName, ingNode.ImagePath, 
+                            ingredientRecipeIndex, visited, &ingredientVisitCount)
+                    } else {
+                        // For other ingredients, use the standard approach
+                        ingredientTree = buildElementTreeDFSNoCircular(
+                            g, ingredientName, visited, &ingredientVisitCount)
+                    }
+                    
+                    tree["ingredients"] = append(tree["ingredients"].([]interface{}), ingredientTree)
+                    visitCount += ingredientVisitCount
+                }
+                
+                resultChan <- tree
+                visitCountChan <- visitCount
+            }(recipeIndex)
+        }
+    }
+}
+
+// Helper function to build an ingredient tree using a specific recipe
+func buildIngredientTreeWithSpecificRecipe(
+    g *graph.ElementGraph, 
+    elementName string, 
+    imagePath string,
+    recipeIndex int, 
+    visited map[string]bool, 
+    visitedCount *int,
+) map[string]interface{} {
+    *visitedCount++
+    node := g.Nodes[elementName]
+    baseElements := []string{"Water", "Fire", "Earth", "Air"}
+    
+    // Check if it's a base element
+    for _, base := range baseElements {
+        if elementName == base {
+            return map[string]interface{}{
+                "name":          elementName,
+                "imagePath":     imagePath,
+                "ingredients":   []interface{}{},
+                "isBaseElement": true,
+            }
+        }
+    }
+    
+    // Get the recipes to make this element
+    if len(node.RecipesToMakeThisElement) == 0 {
+        // No recipe found
+        return map[string]interface{}{
+            "name":        elementName,
+            "imagePath":   imagePath,
+            "ingredients": []interface{}{},
+            "noRecipe":    true,
+        }
+    }
+    
+    // Use the specified recipe if available, otherwise use the first one
+    var recipe *graph.Recipe
+    if recipeIndex >= 0 && recipeIndex < len(node.RecipesToMakeThisElement) {
+        recipe = node.RecipesToMakeThisElement[recipeIndex]
+    } else {
+        recipe = node.RecipesToMakeThisElement[0]
+    }
+    
+    // Build the ingredients tree
+    ingredients := make([]interface{}, 0, len(recipe.Ingredients))
+    for _, ingredientName := range recipe.Ingredients {
+        ingredientTree := buildElementTreeDFSNoCircular(g, ingredientName, visited, visitedCount)
+        ingredients = append(ingredients, ingredientTree)
+    }
+    
+    return map[string]interface{}{
+        "name":        elementName,
+        "imagePath":   imagePath,
+        "ingredients": ingredients,
+    }
+}
 // Modified function to handle multiple recipes tree with support for BFS and DFS algorithms
+// Modified function to handle multiple recipes tree with support for BFS and DFS algorithms
+
 func (h *Handler) HandleMultipleRecipesTree(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	log.Printf("DEBUG: Starting HandleMultipleRecipesTree request")
-
-	// Extract parameters
-	pathParts := strings.Split(strings.TrimPrefix(r.URL.Path, "/api/multiple-recipes-tree/"), "/")
-	if len(pathParts) < 1 {
-		http.Error(w, "Invalid URL format. Use /api/multiple-recipes-tree/{elementName}?count=N&algorithm=algo", http.StatusBadRequest)
-		return
-	}
-
-	elementName := strings.Join(pathParts, "/")
-	log.Printf("DEBUG: Requested element: %s", elementName)
-
-	// Get number of recipes to return
-	count := 3 // Default to 3 different recipes
-	if countParam := r.URL.Query().Get("count"); countParam != "" {
-		if parsedCount, err := strconv.Atoi(countParam); err == nil && parsedCount > 0 {
-			count = parsedCount
-		}
-	}
-	log.Printf("DEBUG: Requested recipe tree count: %d", count)
-
-	// Get algorithm to use (default to DFS if not specified)
-	algorithm := "dfs" // Default to DFS
-	if algoParam := r.URL.Query().Get("algorithm"); algoParam != "" {
-		algorithm = strings.ToLower(algoParam)
-	}
-	log.Printf("DEBUG: Using algorithm: %s", algorithm)
-
-	// Limit maximum recipes to prevent performance issues
-	if count > 10 {
-		count = 10
-		log.Printf("DEBUG: Limiting count to maximum of 10 for tree format")
-	}
-
-	// Check if element exists
-	element, exists := h.elements[elementName]
-	if !exists {
-		http.Error(w, "Element not found", http.StatusNotFound)
-		log.Printf("DEBUG: Element '%s' not found in database", elementName)
-		return
-	}
-
-	// For base elements, return simple result
-	baseElements := []string{"Water", "Fire", "Earth", "Air"}
-	for _, base := range baseElements {
-		if elementName == base {
-			log.Printf("DEBUG: Requested element '%s' is a base element, returning simple result", elementName)
-			result := map[string]interface{}{
-				"trees": []map[string]interface{}{{
-					"name":          elementName,
-					"imagePath":     element.ImagePath,
-					"ingredients":   []interface{}{},
-					"isBaseElement": true,
-				}},
-				"nodesVisited": 1,
-				"timeElapsed":  0,
-			}
-
-			if err := json.NewEncoder(w).Encode(result); err != nil {
-				http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-				log.Printf("Error encoding response: %v", err)
-			}
-			return
-		}
-	}
-
-	startTime := time.Now()
-	g := createElementGraph(h.elements)
-	node := g.Nodes[elementName]
-
-	// Prepare to collect different recipe trees
-	candidateTrees := make([]map[string]interface{}, 0)
-	treeVisitCounts := make([]int, 0) // Track visit counts for each tree
-	totalVisitedNodesCount := 0
-
-	// If no recipes for this element, return a simple result
-	if len(node.RecipesToMakeThisElement) == 0 {
-		tree := map[string]interface{}{
-			"name":        elementName,
-			"imagePath":   element.ImagePath,
-			"ingredients": []interface{}{},
-			"noRecipe":    true,
-		}
-		candidateTrees = append(candidateTrees, tree)
-		treeVisitCounts = append(treeVisitCounts, 0)
-	} else {
-		// Generate trees for each recipe of the target element
-		for _, recipe := range node.RecipesToMakeThisElement {
-			// Only process recipes with ingredients
-			if len(recipe.Ingredients) == 0 {
-				continue
-			}
-
-			log.Printf("DEBUG: Processing recipe with ingredients: %v", recipe.Ingredients)
-
-			// Generate trees with different ingredient combinations using same recipe
-			recipeVisitCount := 0
-			generatedTrees := generateTreesForRecipe(
-				g, elementName, element.ImagePath, recipe, &recipeVisitCount, count, algorithm)
-
-			for _, tree := range generatedTrees {
-				// Verify that the tree has all ingredients from the recipe
-				treeIngredients, _ := tree["ingredients"].([]interface{})
-				if len(treeIngredients) != len(recipe.Ingredients) {
-					log.Printf("DEBUG: Skipping tree with incomplete ingredients (%d/%d)",
-						len(treeIngredients), len(recipe.Ingredients))
-					continue
-				}
-
-				// Check if this tree is unique compared to existing trees
-				isUnique := true
-				for _, existingTree := range candidateTrees {
-					if compareTreeIngredientsDeep(existingTree, tree) {
-						isUnique = false
-						break
-					}
-				}
-
-				if isUnique {
-					candidateTrees = append(candidateTrees, tree)
-					treeVisitCounts = append(treeVisitCounts, recipeVisitCount)
-					totalVisitedNodesCount += recipeVisitCount
-					log.Printf("DEBUG: Added recipe tree with unique ingredient paths (nodes visited: %d)",
-						recipeVisitCount)
-				}
-			}
-		}
-	}
-
-	// If we still don't have enough trees, try using the specified algorithm to find more diverse paths
-	if len(candidateTrees) < count {
-		// Use the specified algorithm to find more diverse paths
-		explorationLimit := count * 3
-		if explorationLimit > 20 {
-			explorationLimit = 20 // Cap at 20 to prevent runaway processes
-		}
-
-		log.Printf("DEBUG: Trying %s to find additional paths (exploration limit: %d)",
-			strings.ToUpper(algorithm), explorationLimit)
-
-		var paths [][]model.Node
-		var visited int
-
-		switch algorithm {
-		case "bfs":
-			// Use multithreaded BFS
-			paths, visited = alg.MultiThreadedBFS(h.elements, elementName, explorationLimit, false)
-		case "dfs":
-			// Default to DFS
-			paths, visited = alg.DFS(h.elements, elementName, explorationLimit, true)
-		}
-
-		totalVisitedNodesCount += visited
-
-		// Convert paths to trees, making sure to create unique trees
-		for _, path := range paths {
-			if len(candidateTrees) >= count*2 {
-				// Get more candidates than needed so we can select the best ones
-				break
-			}
-
-			if len(path) < 2 {
-				continue // Skip paths that are too short
-			}
-
-			// Create a tree from this path
-			pathVisitCount := 0
-			tree := convertPathToCompleteTree(path, h.elements, &pathVisitCount, algorithm)
-
-			// Check if this tree is unique compared to existing trees
-			isUnique := true
-			for _, existingTree := range candidateTrees {
-				if compareTreeIngredientsDeep(existingTree, tree) {
-					isUnique = false
-					break
-				}
-			}
-
-			if isUnique {
-				// Ensure tree has all the needed ingredients
-				verifyResult := verifyTreeIngredientsComplete(tree, node.RecipesToMakeThisElement)
-				if verifyResult {
-					candidateTrees = append(candidateTrees, tree)
-					treeVisitCounts = append(treeVisitCounts, pathVisitCount)
-					totalVisitedNodesCount += pathVisitCount
-					log.Printf("DEBUG: Added unique recipe tree from %s path (nodes visited: %d) using %s",
-						strings.ToUpper(algorithm), pathVisitCount, algorithm)
-				}
-			}
-		}
-	}
-
-	// If we still don't have any trees, build a standard tree
-	if len(candidateTrees) == 0 {
-		visited := make(map[string]bool)
-		visitCount := 0
-		var tree map[string]interface{}
-
-		// Use the specified algorithm for the fallback tree
-		if algorithm == "bfs" {
-			tree = buildElementTreeBFS(g, elementName, visited, &visitCount)
-		} else if algorithm == "dfs" {
-			tree = buildElementTreeDFS(g, elementName, visited, &visitCount)
-		}
-
-		candidateTrees = append(candidateTrees, tree)
-		treeVisitCounts = append(treeVisitCounts, visitCount)
-		totalVisitedNodesCount += visitCount
-		log.Printf("DEBUG: Added fallback element tree using %s (nodes visited: %d)",
-			strings.ToUpper(algorithm), visitCount)
-	}
-
-	// Now select the best trees based on visit counts (lower is better)
-	type TreeWithCost struct {
-		Tree map[string]interface{}
-		Cost int // Number of nodes visited
-	}
-
-	rankedTrees := make([]TreeWithCost, 0, len(candidateTrees))
-	for i, tree := range candidateTrees {
-		rankedTrees = append(rankedTrees, TreeWithCost{
-			Tree: tree,
-			Cost: treeVisitCounts[i],
-		})
-	}
-
-	// Sort by ascending cost (fewest nodes visited first)
-	sort.Slice(rankedTrees, func(i, j int) bool {
-		return rankedTrees[i].Cost < rankedTrees[j].Cost
-	})
-
-	// Select the top N trees
-	finalTrees := make([]map[string]interface{}, 0, count)
-	for i := 0; i < len(rankedTrees) && i < count; i++ {
-		finalTrees = append(finalTrees, rankedTrees[i].Tree)
-		log.Printf("DEBUG: Selected tree %d with cost %d", i+1, rankedTrees[i].Cost)
-	}
-
-	result := map[string]interface{}{
-		"trees":        finalTrees,
-		"nodesVisited": totalVisitedNodesCount,
-		"timeElapsed":  time.Since(startTime).Milliseconds(),
-		"algorithm":    algorithm,
-	}
-
-	if err := json.NewEncoder(w).Encode(result); err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-		log.Printf("Error encoding response: %v", err)
-		return
-	}
-
-	log.Printf("DEBUG: Successfully sent response with %d recipe trees", len(finalTrees))
+    w.Header().Set("Content-Type", "application/json")
+    
+    log.Printf("DEBUG: Starting HandleMultipleRecipesTree request")
+    
+    // Extract parameters
+    pathParts := strings.Split(strings.TrimPrefix(r.URL.Path, "/api/multiple-recipes-tree/"), "/")
+    if len(pathParts) < 1 {
+        http.Error(w, "Invalid URL format. Use /api/multiple-recipes-tree/{elementName}?count=N&algorithm=algo", http.StatusBadRequest)
+        return
+    }
+    
+    elementName := strings.Join(pathParts, "/")
+    log.Printf("DEBUG: Requested element: %s", elementName)
+    
+    // Get number of recipes to return
+    count := 3 // Default to 3 different recipes
+    if countParam := r.URL.Query().Get("count"); countParam != "" {
+        if parsedCount, err := strconv.Atoi(countParam); err == nil && parsedCount > 0 {
+            count = parsedCount
+        }
+    }
+    log.Printf("DEBUG: Requested recipe tree count: %d", count)
+    
+    // Get algorithm to use (default to DFS if not specified)
+    algorithm := "dfs" // Default to DFS
+    if algoParam := r.URL.Query().Get("algorithm"); algoParam != "" {
+        algorithm = strings.ToLower(algoParam)
+    }
+    log.Printf("DEBUG: Using algorithm: %s", algorithm)
+    
+    // Limit maximum recipes to prevent performance issues
+    if count > 10 {
+        count = 10
+        log.Printf("DEBUG: Limiting count to maximum of 10 for tree format")
+    }
+    
+    // Check if element exists
+    element, exists := h.elements[elementName]
+    if !exists {
+        http.Error(w, "Element not found", http.StatusNotFound)
+        log.Printf("DEBUG: Element '%s' not found in database", elementName)
+        return
+    }
+    
+    // For base elements, return simple result
+    baseElements := []string{"Water", "Fire", "Earth", "Air"}
+    for _, base := range baseElements {
+        if elementName == base {
+            log.Printf("DEBUG: Requested element '%s' is a base element, returning simple result", elementName)
+            result := map[string]interface{}{
+                "trees": []map[string]interface{}{{
+                    "name":          elementName,
+                    "imagePath":     element.ImagePath,
+                    "ingredients":   []interface{}{},
+                    "isBaseElement": true,
+                }},
+                "nodesVisited": 1,
+                "timeElapsed":  0,
+                "algorithm":    algorithm,
+            }
+            
+            if err := json.NewEncoder(w).Encode(result); err != nil {
+                http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+                log.Printf("Error encoding response: %v", err)
+            }
+            return
+        }
+    }
+    
+    startTime := time.Now()
+    g := createElementGraph(h.elements)
+    
+    var finalTrees []map[string]interface{}
+    var totalVisitedNodesCount int
+    
+    // Generate all recipe trees including all variations from child recipes
+    if algorithm == "bfs" {
+        // Use multithreaded BFS
+        paths, visited := alg.MultiThreadedBFS(h.elements, elementName, count*3, false)
+        totalVisitedNodesCount = visited
+        
+        // Convert paths to trees
+        uniqueTrees := make([]map[string]interface{}, 0)
+        uniqueSignatures := make(map[string]bool)
+        
+        for _, path := range paths {
+            if len(path) < 2 {
+                continue // Skip paths that are too short
+            }
+            
+            // Create a tree from this path
+            pathVisitCount := 0
+            tree := convertPathToCompleteTree(path, h.elements, &pathVisitCount, algorithm)
+            
+            // Check if this tree is unique
+            signature := generateDetailedTreeSignature(tree)
+            if !uniqueSignatures[signature] {
+                uniqueSignatures[signature] = true
+                uniqueTrees = append(uniqueTrees, tree)
+                totalVisitedNodesCount += pathVisitCount
+                
+                if len(uniqueTrees) >= count {
+                    break
+                }
+            }
+        }
+        
+        finalTrees = uniqueTrees
+    } else {
+        // Use the new recursive recipe variation generator
+        trees, visited := GenerateAllRecipeVariations(g, elementName, element.ImagePath, count)
+        finalTrees = trees
+        totalVisitedNodesCount = visited
+        log.Printf("DEBUG: Generated %d unique recipe trees after visiting %d nodes", 
+                 len(trees), visited)
+    }
+    
+    // If we still don't have any trees, add a fallback
+    if len(finalTrees) == 0 {
+        visited := make(map[string]bool)
+        visitCount := 0
+        var tree map[string]interface{}
+        
+        if algorithm == "bfs" {
+            tree = buildElementTreeBFS(g, elementName, visited, &visitCount)
+        } else {
+            tree = buildElementTreeDFSNoCircular(g, elementName, visited, &visitCount)
+        }
+        
+        finalTrees = []map[string]interface{}{tree}
+        totalVisitedNodesCount += visitCount
+        log.Printf("DEBUG: Added fallback element tree using %s (nodes visited: %d)",
+            strings.ToUpper(algorithm), visitCount)
+    }
+    
+    result := map[string]interface{}{
+        "trees":        finalTrees,
+        "nodesVisited": totalVisitedNodesCount,
+        "timeElapsed":  time.Since(startTime).Milliseconds(),
+        "algorithm":    algorithm,
+    }
+    
+    if err := json.NewEncoder(w).Encode(result); err != nil {
+        http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+        log.Printf("Error encoding response: %v", err)
+        return
+    }
+    
+    log.Printf("DEBUG: Successfully sent response with %d recipe trees", len(finalTrees))
 }
 
 // New helper function to verify that a tree has all ingredients for one of the available recipes
