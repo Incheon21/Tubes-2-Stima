@@ -8,7 +8,7 @@ type ElementRecipe struct {
 //struktur untuk elemen
 type Element struct {
 	Name       string          `json:"name"`
-	ImagePath    string          `json:"image,omitempty"`
+	ImagePath  string          `json:"image,omitempty"`
 	LocalImage string          `json:"localImage,omitempty"`
 	Recipes    []ElementRecipe `json:"recipes,omitempty"`
 	Tier       int             `json:"tier"`
@@ -17,7 +17,7 @@ type Element struct {
 //searchconfig untuk pencarian elemen
 type SearchConfig struct {
 	TargetElement string `json:"targetElement"`
-	Algorithm     string `json:"algorithm"` // "bfs", "dfs", ato "bidirectional"
+	Algorithm     string `json:"algorithm"` // "bfs", "dfs", ato "bidirectional" kalo yg lain ya ga bakal la wkwk
 	MaxResults    int    `json:"maxResults"`
 	SinglePath    bool   `json:"singlePath"`
 }
@@ -32,8 +32,6 @@ type SearchResult struct {
 //struct node untuk menyimpan elemen dan ingredientnya
 type Node struct {
 	Element     string   `json:"element"`
-	ImagePath		string   `json:"image,omitempty"`
+	ImagePath   string   `json:"image,omitempty"`
 	Ingredients []string `json:"ingredients,omitempty"`
 }
-
-
