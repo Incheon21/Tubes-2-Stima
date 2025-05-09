@@ -2006,17 +2006,17 @@ func (h *Handler) HandleBFS(w http.ResponseWriter, r *http.Request) {
 	if !singlePath && count > 1 {
 		log.Printf("DEBUG: Requesting multiple diverse paths")
 
-		// 1. Jalankan MultiThreadedBFS dengan eksplorasi tinggi
-		explorationCount := count * 10 // Meningkatkan eksplorasi
-		if explorationCount > 40 {
-			explorationCount = 40
+		// 1. Jalankan MultiThreadedBFS dengan eksplorasi tinggi untuk mendapatkan lebih banyak jalur unik
+		explorationCount := count * 15 // Meningkatkan eksplorasi lebih tinggi
+		if explorationCount > 60 {
+			explorationCount = 60
 		}
 
 		paths1, visited1 := alg.MultiThreadedBFS(h.elements, elementName, explorationCount, false)
 		log.Printf("DEBUG: MultiThreadedBFS found %d paths", len(paths1))
 
-		// 2. Jalankan BFS standar untuk mendapatkan jalur alternatif
-		paths2, visited2 := alg.BFS(h.elements, elementName, count*2, false)
+		// 2. Jalankan BFS standar untuk mendapatkan jalur alternatif dengan singlePath=false
+		paths2, visited2 := alg.BFS(h.elements, elementName, count*3, false) // Ganti true jadi false di sini
 		log.Printf("DEBUG: Standard BFS found %d additional paths", len(paths2))
 
 		// Gabungkan hasil dan update jumlah node yang dikunjungi
@@ -2026,6 +2026,7 @@ func (h *Handler) HandleBFS(w http.ResponseWriter, r *http.Request) {
 		log.Printf("DEBUG: Combined %d total paths before filtering", len(allPaths))
 	} else {
 		log.Printf("DEBUG: Using standard BFS to find a single path")
+		// Kalau hanya butuh 1 path, baru gunakan singlePath=true
 		allPaths, visited = alg.BFS(h.elements, elementName, 1, true)
 	}
 

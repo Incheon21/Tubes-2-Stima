@@ -228,7 +228,6 @@ d/debug.html -->
                 <select id="algorithm">
                     <option value="bfs">Breadth-First Search (BFS)</option>
                     <option value="dfs">Depth-First Search (DFS)</option>
-                    <option value="multithreaded-bfs">Multithreaded BFS</option>
                 </select>
             </div>
 
@@ -374,7 +373,7 @@ d/debug.html -->
         });
         
 document.getElementById('visualizeBtn').addEventListener('click', async () => {
-    const serverUrl = getServerUrl();
+   const serverUrl = getServerUrl();
     const target = document.getElementById('target').value;
     const treeType = document.getElementById('treeType').value;
     const algorithm = document.getElementById('algorithm').value;
@@ -391,9 +390,16 @@ document.getElementById('visualizeBtn').addEventListener('click', async () => {
         let url;
         // Use the specific BFS endpoint when BFS algorithm is selected
         if (algorithm === 'bfs') {
-            // Make sure we explicitly request multiple paths
-            url = `${serverUrl}/api/bfs/${encodeURIComponent(target)}?count=${treeCount}&singlePath=false`;
-            log(`Using dedicated BFS endpoint: ${url}`);
+            // Otomatis tentukan singlePath berdasarkan jumlah tree yang diminta
+            const singlePath = treeCount === 1;
+            url = `${serverUrl}/api/bfs/${encodeURIComponent(target)}?count=${treeCount}&singlePath=${singlePath}`;
+            
+            // Log informasi tentang mode yang digunakan
+            if (singlePath) {
+                log(`Using regular BFS for single path`);
+            } else {
+                log(`Using enhanced BFS with multithreading for ${treeCount} paths`);
+            }
         } else {
             url = `${serverUrl}/api/${treeType}/${encodeURIComponent(target)}?count=${treeCount}&algorithm=${algorithm}`;
             log(`Requesting URL: ${url}`);
@@ -417,6 +423,8 @@ document.getElementById('visualizeBtn').addEventListener('click', async () => {
         document.getElementById('algorithm-stat').textContent = algorithm.toUpperCase();
         document.getElementById('time-stat').textContent = result.timeElapsed || 0;
         document.getElementById('nodes-stat').textContent = result.nodesVisited || 0;
+
+        
         
         // Handle different result formats based on algorithm
         if (algorithm === 'bfs') {
@@ -470,6 +478,7 @@ document.getElementById('visualizeBtn').addEventListener('click', async () => {
         log(`Visualization failed: ${error.message}`, 'error');
     }
 });
+
 
 // Add this new function to display a summary of all BFS paths
 function showBfsPathsSummary(paths, targetElement) {

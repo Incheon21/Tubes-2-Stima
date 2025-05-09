@@ -5,8 +5,11 @@ import (
 	"backend/model"
 	"container/list"
 	"fmt"
+	"math/rand"
+	"sort"
 	"strings"
 	"sync"
+	"time"
 )
 
 // BFS finds recipe paths from base elements to target using Breadth-First Search
@@ -18,6 +21,8 @@ import (
 // Returns:
 // - [][]model.Node: list of recipe paths
 // - int: number of nodes visited after target found
+// BFS finds recipe paths from base elements to target using Breadth-First Search
+// Now implemented with a recursive approach for better clarity and multiple path support
 func BFS(elements map[string]model.Element, target string, maxResults int, singlePath bool) ([][]model.Node, int) {
 	// Build the graph once
 	g := graph.NewElementGraph(elements)
@@ -31,8 +36,6 @@ func BFS(elements map[string]model.Element, target string, maxResults int, singl
 
 	// Get base elements
 	baseElements := g.BaseElements
-
-	// Log found base elements
 	fmt.Printf("Base elements found: %v\n", baseElements)
 
 	// Handle case where target is a base element
@@ -45,49 +48,90 @@ func BFS(elements map[string]model.Element, target string, maxResults int, singl
 		}
 	}
 
-	// Initialize data structures
-	queue := list.New()
+	// Initialize data structures!
 	visited := make(map[string]bool)
 	pathMap := make(map[string][]model.Node)
-	// Track if an element has a complete path to base elements
 	hasPathToBase := make(map[string]bool)
-	// Track direct ingredients for each element
 	elementIngredients := make(map[string][]string)
-	var results [][]model.Node
-	visitedNodesAfterTarget := 0
-	targetFound := false
+	results := [][]model.Node{}
+	nodesVisited := 0
+	targetTier := elements[target].Tier
 
-	// Initialize queue with base elements
+	// Initialize first level with base elements
+	currentLevel := []string{}
 	for _, elem := range baseElements {
 		elemNode := g.Nodes[elem]
-		queue.PushBack(elem)
+		currentLevel = append(currentLevel, elem)
 		visited[elem] = true
 		pathMap[elem] = []model.Node{
 			{Element: elem, ImagePath: elemNode.ImagePath},
 		}
-		hasPathToBase[elem] = true // Base elements have a path to themselves
+		hasPathToBase[elem] = true
 	}
 
-	// BFS traversal
-	for queue.Len() > 0 && (len(results) < maxResults || !targetFound) {
-		current := queue.Front().Value.(string)
-		queue.Remove(queue.Front())
+	// Start recursive BFS with the first level
+	return bfsLevelProcessing(
+		g,
+		currentLevel,
+		visited,
+		pathMap,
+		hasPathToBase,
+		elementIngredients,
+		results,
+		&nodesVisited,
+		target,
+		targetTier,
+		maxResults,
+		singlePath,
+		baseElements,
+		elements,
+	)
+}
 
+// Helper function to process each BFS level recursively
+func bfsLevelProcessing(
+	g *graph.ElementGraph,
+	currentLevel []string,
+	visited map[string]bool,
+	pathMap map[string][]model.Node,
+	hasPathToBase map[string]bool,
+	elementIngredients map[string][]string,
+	results [][]model.Node,
+	nodesVisited *int,
+	target string,
+	targetTier int,
+	maxResults int,
+	singlePath bool,
+	baseElements []string,
+	elements map[string]model.Element,
+) ([][]model.Node, int) {
+	// Base case: no more elements in this level or we already have enough results
+	if len(currentLevel) == 0 || (singlePath && len(results) > 0) {
+		return results, *nodesVisited
+	}
+
+	// Process current level and prepare next level
+	var nextLevel []string
+	*nodesVisited += len(currentLevel)
+
+	// Process all elements in current level
+	for _, current := range currentLevel {
 		currentNode := g.Nodes[current]
 
-		// Skip if the current element doesn't have a path to base elements
+		// Skip if this element doesn't have path to base
 		if !hasPathToBase[current] {
 			continue
 		}
 
-		// Explore recipes where current element is used as ingredient
+		// Check recipes where current element is used as an ingredient
 		for _, recipe := range currentNode.RecipesToMakeOtherElement {
 			resultElement := recipe.Result
 			resultNode := g.Nodes[resultElement]
 
-			// Check if all ingredients for this recipe have been visited and have paths to base elements
+			// Validate all ingredients are visited and have paths to base
 			allIngredientsVisited := true
 			allIngredientsHavePathToBase := true
+
 			for _, ingredient := range recipe.Ingredients {
 				if !visited[ingredient] {
 					allIngredientsVisited = false
@@ -99,70 +143,111 @@ func BFS(elements map[string]model.Element, target string, maxResults int, singl
 				}
 			}
 
-			// If all ingredients are visited and have paths to base, we can create this result element
-			if allIngredientsVisited && allIngredientsHavePathToBase {
-				// Skip if already visited with a shorter path
+			// Check tier validity - higher tier elements can't create lower tier elements
+			allIngredientsHaveValidTier := true
+			resultElementTier := elements[resultElement].Tier
+
+			for _, ingredient := range recipe.Ingredients {
+				ingredientTier := elements[ingredient].Tier
+				if ingredientTier > resultElementTier {
+					fmt.Printf("Skipping recipe for '%s': ingredient '%s' (tier %d) > result (tier %d)\n",
+						resultElement, ingredient, ingredientTier, resultElementTier)
+					allIngredientsHaveValidTier = false
+					break
+				}
+			}
+
+			// Process element only if all validations pass
+			if allIngredientsVisited && allIngredientsHavePathToBase && allIngredientsHaveValidTier {
+				// Skip if already visited
 				if visited[resultElement] {
 					continue
 				}
 
 				visited[resultElement] = true
 
-				// Increment counter if target already found
-				if targetFound {
-					visitedNodesAfterTarget++
-				}
-
-				// Store ingredient information for this element
+				// Store ingredient information
 				elementIngredients[resultElement] = recipe.Ingredients
 
-				// Create a structured path for this element
+				// Create structured path for this element
 				path := buildStructuredPath(pathMap, recipe.Ingredients, resultElement, resultNode.ImagePath, g, baseElements)
 				pathMap[resultElement] = path
 
-				// Mark that this element has a path to base elements
+				// Mark that this element has path to base
 				hasPathToBase[resultElement] = true
 
-				// Check if we found the target element
+				// Check if we found the target
 				if resultElement == target {
 					fmt.Printf("Found target '%s'! Path length: %d\n", target, len(path))
-					targetFound = true
 
-					results = append(results, path)
-
-					// Print the path for debugging
-					fmt.Printf("Path to '%s': ", target)
-					for i, node := range path {
-						if i > 0 {
-							fmt.Printf(" -> ")
+					// Validate the complete path for tier constraints
+					validPath := true
+					for _, node := range path {
+						if node.Element == target {
+							continue
 						}
-						fmt.Printf("%s", node.Element)
-					}
-					fmt.Println()
 
-					// If we only want one path (shortest), return immediately
-					if singlePath {
-						return results, visitedNodesAfterTarget
+						if ingredient, exists := elements[node.Element]; exists {
+							if ingredient.Tier > targetTier {
+								validPath = false
+								break
+							}
+						}
 					}
 
-					// If we have reached max results, break out of the loop
-					if len(results) >= maxResults && maxResults > 0 {
-						break
+					if validPath {
+						// Add to results
+						results = append(results, path)
+
+						// Print path for debugging
+						fmt.Printf("Path to '%s': ", target)
+						for i, node := range path {
+							if i > 0 {
+								fmt.Printf(" -> ")
+							}
+							fmt.Printf("%s", node.Element)
+						}
+						fmt.Println()
+
+						// Return immediately if we only want shortest path
+						if singlePath {
+							return results, *nodesVisited
+						}
+
+						// Stop if we have enough results
+						if len(results) >= maxResults && maxResults > 0 {
+							return results, *nodesVisited
+						}
 					}
 				}
 
-				// Add to queue for further exploration
-				queue.PushBack(resultElement)
+				// Add to next level for further exploration
+				nextLevel = append(nextLevel, resultElement)
 			}
 		}
 	}
 
-	if !targetFound {
-		fmt.Printf("Could not find a path to target '%s'\n", target)
-	}
-
-	return results, visitedNodesAfterTarget
+	// Process next level recursively
+	return bfsLevelProcessing(
+		g,
+		nextLevel,
+		visited,
+		pathMap,
+		hasPathToBase,
+		elementIngredients,
+		results,
+		nodesVisited,
+		target,
+		targetTier,
+		maxResults,
+		singlePath,
+		baseElements,
+		elements,
+	)
 }
+
+// The rest of the helper functions remain unchanged
+// buildStructuredPath, countUniqueElements, etc.
 
 // Helper function to build a structured path ensuring elements are properly organized
 func buildStructuredPath(pathMap map[string][]model.Node, ingredients []string, result string, imagePath string, g *graph.ElementGraph, baseElements []string) []model.Node {
@@ -253,6 +338,8 @@ func countUniqueElements(ingredients []string, pathMap map[string][]model.Node) 
 
 // ImprovedMultiThreadedBFS performs BFS using multiple goroutines for better performance
 // This version is optimized to find multiple unique paths, including paths that differ by just one node
+// ImprovedMultiThreadedBFS performs BFS using multiple goroutines for better performance and diversity
+// This version is optimized to find multiple unique paths, including paths that differ by just one node
 func MultiThreadedBFS(elements map[string]model.Element, target string, maxResults int, singlePath bool) ([][]model.Node, int) {
 	// Build the graph once
 	g := graph.NewElementGraph(elements)
@@ -307,31 +394,86 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 	targetFound := false
 	visitedNodesAfterTarget := 0
 
-	// Start a goroutine for each base element
-	for _, elem := range baseElements {
+	// Create a random source for each goroutine to introduce variety
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	// PERBAIKAN: Parameter untuk keberagaman eksplorasi
+	explorationStyles := []struct {
+		name         string
+		breadthFocus float64 // 0-1: mengutamakan breadth (lebar) eksplorasi
+		depthLimit   int     // batas kedalaman eksplorasi
+		randomFactor float64 // 0-1: tingkat keacakan dalam pemilihan node
+	}{
+		{"broad", 0.8, 30, 0.1},           // Eksplorasi luas, sedikit keacakan
+		{"deep", 0.3, 40, 0.2},            // Eksplorasi dalam, lebih banyak keacakan
+		{"random", 0.5, 35, 0.4},          // Seimbang dengan keacakan tinggi
+		{"balanced", 0.6, 25, 0.05},       // Seimbang, keacakan rendah
+		{"prioritize_base", 0.9, 20, 0.3}, // Prioritas elemen dasar
+	}
+
+	// Start a goroutine for each base element with different exploration strategies
+	for i, elem := range baseElements {
 		wg.Add(1)
-		go func(startElement string) {
+
+		// Pilih strategi eksplorasi yang berbeda untuk setiap goroutine
+		styleIdx := i % len(explorationStyles)
+		style := explorationStyles[styleIdx]
+
+		go func(startElement string, style struct {
+			name         string
+			breadthFocus float64
+			depthLimit   int
+			randomFactor float64
+		}) {
 			defer wg.Done()
 
+			fmt.Printf("Starting goroutine for '%s' with exploration style: %s\n",
+				startElement, style.name)
+
+			// Buat queue lokal untuk BFS dengan prioritas
 			localQueue := list.New()
 			localQueue.PushBack(startElement)
 
-			for localQueue.Len() > 0 {
+			// Batasan untuk mencegah eksplorasi terlalu dalam
+			depth := 0
+			currentLevelSize := 1
+			nextLevelSize := 0
+
+			// Set untuk mencatat elemen yang ditambahkan ke queue (anti-duplikat)
+			localEnqueued := make(map[string]bool)
+			localEnqueued[startElement] = true
+
+			for localQueue.Len() > 0 && depth <= style.depthLimit {
 				// Check if we have found enough results
 				mu.Lock()
 				if len(uniquePathSignatures) >= maxResults && maxResults > 0 {
 					mu.Unlock()
 					return
 				}
-				current := localQueue.Front().Value.(string)
-				localQueue.Remove(localQueue.Front())
+
+				// Pilih elemen berikutnya - kadang secara acak untuk meningkatkan keberagaman
+				var current string
+				var currentElement *list.Element
+
+				if r.Float64() < style.randomFactor && localQueue.Len() > 3 {
+					// Pilih node secara acak dari queue
+					idx := r.Intn(localQueue.Len())
+					currentElement = localQueue.Front()
+					for i := 0; i < idx; i++ {
+						currentElement = currentElement.Next()
+					}
+					current = currentElement.Value.(string)
+					localQueue.Remove(currentElement)
+				} else {
+					// Cara normal BFS (FIFO)
+					current = localQueue.Front().Value.(string)
+					localQueue.Remove(localQueue.Front())
+				}
 
 				currentNode := g.Nodes[current]
 				hasBaseElementPath := hasPathToBase[current]
 				isTargetFound := targetFound
 
-				// Get all discovered paths to the current element
-				// Removed unused variable declaration
 				mu.Unlock()
 
 				// Skip if the current element doesn't have a path to base elements
@@ -340,7 +482,23 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 				}
 
 				// Explore recipes where current element is used as ingredient
-				for _, recipe := range currentNode.RecipesToMakeOtherElement {
+				possibleRecipes := currentNode.RecipesToMakeOtherElement
+
+				// PERBAIKAN: Secara acak urutkan resep untuk meningkatkan keberagaman
+				if style.randomFactor > 0.2 {
+					// Buat copy dari resep untuk diacak
+					recipesCopy := make([]*graph.Recipe, len(possibleRecipes))
+					copy(recipesCopy, possibleRecipes)
+
+					// Acak urutan eksplorasi resep
+					r.Shuffle(len(recipesCopy), func(i, j int) {
+						recipesCopy[i], recipesCopy[j] = recipesCopy[j], recipesCopy[i]
+					})
+
+					possibleRecipes = recipesCopy
+				}
+
+				for _, recipe := range possibleRecipes {
 					resultElement := recipe.Result
 
 					mu.Lock()
@@ -378,6 +536,25 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 						continue
 					}
 
+					// PERBAIKAN: Validasi tier
+					allIngredientsHaveValidTier := true
+					resultElementTier := elements[resultElement].Tier
+
+					for _, ingredient := range ingredients {
+						ingredientTier := elements[ingredient].Tier
+						if ingredientTier > resultElementTier {
+							fmt.Printf("Skipping recipe for '%s': ingredient '%s' (tier %d) > result (tier %d)\n",
+								resultElement, ingredient, ingredientTier, resultElementTier)
+							allIngredientsHaveValidTier = false
+							break
+						}
+					}
+
+					if !allIngredientsHaveValidTier {
+						mu.Unlock()
+						continue
+					}
+
 					// This is the key change - create multiple path combinations
 					// For each ingredient, we may have multiple paths
 					// We need to generate all valid combinations
@@ -394,6 +571,17 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 					// Store all valid path combinations
 					existingPaths := allPathsMap[resultElement]
 					newPaths := mergePathSets(existingPaths, pathCombinations)
+
+					// PERBAIKAN: Batasi jumlah path yang disimpan per elemen untuk mencegah penggunaan memori berlebihan
+					maxPathsPerElement := 10
+					if len(newPaths) > maxPathsPerElement {
+						// Prioritas short paths
+						sort.Slice(newPaths, func(i, j int) bool {
+							return len(newPaths[i]) < len(newPaths[j])
+						})
+						newPaths = newPaths[:maxPathsPerElement]
+					}
+
 					allPathsMap[resultElement] = newPaths
 
 					// Mark that this element has a path to base elements
@@ -420,7 +608,8 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 									// Send the result through the channel
 									select {
 									case resultChan <- resultPath:
-										fmt.Printf("Found path to target '%s', path length: %d\n", target, len(resultPath))
+										fmt.Printf("Goroutine %s: Found path to target '%s', path length: %d\n",
+											style.name, target, len(resultPath))
 									default:
 										// Channel full, skip this result
 									}
@@ -438,10 +627,30 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 					mu.Unlock()
 
 					// Continue BFS exploration
-					localQueue.PushBack(resultElement)
+					if !localEnqueued[resultElement] && depth < style.depthLimit {
+						localQueue.PushBack(resultElement)
+						localEnqueued[resultElement] = true
+						nextLevelSize++
+					}
+				}
+
+				// Track BFS level for debugging and depth limiting
+				currentLevelSize--
+				if currentLevelSize == 0 {
+					depth++
+					currentLevelSize = nextLevelSize
+					nextLevelSize = 0
+
+					// Debug output
+					if depth%5 == 0 {
+						fmt.Printf("Goroutine %s: Exploring depth %d, queue size: %d\n",
+							style.name, depth, localQueue.Len())
+					}
 				}
 			}
-		}(elem)
+
+			fmt.Printf("Goroutine %s finished after exploring to depth %d\n", style.name, depth)
+		}(elem, style)
 	}
 
 	// Wait for all goroutines to finish and close channels
@@ -450,6 +659,7 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 		close(resultChan)
 		visitedNodesChan <- visitedNodesAfterTarget
 		close(visitedNodesChan)
+		fmt.Println("All BFS goroutines finished")
 	}()
 
 	// Collect results from the channel
@@ -461,8 +671,22 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 		}
 	}
 
+	// Deduplicate results for final output
+	finalResults := make([][]model.Node, 0, len(results))
+	finalSignatures := make(map[string]bool)
+
+	for _, path := range results {
+		signature := generatePathSignature(path)
+		if !finalSignatures[signature] {
+			finalSignatures[signature] = true
+			finalResults = append(finalResults, path)
+		}
+	}
+
+	fmt.Printf("MultiThreadedBFS found %d unique paths\n", len(finalResults))
+
 	totalVisited := <-visitedNodesChan
-	return results, totalVisited
+	return finalResults, totalVisited
 }
 
 // generatePathCombinations creates all possible path combinations from ingredient paths
