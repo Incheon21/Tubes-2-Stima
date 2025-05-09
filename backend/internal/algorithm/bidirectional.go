@@ -3,205 +3,284 @@ package algorithm
 import (
 	"backend/model"
 	"container/list"
+	"fmt"
 )
 
-// Bidirectional performs bidirectional search to find recipes
-func Bidirectional(elements map[string]model.Element, target string, maxResults int) ([][]model.Node, int) {
-	// Check if target exists
+// BidirectionalBFS finds recipe paths from base elements to target using Bidirectional BFS
+func BidirectionalBFS(elements map[string]model.Element, target string, maxResults int) ([][]model.Node, int) {
+	debug := false
+	singlePath := maxResults == 1  // Jika maxResults = 1, gunakan singlePath = true
+	var traversalOrder []string    // Kita tetap membuat traversalOrder untuk kompatibilitas internal
+
+	// Validate target exists
 	if _, exists := elements[target]; !exists {
-		return [][]model.Node{}, 0
+		fmt.Printf("Target element '%s' does not exist\n", target)
+		return nil, 0
 	}
 
+	// Get base elements and check if target is base
 	baseElements := getBaseElements(elements)
-
-	// If the target is a base element, return immediately
 	if isBaseElement(target, baseElements) {
-		return [][]model.Node{{
-			{Element: target},
-		}}, 1
+		path := []model.Node{{Element: target}}
+		return [][]model.Node{path}, 0
 	}
 
-	// Initialize forward and backward queues
-	forwardQueue := list.New()
-	backwardQueue := list.New()
-
-	// Track visited nodes from both directions
-	forwardVisited := make(map[string][]model.Node)
-	backwardVisited := make(map[string][]model.Node)
-
-	// Start from base elements (forward direction)
-	for _, elem := range baseElements {
-		forwardQueue.PushBack(elem)
-		forwardVisited[elem] = []model.Node{{Element: elem}}
+	// Check if target can be created
+	if !canElementBeCreated(target, elements) {
+		fmt.Printf("Target '%s' cannot be created\n", target)
+		return nil, 0
 	}
 
-	// Start from target (backward direction)
-	backwardQueue.PushBack(target)
-	backwardVisited[target] = []model.Node{{Element: target}}
+	// Initialize search structures
+	forwardQueue, forwardVisited, forwardPaths := initSearch(baseElements, elements, "F:", debug, &traversalOrder)
+	backwardQueue, backwardVisited, backwardPaths := initSearch([]string{target}, elements, "B:", debug, &traversalOrder)
 
-	// Track visited nodes count
-	visitedNodes := len(baseElements) + 1 // base elements + target
+	// Main search loop
+	results, visitedAfterIntersection := executeBidirectionalSearch(
+		forwardQueue, forwardVisited, forwardPaths,
+		backwardQueue, backwardVisited, backwardPaths,
+		elements, baseElements, target, maxResults, singlePath,
+		debug, &traversalOrder,
+	)
 
-	// Results storage
+	// Fallback to standard BFS if no results
+	if len(results) == 0 {
+		fmt.Printf("Falling back to BFS for target '%s'\n", target)
+		bfsResults, bfsVisited := BFS(elements, target, maxResults, singlePath)
+		return bfsResults, bfsVisited
+	}
+
+	return results, visitedAfterIntersection
+}
+
+// Helper functions
+
+func handleBaseElement(target string, imagePath string, debug bool) ([][]model.Node, int, []string) {
+	fmt.Printf("Target '%s' is base element\n", target)
+	path := []model.Node{{Element: target}}
+	if debug {
+		return [][]model.Node{path}, 0, []string{target}
+	}
+	return [][]model.Node{path}, 0, nil
+}
+
+func canElementBeCreated(target string, elements map[string]model.Element) bool {
+	targetElement, exists := elements[target]
+	if !exists {
+		return false
+	}
+	
+	// Periksa jika elemen memiliki setidaknya satu resep
+	return len(targetElement.Recipes) > 0
+}
+
+func initSearch(startElements []string, elements map[string]model.Element, prefix string, debug bool, traversalOrder *[]string) (*list.List, map[string]bool, map[string][]model.Node) {
+	queue := list.New()
+	visited := make(map[string]bool)
+	paths := make(map[string][]model.Node)
+
+	for _, elemName := range startElements {
+		queue.PushBack(elemName)
+		visited[elemName] = true
+		
+		paths[elemName] = []model.Node{{Element: elemName}}
+		
+		if debug {
+			*traversalOrder = append(*traversalOrder, prefix+elemName)
+		}
+	}
+
+	return queue, visited, paths
+}
+
+func executeBidirectionalSearch(
+	forwardQueue *list.List, forwardVisited map[string]bool, forwardPaths map[string][]model.Node,
+	backwardQueue *list.List, backwardVisited map[string]bool, backwardPaths map[string][]model.Node,
+	elements map[string]model.Element, baseElements []string, target string,
+	maxResults int, singlePath bool, debug bool, traversalOrder *[]string,
+) ([][]model.Node, int) {
 	var results [][]model.Node
+	visitedAfterIntersection := 0
+	maxIterations := 5000
 
-	// Bidirectional BFS
-	for forwardQueue.Len() > 0 && backwardQueue.Len() > 0 {
-		// Check for intersection after each expansion
-		intersection := findIntersection(forwardVisited, backwardVisited)
-		if len(intersection) > 0 {
-			// Found paths, combine them
-			for _, meetingPoint := range intersection {
-				forwardPath := forwardVisited[meetingPoint]
-				backwardPath := backwardVisited[meetingPoint]
-
-				// Reverse the backward path
-				reversedPath := reversePath(backwardPath)
-
-				// Combine paths
-				fullPath := combinePaths(forwardPath, reversedPath)
-				results = append(results, fullPath)
-
-				if len(results) >= maxResults {
-					return results, visitedNodes
-				}
+	for iteration := 0; iteration < maxIterations; iteration++ {
+		// Forward search
+		if newResults := processSearchLevel(
+			forwardQueue, forwardVisited, backwardVisited, forwardPaths,
+			elements, baseElements, "F:", debug, traversalOrder,
+			len(results) > 0, &visitedAfterIntersection,
+		); len(newResults) > 0 {
+			results = append(results, newResults...)
+			if shouldReturn(results, maxResults, singlePath) {
+				return results, visitedAfterIntersection
 			}
 		}
 
-		// Expand forward (from base elements toward target)
-		if forwardQueue.Len() <= backwardQueue.Len() {
-			expandBidirectional(elements, forwardQueue, forwardVisited, &visitedNodes, true)
-		} else {
-			// Expand backward (from target toward base elements)
-			expandBidirectional(elements, backwardQueue, backwardVisited, &visitedNodes, false)
+		// Backward search
+		if newResults := processSearchLevel(
+			backwardQueue, backwardVisited, forwardVisited, backwardPaths,
+			elements, baseElements, "B:", debug, traversalOrder,
+			len(results) > 0, &visitedAfterIntersection,
+		); len(newResults) > 0 {
+			results = append(results, newResults...)
+			if shouldReturn(results, maxResults, singlePath) {
+				return results, visitedAfterIntersection
+			}
+		}
+
+		// Termination conditions
+		if forwardQueue.Len() == 0 || backwardQueue.Len() == 0 {
+			break
+		}
+		if len(results) >= maxResults && maxResults > 0 {
+			break
 		}
 	}
 
-	return results, visitedNodes
+	return results, visitedAfterIntersection
 }
 
-// expandBidirectional expands one level in either the forward or backward direction
-func expandBidirectional(
-	elements map[string]model.Element,
-	queue *list.List,
-	visited map[string][]model.Node,
-	visitedNodes *int,
-	isForward bool,
-) {
-	// Process one level
+func processSearchLevel(
+	queue *list.List, visited, otherVisited map[string]bool,
+	paths map[string][]model.Node, elements map[string]model.Element,
+	baseElements []string, prefix string, debug bool,
+	traversalOrder *[]string, intersectionFound bool,
+	visitedAfterIntersection *int,
+) [][]model.Node {
+	var results [][]model.Node
 	levelSize := queue.Len()
+
 	for i := 0; i < levelSize; i++ {
-		// Dequeue element
 		current := queue.Front().Value.(string)
 		queue.Remove(queue.Front())
 
-		// Get all elements we've visited so far
-		var possibleCombinations []string
+		if debug {
+			*traversalOrder = append(*traversalOrder, prefix+current)
+		}
 
-		if isForward {
-			// Forward direction: try combining with all visited elements
-			for visitedElem := range visited {
-				// Try combining current with visitedElem
-				results := combineElements(current, visitedElem, elements)
-				possibleCombinations = append(possibleCombinations, results...)
-			}
-		} else {
-			// Backward direction: find all elements that can produce the current element
-			for _, elem := range elements {
-				for _, recipe := range elem.Recipes {
-					if len(recipe.Ingredients) == 2 && recipe.Ingredients[0] == current {
-						possibleCombinations = append(possibleCombinations, recipe.Ingredients[1])
-					} else if len(recipe.Ingredients) == 2 && recipe.Ingredients[1] == current {
-						possibleCombinations = append(possibleCombinations, recipe.Ingredients[0])
+		// Explore all possible combinations
+		for otherElement := range elements {
+			for _, result := range combineElements(current, otherElement, elements) {
+				// Skip if we already have a path and it's the same as current
+				if existingPath, exists := paths[result]; exists {
+					currentPath := createPath(paths, current, otherElement, result)
+					if pathsEqual(existingPath, currentPath) {
+						continue
+					}
+				}
+
+				// Create and validate path
+				newPath := createPath(paths, current, otherElement, result)
+				if !validatePath(newPath, baseElements) {
+					continue
+				}
+
+				// Store path (even if already exists, we want alternatives)
+				paths[result] = newPath
+
+				// Mark as visited if new
+				if !visited[result] {
+					visited[result] = true
+					if intersectionFound {
+						*visitedAfterIntersection++
+					}
+				}
+
+				// Always add to queue to explore further
+				queue.PushBack(result)
+
+				// Check for intersection
+				if otherVisited[result] {
+					forwardPath := paths[result]
+					if backwardPath, exists := paths[result]; exists {
+						reversedBackwardPath := reversePathFromTarget(backwardPath)
+						combinedPath := combinePaths(forwardPath, reversedBackwardPath)
+						if validateCompletePath(combinedPath, baseElements) {
+							results = append(results, combinedPath)
+						}
 					}
 				}
 			}
 		}
-
-		// Process all new combinations
-		for _, newElem := range possibleCombinations {
-			// Skip if already visited
-			if _, exists := visited[newElem]; exists {
-				continue
-			}
-
-			// Mark as visited and add to queue
-			queue.PushBack(newElem)
-			(*visitedNodes)++
-
-			// Create path for this new element
-			if isForward {
-				// Forward path: append new element to current's path
-				currentPath := visited[current]
-				newPath := make([]model.Node, len(currentPath))
-				copy(newPath, currentPath)
-				newPath = append(newPath, model.Node{Element: newElem})
-				visited[newElem] = newPath
-			} else {
-				// Backward path: append current to new element's expected path
-				backPath := []model.Node{{Element: newElem}, {Element: current}}
-				visited[newElem] = backPath
-			}
-		}
-	}
-}
-
-// findIntersection finds elements that have been visited from both directions
-func findIntersection(forward, backward map[string][]model.Node) []string {
-	var intersection []string
-
-	// Find elements that appear in both maps
-	for elem := range forward {
-		if _, exists := backward[elem]; exists {
-			intersection = append(intersection, elem)
-		}
 	}
 
-	return intersection
+	return results
 }
 
-// reversePath reverses the order of nodes in a path
-func reversePath(path []model.Node) []model.Node {
+func shouldReturn(results [][]model.Node, maxResults int, singlePath bool) bool {
+	return (singlePath && len(results) > 0) || (maxResults > 0 && len(results) >= maxResults)
+}
+
+func fallbackToBFS(elements map[string]model.Element, target string, maxResults int, singlePath bool, debug bool, traversalOrder []string) ([][]model.Node, int, []string) {
+	fmt.Printf("Falling back to BFS for target '%s'\n", target)
+	bfsResults, bfsVisited := BFS(elements, target, maxResults, singlePath)
+	return bfsResults, bfsVisited, traversalOrder
+}
+
+// Path manipulation functions
+
+func pathsEqual(a, b []model.Node) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i].Element != b[i].Element {
+			return false
+		}
+	}
+	return true
+}
+
+func reversePathFromTarget(path []model.Node) []model.Node {
 	reversed := make([]model.Node, len(path))
-
-	for i, j := 0, len(path)-1; j >= 0; i, j = i+1, j-1 {
-		reversed[i] = path[j]
+	for i := 0; i < len(path); i++ {
+		reversed[i] = path[len(path)-1-i]
 	}
-
 	return reversed
 }
 
-// combinePaths combines forward and backward paths into a complete path
 func combinePaths(forward, backward []model.Node) []model.Node {
-	// Create a new combined path
-	// Skip the duplicate node at the connection point
-	combined := make([]model.Node, 0, len(forward)+len(backward)-1)
-	combined = append(combined, forward...)
-
-	// Skip the first node of the backward path (it's the same as the last of forward)
-	if len(backward) > 1 {
-		combined = append(combined, backward[1:]...)
+	if len(backward) > 0 {
+		backward = backward[1:]
 	}
-
-	return combined
+	return append(forward, backward...)
 }
 
-// Helper functions for all algorithms
+func validateCompletePath(path []model.Node, baseElements []string) bool {
+	if len(path) < 2 {
+		return false
+	}
+	return validatePath(path[:len(path)/2], baseElements) &&
+		validatePath(reversePathFromTarget(path[len(path)/2:]), baseElements)
+}
 
-// getBaseElements returns the list of base elements (tier 1)
-func getBaseElements(elements map[string]model.Element) []string {
-	var baseElements []string
+// Fungsi yang perlu diimplementasikan
 
-	for name, element := range elements {
-		if element.Tier == 1 && (name == "Water" || name == "Fire" || name == "Earth" || name == "Air") {
-			baseElements = append(baseElements, name)
+
+
+func validatePath(path []model.Node, baseElements []string) bool {
+	if len(path) == 0 {
+		return false
+	}
+	
+	// Periksa apakah elemen pertama adalah elemen dasar
+	firstElement := path[0].Element
+	if !isBaseElement(firstElement, baseElements) {
+		return false
+	}
+	
+	// Periksa apakah setiap node memiliki ingredient yang valid
+	for i := 1; i < len(path); i++ {
+		if len(path[i].Ingredients) != 2 {
+			return false
 		}
 	}
-
-	return baseElements
+	
+	return true
 }
 
-// isBaseElement checks if an element is a base element
+// Element utility functions
+
 func isBaseElement(element string, baseElements []string) bool {
 	for _, base := range baseElements {
 		if base == element {
@@ -211,22 +290,28 @@ func isBaseElement(element string, baseElements []string) bool {
 	return false
 }
 
-// combineElements tries to combine two elements and returns all possible results
 func combineElements(elem1, elem2 string, elements map[string]model.Element) []string {
 	var results []string
-
-	// Check all elements for recipes containing both elements
 	for name, element := range elements {
 		for _, recipe := range element.Recipes {
 			if len(recipe.Ingredients) == 2 &&
 				((recipe.Ingredients[0] == elem1 && recipe.Ingredients[1] == elem2) ||
 					(recipe.Ingredients[0] == elem2 && recipe.Ingredients[1] == elem1)) {
-
 				results = append(results, name)
 				break
 			}
 		}
 	}
-
 	return results
 }
+
+func getBaseElements(elements map[string]model.Element) []string {
+	var bases []string
+	for name, element := range elements {
+		if element.Tier == 1 && (name == "Water" || name == "Fire" || name == "Earth" || name == "Air") {
+			bases = append(bases, name)
+		}
+	}
+	return bases
+}
+
