@@ -222,7 +222,16 @@ d/debug.html -->
                     <option value="multiple-recipes-tree">Multiple Recipe Trees</option>
                 </select>
             </div>
-            
+
+            <div class="form-group">
+                <label for="algorithm">Algorithm:</label>
+                <select id="algorithm">
+                    <option value="bfs">Breadth-First Search (BFS)</option>
+                    <option value="dfs">Depth-First Search (DFS)</option>
+                    <option value="multithreaded-bfs">Multithreaded BFS</option>
+                </select>
+            </div>
+
             <div class="form-group">
                 <label for="treeCount">Number of Trees:</label>
                 <input type="number" id="treeCount" value="3" min="1" max="5">
@@ -235,6 +244,10 @@ d/debug.html -->
             <div id="log"></div>
             
             <div class="stats">
+                <div class="stat-box">
+                    <div>Algorithm</div>
+                    <div class="stat-value" id="algorithm-stat">-</div>
+                </div>
                 <div class="stat-box">
                     <div>Time (ms)</div>
                     <div class="stat-value" id="time-stat">0</div>
@@ -360,81 +373,307 @@ d/debug.html -->
             }
         });
         
-        // Visualize button click handler
-        document.getElementById('visualizeBtn').addEventListener('click', async () => {
-            const serverUrl = getServerUrl();
-            const target = document.getElementById('target').value;
-            const treeType = document.getElementById('treeType').value;
-            const treeCount = parseInt(document.getElementById('treeCount').value);
-            
-            if (!target) {
-                log('Please enter a target element', 'error');
-                return;
-            }
-            
-            try {
-                log(`Fetching ${treeType} for ${target}...`);
-                
-                const url = `${serverUrl}/api/${treeType}/${encodeURIComponent(target)}?count=${treeCount}`;
-                log(`Requesting URL: ${url}`);
-                
-                const response = await fetch(url);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP Error: ${response.status}`);
-                }
-                
-                const result = await response.json();
-                log('Data received successfully', 'success');
-                
-                // Update stats
-                document.getElementById('time-stat').textContent = result.timeElapsed || 0;
-                document.getElementById('nodes-stat').textContent = result.nodesVisited || 0;
-                
-                if (!result.trees || result.trees.length === 0) {
-                    log(`No recipe trees found for ${target}`, 'error');
-                    document.getElementById('visualization').innerHTML = '<div style="padding: 20px; text-align: center;">No recipe trees found</div>';
-                    document.getElementById('tree-selector').style.display = 'none';
-                    document.getElementById('recipe-details').innerHTML = '';
-                    document.getElementById('trees-stat').textContent = 0;
-                    return;
-                }
-                
-                // Store the trees for navigation
-                currentTrees = result.trees;
-                currentTreeIndex = 0;
-                
-                // Update trees count
-                document.getElementById('trees-stat').textContent = currentTrees.length;
-                
-                log(`Found ${currentTrees.length} recipe trees for ${target}`, 'success');
+document.getElementById('visualizeBtn').addEventListener('click', async () => {
+    const serverUrl = getServerUrl();
+    const target = document.getElementById('target').value;
+    const treeType = document.getElementById('treeType').value;
+    const algorithm = document.getElementById('algorithm').value;
+    const treeCount = parseInt(document.getElementById('treeCount').value);
+    
+    if (!target) {
+        log('Please enter a target element', 'error');
+        return;
+    }
+    
+    try {
+        log(`Fetching ${treeType} for ${target} using ${algorithm} algorithm...`);
+        
+        let url;
+        // Use the specific BFS endpoint when BFS algorithm is selected
+        if (algorithm === 'bfs') {
+            // Make sure we explicitly request multiple paths
+            url = `${serverUrl}/api/bfs/${encodeURIComponent(target)}?count=${treeCount}&singlePath=false`;
+            log(`Using dedicated BFS endpoint: ${url}`);
+        } else {
+            url = `${serverUrl}/api/${treeType}/${encodeURIComponent(target)}?count=${treeCount}&algorithm=${algorithm}`;
+            log(`Requesting URL: ${url}`);
+        }
+        
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        log('Data received successfully');
+        
+        // Add explicit logging for debugging
+        if (algorithm === 'bfs' && result.paths) {
+            log(`Received ${result.paths.length} BFS paths`);
+        }
+        
+        // Update stats
+        document.getElementById('algorithm-stat').textContent = algorithm.toUpperCase();
+        document.getElementById('time-stat').textContent = result.timeElapsed || 0;
+        document.getElementById('nodes-stat').textContent = result.nodesVisited || 0;
+        
+        // Handle different result formats based on algorithm
+        if (algorithm === 'bfs') {
+            // For BFS, we get paths not trees, so convert them
+            if (result.paths && result.paths.length > 0) {
+                // Convert paths to tree format
+                const trees = result.paths.map(path => convertPathToTree(path, target));
+                currentTrees = trees;
+                document.getElementById('trees-stat').textContent = trees.length;
                 
                 // Setup tree selector if multiple trees
-                setupTreeSelector(currentTrees.length);
+                setupTreeSelector(trees.length);
                 
                 // Visualize the first tree
+                if (trees.length > 0) {
+                    currentTreeIndex = 0;
+                    visualizeTree(trees[0], target);
+                    log(`Visualizing BFS path ${currentTreeIndex + 1} of ${trees.length} for ${target}`, 'success');
+                    
+                    // Display a summary of all paths found
+                    showBfsPathsSummary(result.paths, target);
+                }
+            } else {
+                log('No paths found', 'error');
+                document.getElementById('trees-stat').textContent = '0';
+                document.getElementById('visualization').innerHTML = 
+                    '<div style="padding: 20px; text-align: center;">No paths found</div>';
+                document.getElementById('recipe-details').innerHTML = '';
+            }
+        } else {
+            // For other algorithms, handle the tree format
+            currentTrees = result.trees || [];
+            document.getElementById('trees-stat').textContent = currentTrees.length;
+            
+            // Setup tree selector if multiple trees
+            setupTreeSelector(currentTrees.length);
+            
+            // Visualize the first tree if available
+            if (currentTrees.length > 0) {
+                currentTreeIndex = 0;
                 visualizeTree(currentTrees[0], target);
-                
-            } catch (error) {
-                log(`Visualization failed: ${error.message}`, 'error');
+                log(`Visualizing recipe tree for ${target}`, 'success');
+            } else {
+                log('No recipe trees found', 'error');
+                document.getElementById('visualization').innerHTML = 
+                    '<div style="padding: 20px; text-align: center;">No recipe trees found</div>';
+                document.getElementById('recipe-details').innerHTML = '';
+            }
+        }
+    } catch (error) {
+        log(`Visualization failed: ${error.message}`, 'error');
+    }
+});
+
+// Add this new function to display a summary of all BFS paths
+function showBfsPathsSummary(paths, targetElement) {
+    const container = document.getElementById('recipe-details');
+    
+    // Clear previous content
+    container.innerHTML = '<h3>BFS Recipe Paths Summary</h3>';
+    
+    // Create a container for all paths
+    const pathsContainer = document.createElement('div');
+    pathsContainer.className = 'paths-summary';
+    
+    // Add summary for each path
+    paths.forEach((path, index) => {
+        // Normalisasi nama properti (BFS menggunakan lowercase 'element', UI mengharapkan 'Element')
+        const normalizedPath = path.map(node => ({
+            element: node.element || node.Element,
+            imagePath: node.imagePath || node.ImagePath,
+            ingredients: node.ingredients || node.Ingredients
+        }));
+        
+        const pathDiv = document.createElement('div');
+        pathDiv.className = 'recipe-path';
+        
+        // Create header
+        const header = document.createElement('div');
+        header.style.display = 'flex';
+        header.style.justifyContent = 'space-between';
+        header.style.alignItems = 'center';
+        header.style.marginBottom = '10px';
+        
+        // Create path title
+        const pathTitle = document.createElement('h4');
+        pathTitle.style.margin = '0';
+        pathTitle.textContent = `Path ${index + 1}: ${normalizedPath.length} elements`;
+        header.appendChild(pathTitle);
+        
+        // Add view button
+        const viewButton = document.createElement('button');
+        viewButton.textContent = 'View This Path';
+        viewButton.style.marginLeft = 'auto';
+        viewButton.addEventListener('click', () => {
+            // Update tree selector
+            document.querySelectorAll('#tree-selector button').forEach(btn => {
+                btn.classList.remove('active-button');
+            });
+            
+            // Pastikan tombol ada sebelum mencoba mengakses
+            const targetButton = document.querySelector(`#tree-selector button[data-index="${index}"]`);
+            if (targetButton) {
+                targetButton.classList.add('active-button');
+            }
+            
+            // Update visualization
+            currentTreeIndex = index;
+            visualizeTree(currentTrees[index], targetElement);
+            
+            // Scroll to visualization
+            document.getElementById('visualization').scrollIntoView({behavior: 'smooth'});
+        });
+        header.appendChild(viewButton);
+        
+        pathDiv.appendChild(header);
+        
+        // Show path steps for each element
+        const pathSteps = document.createElement('div');
+        pathSteps.className = 'path-steps';
+        
+        // Display base elements first
+        const baseElements = ['Water', 'Fire', 'Earth', 'Air'];
+        const baseNodes = path.filter(node => baseElements.includes(node.element));
+        const nonBaseNodes = path.filter(node => !baseElements.includes(node.element));
+        
+        // Create elements preview
+        const elementsPreview = document.createElement('div');
+        elementsPreview.className = 'elements-preview';
+        
+        // Add base elements
+        baseNodes.forEach((node, i) => {
+            const elementBox = document.createElement('div');
+            elementBox.className = 'element-box base-element';
+            
+            // Add image if available
+            if (node.imagePath) {
+                const img = document.createElement('img');
+                img.src = node.imagePath;
+                img.className = 'element-image';
+                img.alt = node.element;
+                elementBox.appendChild(img);
+            }
+            
+            const elementName = document.createElement('span');
+            elementName.textContent = node.element;
+            elementBox.appendChild(elementName);
+            elementsPreview.appendChild(elementBox);
+            
+            if (i < baseNodes.length - 1) {
+                const plus = document.createElement('div');
+                plus.className = 'plus';
+                plus.textContent = '+';
+                elementsPreview.appendChild(plus);
             }
         });
         
-        // Clear button click handler
+        // Add arrow if we have both base and non-base elements
+        if (baseNodes.length > 0 && nonBaseNodes.length > 0) {
+            const arrow = document.createElement('div');
+            arrow.className = 'arrow';
+            arrow.innerHTML = '→';
+            arrow.style.margin = '0 10px';
+            elementsPreview.appendChild(arrow);
+        }
+        
+        // Add intermediate elements
+        for (let i = 0; i < nonBaseNodes.length; i++) {
+            const node = nonBaseNodes[i];
+            
+            // Skip the target element (it's displayed separately)
+            if (node.element === targetElement && i !== nonBaseNodes.length - 1) {
+                continue;
+            }
+            
+            const elementBox = document.createElement('div');
+            elementBox.className = 'element-box';
+            if (node.element === targetElement) {
+                elementBox.classList.add('result-element');
+            }
+            
+            // Add image if available
+            if (node.imagePath) {
+                const img = document.createElement('img');
+                img.src = node.imagePath;
+                img.className = 'element-image';
+                img.alt = node.element;
+                elementBox.appendChild(img);
+            }
+            
+            const elementName = document.createElement('span');
+            elementName.textContent = node.element;
+            elementBox.appendChild(elementName);
+            elementsPreview.appendChild(elementBox);
+            
+            // Add arrow between elements
+            if (i < nonBaseNodes.length - 1) {
+                const arrow = document.createElement('div');
+                arrow.className = 'arrow';
+                arrow.innerHTML = '→';
+                arrow.style.margin = '0 10px';
+                elementsPreview.appendChild(arrow);
+            }
+        }
+        
+        pathSteps.appendChild(elementsPreview);
+        pathDiv.appendChild(pathSteps);
+        pathsContainer.appendChild(pathDiv);
+    });
+    
+    container.appendChild(pathsContainer);
+    
+    // Add some styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .paths-summary {
+            margin-top: 15px;
+        }
+        .path-steps {
+            margin-bottom: 10px;
+        }
+        .elements-preview {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .arrow {
+            font-weight: bold;
+            font-size: 18px;
+            color: #555;
+        }
+        .plus {
+            margin: 0 5px;
+            font-weight: bold;
+            font-size: 18px;
+            color: #555;
+        }
+    `;
+    document.head.appendChild(style);
+}
+        
         document.getElementById('clearBtn').addEventListener('click', () => {
-            document.getElementById('visualization').innerHTML = '';
-            document.getElementById('recipe-details').innerHTML = '';
-            document.getElementById('tree-selector').style.display = 'none';
-            currentTrees = [];
-            currentTreeIndex = 0;
-            
-            // Reset stats
-            document.getElementById('time-stat').textContent = 0;
-            document.getElementById('nodes-stat').textContent = 0;
-            document.getElementById('trees-stat').textContent = 0;
-            
-            log('Visualization cleared');
-        });
+    document.getElementById('visualization').innerHTML = '';
+    document.getElementById('recipe-details').innerHTML = '';
+    document.getElementById('tree-selector').style.display = 'none';
+    currentTrees = [];
+    currentTreeIndex = 0;
+    
+    // Reset stats
+    document.getElementById('algorithm-stat').textContent = '-';
+    document.getElementById('time-stat').textContent = '0';
+    document.getElementById('nodes-stat').textContent = '0';
+    document.getElementById('trees-stat').textContent = '0';
+    
+    log('Visualization cleared');
+});
         
         // Setup tree selector buttons
         function setupTreeSelector(treeCount) {
@@ -470,86 +709,150 @@ d/debug.html -->
                 selector.appendChild(button);
             }
         }
-        
-        // Visualize a recipe tree using D3.js
-        function visualizeTree(treeData, targetElement) {
-            // Clear previous visualization
-            document.getElementById('visualization').innerHTML = '';
-            
-            // Set up dimensions
-            const margin = {top: 40, right: 90, bottom: 50, left: 90};
-            const width = 960 - margin.left - margin.right;
-            const height = 500 - margin.top - margin.bottom;
-            
-            // Create SVG
-            const svg = d3.select("#visualization")
-                .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", `translate(${margin.left},${margin.top})`);
-            
-            // Add title
-            svg.append("text")
-                .attr("x", width / 2)
-                .attr("y", -20)
-                .attr("text-anchor", "middle")
-                .style("font-size", "16px")
-                .style("font-weight", "bold")
-                .text(`Recipe Tree for ${targetElement}`);
-            
-            // Process the data for d3 hierarchy
-            const hierarchyData = processTreeData(treeData);
-            
-            // Create tree layout
-            const treeLayout = d3.tree().size([height, width]);
-            
-            // Convert data to hierarchy
-            const root = d3.hierarchy(hierarchyData);
-            
-            // Assign x and y coordinates
-            treeLayout(root);
-            
-            // Add links
-            svg.selectAll(".link")
-                .data(root.links())
-                .enter()
-                .append("path")
-                .attr("class", "link")
-                .attr("d", d => {
-                    return `M${d.target.y},${d.target.x}
-                            C${(d.source.y + d.target.y) / 2},${d.target.x}
-                             ${(d.source.y + d.target.y) / 2},${d.source.x}
-                             ${d.source.y},${d.source.x}`;
-                });
-            
-            // Add nodes
-            const node = svg.selectAll(".node")
-                .data(root.descendants())
-                .enter()
-                .append("g")
-                .attr("class", "node")
-                .attr("transform", d => `translate(${d.y},${d.x})`);
-            
-            // Add node circles
-            node.append("circle")
-                .attr("r", 10)
-                .style("fill", d => {
-                    if (d.data.isBaseElement) return "#FFC107";
-                    if (d.depth === 0) return "#4CAF50"; // Root node
-                    return "lightsteelblue";
-                });
-            
-            // Add node labels
-            node.append("text")
-                .attr("dy", ".35em")
-                .attr("x", d => d.children ? -13 : 13)
-                .style("text-anchor", d => d.children ? "end" : "start")
-                .text(d => d.data.name);
-            
-            // Show detail panel for the tree
-            showTreeDetails(treeData);
+
+    
+function convertPathToTree(path, targetElement) {
+    // Perbaikan untuk keseragaman format
+    // BFS mengembalikan elemen dalam path sebagai "element", bukan "Element"
+    const normalizedPath = path.map(node => {
+        return {
+            Element: node.element || node.Element,
+            ImagePath: node.imagePath || node.ImagePath,
+            Ingredients: node.ingredients || node.Ingredients
+        };
+    });
+    
+    // If path is empty, return a placeholder
+    if (!normalizedPath || normalizedPath.length === 0) {
+        return { name: targetElement, ingredients: [] };
+    }
+    
+    // Helper to track visited elements to detect circular references
+    const visitedInPath = new Set();
+    
+    function buildTree(currentElement, remainingPath) {
+        // Find the node for current element
+        const currentNode = remainingPath.find(node => node.Element === currentElement);
+        if (!currentNode) {
+            return { name: currentElement, ingredients: [] };
         }
+        
+        // Check for circular reference
+        if (visitedInPath.has(currentElement)) {
+            return { 
+                name: currentElement,
+                imagePath: currentNode.ImagePath,
+                isCircularReference: true,
+                ingredients: [] 
+            };
+        }
+        
+        // Add to visited set for circular reference detection
+        visitedInPath.add(currentElement);
+        
+        // Create the node for this element
+        const node = {
+            name: currentElement,
+            imagePath: currentNode.ImagePath,
+            isBaseElement: ['Water', 'Fire', 'Earth', 'Air'].includes(currentElement),
+            ingredients: []
+        };
+        
+        // Process ingredients if any
+        if (currentNode.Ingredients && currentNode.Ingredients.length > 0) {
+            currentNode.Ingredients.forEach(ingredient => {
+                const ingredientTree = buildTree(ingredient, remainingPath);
+                node.ingredients.push(ingredientTree);
+            });
+        }
+        
+        // Remove from visited set when backtracking
+        visitedInPath.delete(currentElement);
+        
+        return node;
+    }
+    
+    // Find the target element (should be at the end of the path)
+    const targetNode = normalizedPath.find(node => node.Element === targetElement) || normalizedPath[normalizedPath.length - 1];
+    
+    // Build tree starting from target element
+    return buildTree(targetNode.Element, normalizedPath);
+}
+
+        
+        // Make sure this function is defined properly
+function visualizeTree(treeData, targetElement) {
+    // Clear previous visualization
+    document.getElementById('visualization').innerHTML = '';
+    
+    if (!treeData) {
+        log('No tree data to visualize', 'error');
+        return;
+    }
+    
+    // Process the tree data for D3
+    const hierarchyData = processTreeData(treeData);
+    
+    // Set up dimensions
+    const margin = {top: 40, right: 90, bottom: 50, left: 90};
+    const width = 960 - margin.left - margin.right;
+    const height = 500 - margin.top - margin.bottom;
+    
+    // Create SVG
+    const svg = d3.select("#visualization")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+    
+    // Create the tree layout
+    const treeLayout = d3.tree()
+        .size([width, height]);
+    
+    // Create root node and calculate positions
+    const root = d3.hierarchy(hierarchyData);
+    treeLayout(root);
+    
+    // Draw links between nodes
+    svg.selectAll(".link")
+        .data(root.links())
+        .enter()
+        .append("path")
+        .attr("class", "link")
+        .attr("d", d3.linkVertical()
+            .x(d => d.x)
+            .y(d => d.y));
+    
+    // Create node groups
+    const nodes = svg.selectAll(".node")
+        .data(root.descendants())
+        .enter()
+        .append("g")
+        .attr("class", "node")
+        .attr("transform", d => `translate(${d.x},${d.y})`);
+    
+    // Add circles to nodes
+    nodes.append("circle")
+        .attr("r", 6)
+        .style("fill", d => {
+            if (d.data.isBaseElement) return "#FFEB3B";
+            if (d.data.isCircularReference) return "#FF9800";
+            if (d.data.noRecipe) return "#E0E0E0";
+            if (d.depth === 0) return "#4CAF50";
+            return "#2196F3";
+        });
+    
+    // Add text labels
+    nodes.append("text")
+        .attr("dy", ".35em")
+        .attr("x", d => d.children ? -13 : 13)
+        .attr("text-anchor", d => d.children ? "end" : "start")
+        .text(d => d.data.name);
+    
+    // Show detail panel for the tree
+    showTreeDetails(treeData);
+}
         
         // Convert API tree format to D3 hierarchy format
         // ...existing code...
@@ -557,7 +860,7 @@ d/debug.html -->
 function processTreeData(treeData) {
     function convertNode(node) {
         const result = {
-            name: node.name,
+            name: node.name || "Unknown",
             isBaseElement: node.isBaseElement || false,
             isCircularReference: node.isCircularReference || false,
             noRecipe: node.noRecipe || false,
@@ -566,7 +869,6 @@ function processTreeData(treeData) {
         };
         
         if (node.ingredients && Array.isArray(node.ingredients)) {
-            // Always include all ingredients, even if they're circular references
             result.children = node.ingredients.map(ing => convertNode(ing));
         }
         
@@ -576,71 +878,71 @@ function processTreeData(treeData) {
     return convertNode(treeData);
 }
 
-// Show detailed tree information
 function showTreeDetails(treeData) {
     const container = document.getElementById('recipe-details');
     container.innerHTML = '<h3>Recipe Tree Details</h3>';
     
-    // Create container for tree info
+    // Create a tree container
     const treeContainer = document.createElement('div');
     treeContainer.className = 'tree-container';
     
-    // Add title for this tree with image
-    const treeTitle = document.createElement('div');
-    treeTitle.className = 'tree-title';
+    // Add the title with element image
+    const titleDiv = document.createElement('div');
+    titleDiv.className = 'tree-title';
     
-    // Add image if available
     if (treeData.imagePath) {
         const img = document.createElement('img');
         img.src = treeData.imagePath;
-        img.alt = treeData.name;
         img.className = 'element-image';
-        treeTitle.appendChild(img);
+        titleDiv.appendChild(img);
     }
     
     const titleText = document.createElement('span');
-    titleText.textContent = `Recipe for ${treeData.name}`;
-    treeTitle.appendChild(titleText);
+    titleText.textContent = `${treeData.name}`;
+    titleDiv.appendChild(titleText);
     
-    treeContainer.appendChild(treeTitle);
+    treeContainer.appendChild(titleDiv);
     
-    // Function to recursively display the tree
-    function displayTree(node, container, depth = 0, visited = new Set()) {
+    // Recursive function to display the tree
+    function displayTree(node, container, depth = 0) {
         const nodeDiv = document.createElement('div');
+        nodeDiv.className = 'recipe-step';
         nodeDiv.style.paddingLeft = `${depth * 20}px`;
-        nodeDiv.style.marginBottom = '5px';
         
-        // Create element display
-        const elementSpan = document.createElement('span');
-        elementSpan.className = `element-box ${node.isBaseElement ? 'base-element' : (depth === 0 ? 'result-element' : '')}`;
+        // Element box
+        const elementBox = document.createElement('div');
+        elementBox.className = 'element-box';
+        if (node.isBaseElement) elementBox.classList.add('base-element');
+        if (depth === 0) elementBox.classList.add('result-element');
         
         // Add image if available
         if (node.imagePath) {
             const img = document.createElement('img');
             img.src = node.imagePath;
-            img.alt = node.name;
             img.className = 'element-image';
-            elementSpan.appendChild(img);
+            elementBox.appendChild(img);
         }
         
-        const nameSpan = document.createElement('span');
-        nameSpan.textContent = node.name;
-        elementSpan.appendChild(nameSpan);
+        const elementName = document.createElement('span');
+        elementName.textContent = node.name || "Unknown";
+        elementBox.appendChild(elementName);
         
-        nodeDiv.appendChild(elementSpan);
+        nodeDiv.appendChild(elementBox);
         
-        // Add special indicators
+        // Show special indicators
         if (node.isCircularReference) {
             const circRef = document.createElement('span');
             circRef.textContent = ' (circular reference)';
-            circRef.style.color = '#F44336';
+            circRef.style.color = '#FF9800';
+            circRef.style.fontStyle = 'italic';
             nodeDiv.appendChild(circRef);
         }
         
         if (node.noRecipe) {
             const noRecipe = document.createElement('span');
             noRecipe.textContent = ' (no recipe)';
-            noRecipe.style.color = '#FF9800';
+            noRecipe.style.color = '#9E9E9E';
+            noRecipe.style.fontStyle = 'italic';
             nodeDiv.appendChild(noRecipe);
         }
         
@@ -658,7 +960,7 @@ function showTreeDetails(treeData) {
                 container.appendChild(madeFrom);
             }
             
-            // Recursively display each ingredient - always show, even if circular
+            // Recursively display each ingredient
             node.ingredients.forEach(ingredient => {
                 displayTree(ingredient, container, depth + 1);
             });

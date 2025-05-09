@@ -3,6 +3,7 @@ package internal
 import (
 	"backend/internal/graph"
 	"backend/model"
+	"backend/utils"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -25,13 +26,16 @@ func LoadElements() (map[string]model.Element, *graph.ElementGraph, error) {
 		return nil, nil, err
 	}
 
-	//biar efisien, pake map
+	// Convert list to map for efficiency
 	elementsMap := make(map[string]model.Element, len(elementsList))
 	for _, element := range elementsList {
 		elementsMap[element.Name] = element
 	}
 
-	// Build the graph representation
+	// Apply tier validation to filter invalid recipes
+	elementsMap = utils.ValidateRecipeTiers(elementsMap)
+
+	// Build the graph representation using the validated elements
 	elementGraph := graph.NewElementGraph(elementsMap)
 
 	return elementsMap, elementGraph, nil

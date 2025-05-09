@@ -17,7 +17,7 @@
         ]
       }
     ],
-    "tier": 0
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8a/Planet_2.svg/revision/latest/scale-to-width-down/40",
@@ -55,7 +55,7 @@
         ]
       }
     ],
-    "tier": 3
+    "tier": 4
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/56/Swimming_pool_2.svg/revision/latest/scale-to-width-down/40",
@@ -81,7 +81,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/5c/Blizzard_2.svg/revision/latest/scale-to-width-down/40",
@@ -125,7 +125,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/16/Cook_2.svg/revision/latest/scale-to-width-down/40",
@@ -157,7 +157,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8d/Computer_mouse_2.svg/revision/latest/scale-to-width-down/40",
@@ -177,7 +177,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8d/Angler_2.svg/revision/latest/scale-to-width-down/40",
@@ -197,7 +197,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b9/Swordfish_2.svg/revision/latest/scale-to-width-down/40",
@@ -229,7 +229,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c5/Ore_2.svg/revision/latest/scale-to-width-down/40",
@@ -273,7 +273,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b2/Algae_2.svg/revision/latest/scale-to-width-down/40",
@@ -305,7 +305,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/76/Manatee_2.svg/revision/latest/scale-to-width-down/40",
@@ -343,7 +343,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/50/Vegetable_2.svg/revision/latest/scale-to-width-down/40",
@@ -381,7 +381,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/74/Greenhouse_2.svg/revision/latest/scale-to-width-down/40",
@@ -437,7 +437,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f7/Iceberg_2.svg/revision/latest/scale-to-width-down/40",
@@ -481,7 +481,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8a/Rose_2.svg/revision/latest/scale-to-width-down/40",
@@ -513,7 +513,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/82/Steel_wool_2.svg/revision/latest/scale-to-width-down/40",
@@ -539,7 +539,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c2/Stream_2.svg/revision/latest/scale-to-width-down/40",
@@ -565,7 +565,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/01/Pyramid_2.svg/revision/latest/scale-to-width-down/40",
@@ -621,7 +621,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/12/Dragon_2.svg/revision/latest/scale-to-width-down/40",
@@ -671,7 +671,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/70/Lamp_2.svg/revision/latest/scale-to-width-down/40",
@@ -691,7 +691,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9b/Painting_2.svg/revision/latest/scale-to-width-down/40",
@@ -711,7 +711,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/95/Steam_2.svg/revision/latest/scale-to-width-down/40",
@@ -805,7 +805,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/1c/Flute_2.svg/revision/latest/scale-to-width-down/40",
@@ -825,7 +825,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/43/Cookbook_2.svg/revision/latest/scale-to-width-down/40",
@@ -845,7 +845,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/bc/Cheeseburger_2.svg/revision/latest/scale-to-width-down/40",
@@ -865,7 +865,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/03/Air_2.svg/revision/latest/scale-to-width-down/40",
@@ -879,7 +879,7 @@
         ]
       }
     ],
-    "tier": 0
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/44/Soil_2.svg/revision/latest/scale-to-width-down/40",
@@ -911,7 +911,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/85/Lava_2.svg/revision/latest/scale-to-width-down/40",
@@ -957,7 +957,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/0d/Vault_2.svg/revision/latest/scale-to-width-down/40",
@@ -971,7 +971,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/cd/Cat_2.svg/revision/latest/scale-to-width-down/40",
@@ -997,7 +997,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d9/Fire_extinguisher_2.svg/revision/latest/scale-to-width-down/40",
@@ -1035,7 +1035,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/5e/Ash_2.svg/revision/latest/scale-to-width-down/40",
@@ -1121,7 +1121,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/ed/Energy_2.svg/revision/latest/scale-to-width-down/40",
@@ -1197,7 +1197,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e3/Fridge_2.svg/revision/latest/scale-to-width-down/40",
@@ -1259,7 +1259,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/4f/Leaf_2.svg/revision/latest/scale-to-width-down/40",
@@ -1291,7 +1291,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/3b/Quicksand_2.svg/revision/latest/scale-to-width-down/40",
@@ -1305,7 +1305,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/06/Bbq_2.svg/revision/latest/scale-to-width-down/40",
@@ -1343,7 +1343,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "name": "Zeus",
@@ -1392,7 +1392,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/0f/Combustion_engine_2.svg/revision/latest/scale-to-width-down/40",
@@ -1430,7 +1430,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/43/Smoothie_2.svg/revision/latest/scale-to-width-down/40",
@@ -1456,7 +1456,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/0a/Recipe_2.svg/revision/latest/scale-to-width-down/40",
@@ -1542,7 +1542,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/83/Meteor_2.svg/revision/latest/scale-to-width-down/40",
@@ -1580,7 +1580,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "name": "Babe the blue ox",
@@ -1629,7 +1629,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/4c/Rope_2.svg/revision/latest/scale-to-width-down/40",
@@ -1673,7 +1673,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a3/Hero_2.svg/revision/latest/scale-to-width-down/40",
@@ -1705,7 +1705,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/13/Family_tree_2.svg/revision/latest/scale-to-width-down/40",
@@ -1731,7 +1731,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/81/Frankenstein%27s_monster_2.svg/revision/latest/scale-to-width-down/40",
@@ -1787,7 +1787,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 3
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/95/Beer_2.svg/revision/latest/scale-to-width-down/40",
@@ -1801,7 +1801,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/74/Chimney_2.svg/revision/latest/scale-to-width-down/40",
@@ -1851,7 +1851,7 @@
         ]
       }
     ],
-    "tier": 3
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/0f/Day_2.svg/revision/latest/scale-to-width-down/40",
@@ -1883,7 +1883,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/63/Fairy_tale_2.svg/revision/latest/scale-to-width-down/40",
@@ -1933,7 +1933,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/eb/Swim_goggles_2.svg/revision/latest/scale-to-width-down/40",
@@ -2001,7 +2001,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/6d/Robot_2.svg/revision/latest/scale-to-width-down/40",
@@ -2045,7 +2045,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c4/Owl_2.svg/revision/latest/scale-to-width-down/40",
@@ -2077,7 +2077,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f9/Fishing_rod_2.svg/revision/latest/scale-to-width-down/40",
@@ -2157,7 +2157,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/ae/Iced_tea_2.svg/revision/latest/scale-to-width-down/40",
@@ -2177,7 +2177,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c6/Current_2.svg/revision/latest/scale-to-width-down/40",
@@ -2233,7 +2233,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b2/Letter_2.svg/revision/latest/scale-to-width-down/40",
@@ -2247,7 +2247,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/4f/Tobacco_2.svg/revision/latest/scale-to-width-down/40",
@@ -2273,7 +2273,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c0/Chocolate_2.svg/revision/latest/scale-to-width-down/40",
@@ -2305,7 +2305,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/2f/Flying_squirrel_2.svg/revision/latest/scale-to-width-down/40",
@@ -2361,7 +2361,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e3/Mist_2.svg/revision/latest/scale-to-width-down/40",
@@ -2419,7 +2419,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f6/Star_2.svg/revision/latest/scale-to-width-down/40",
@@ -2463,7 +2463,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a1/Sandstone_2.svg/revision/latest/scale-to-width-down/40",
@@ -2489,7 +2489,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a9/Legend_2.svg/revision/latest/scale-to-width-down/40",
@@ -2533,7 +2533,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/7e/Minotaur_2.svg/revision/latest/scale-to-width-down/40",
@@ -2571,7 +2571,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/0d/Robot_vacuum_2.svg/revision/latest/scale-to-width-down/40",
@@ -2603,7 +2603,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f7/Origami_2.svg/revision/latest/scale-to-width-down/40",
@@ -2707,7 +2707,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/2a/Plant_2.svg/revision/latest/scale-to-width-down/40",
@@ -2775,7 +2775,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/5b/Paper_2.svg/revision/latest/scale-to-width-down/40",
@@ -2807,7 +2807,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/1a/Orchard_2.svg/revision/latest/scale-to-width-down/40",
@@ -2857,7 +2857,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "name": "Holy water",
@@ -2894,7 +2894,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/ff/The_one_ring_2.svg/revision/latest/scale-to-width-down/40",
@@ -2914,7 +2914,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/33/Bell_2.svg/revision/latest/scale-to-width-down/40",
@@ -2952,7 +2952,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "name": "Cosmic egg",
@@ -2983,7 +2983,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8c/Moth_2.svg/revision/latest/scale-to-width-down/40",
@@ -3027,7 +3027,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a9/Cave_2.svg/revision/latest/scale-to-width-down/40",
@@ -3083,7 +3083,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/76/Newspaper_2.svg/revision/latest/scale-to-width-down/40",
@@ -3109,7 +3109,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b7/Vacuum_cleaner_2.svg/revision/latest/scale-to-width-down/40",
@@ -3129,7 +3129,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/97/Cutting_board_2.svg/revision/latest/scale-to-width-down/40",
@@ -3143,7 +3143,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/01/Fire_2.svg/revision/latest/scale-to-width-down/40",
@@ -3163,7 +3163,7 @@
         ]
       }
     ],
-    "tier": 0
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9e/Grave_2.svg/revision/latest/scale-to-width-down/40",
@@ -3225,7 +3225,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 3
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/40/Alarm_clock_2.svg/revision/latest/scale-to-width-down/40",
@@ -3269,7 +3269,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/be/Paper_airplane_2.svg/revision/latest/scale-to-width-down/40",
@@ -3283,7 +3283,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/df/Electric_car_2.svg/revision/latest/scale-to-width-down/40",
@@ -3327,7 +3327,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/7d/Knife_2.svg/revision/latest/scale-to-width-down/40",
@@ -3347,7 +3347,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9c/Dough_2.svg/revision/latest/scale-to-width-down/40",
@@ -3373,7 +3373,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/76/Sandpaper_2.svg/revision/latest/scale-to-width-down/40",
@@ -3393,7 +3393,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/df/Metal_2.svg/revision/latest/scale-to-width-down/40",
@@ -3431,7 +3431,7 @@
         ]
       }
     ],
-    "tier": 3
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/ea/Dynamite_2.svg/revision/latest/scale-to-width-down/40",
@@ -3457,7 +3457,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "name": "Baast",
@@ -3482,7 +3482,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/83/Skeleton_2.svg/revision/latest/scale-to-width-down/40",
@@ -3508,7 +3508,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 4
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/27/Sailor_2.svg/revision/latest/scale-to-width-down/40",
@@ -3552,7 +3552,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/38/Hummingbird_2.svg/revision/latest/scale-to-width-down/40",
@@ -3626,7 +3626,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/92/Steam_engine_2.svg/revision/latest/scale-to-width-down/40",
@@ -3652,7 +3652,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/74/Chicken_soup_2.svg/revision/latest/scale-to-width-down/40",
@@ -3684,7 +3684,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c8/Roller_coaster_2.svg/revision/latest/scale-to-width-down/40",
@@ -3716,7 +3716,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/57/Paint_2.svg/revision/latest/scale-to-width-down/40",
@@ -3784,7 +3784,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/29/Skier_2.svg/revision/latest/scale-to-width-down/40",
@@ -3810,7 +3810,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/98/Microscope_2.svg/revision/latest/scale-to-width-down/40",
@@ -3848,7 +3848,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8f/Bicycle_2.svg/revision/latest/scale-to-width-down/40",
@@ -3874,7 +3874,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a8/Liquid_2.svg/revision/latest/scale-to-width-down/40",
@@ -3900,7 +3900,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/38/Cold_2.svg/revision/latest/scale-to-width-down/40",
@@ -3950,7 +3950,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/61/Axe_2.svg/revision/latest/scale-to-width-down/40",
@@ -3988,7 +3988,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b3/Milk_2.svg/revision/latest/scale-to-width-down/40",
@@ -4044,7 +4044,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "name": "Peach of immortality",
@@ -4081,7 +4081,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/17/Chocolate_milk_2.svg/revision/latest/scale-to-width-down/40",
@@ -4101,7 +4101,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/3b/Rv_2.svg/revision/latest/scale-to-width-down/40",
@@ -4121,7 +4121,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/25/Hourglass_2.svg/revision/latest/scale-to-width-down/40",
@@ -4159,7 +4159,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f2/Hay_2.svg/revision/latest/scale-to-width-down/40",
@@ -4227,7 +4227,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a2/Optical_fiber_2.svg/revision/latest/scale-to-width-down/40",
@@ -4253,7 +4253,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/da/Wrapping_paper_2.svg/revision/latest/scale-to-width-down/40",
@@ -4285,14 +4285,14 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/21/Earth_2.svg/revision/latest/scale-to-width-down/40",
     "localImage": "images\\Earth_68efa1e9.png",
     "name": "Earth",
     "recipes": [],
-    "tier": 0
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/10/Piranha_2.svg/revision/latest/scale-to-width-down/40",
@@ -4312,7 +4312,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a0/Nest_2.svg/revision/latest/scale-to-width-down/40",
@@ -4368,7 +4368,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/5c/Motorcycle_2.svg/revision/latest/scale-to-width-down/40",
@@ -4406,7 +4406,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/cf/Faun_2.svg/revision/latest/scale-to-width-down/40",
@@ -4462,7 +4462,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/20/Writer_2.svg/revision/latest/scale-to-width-down/40",
@@ -4482,7 +4482,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/5d/Atmosphere_2.svg/revision/latest/scale-to-width-down/40",
@@ -4502,7 +4502,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/6b/Glacier_2.svg/revision/latest/scale-to-width-down/40",
@@ -4540,7 +4540,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/26/Rainbow_2.svg/revision/latest/scale-to-width-down/40",
@@ -4590,7 +4590,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/ff/Knight_2.svg/revision/latest/scale-to-width-down/40",
@@ -4622,7 +4622,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/de/Petroleum_2.svg/revision/latest/scale-to-width-down/40",
@@ -4654,7 +4654,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 6
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b6/Money_2.svg/revision/latest/scale-to-width-down/40",
@@ -4680,7 +4680,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/72/Galaxy_2.svg/revision/latest/scale-to-width-down/40",
@@ -4742,7 +4742,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 6
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/3c/Hangar_2.svg/revision/latest/scale-to-width-down/40",
@@ -4870,7 +4870,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/74/Internet_2.svg/revision/latest/scale-to-width-down/40",
@@ -4902,7 +4902,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e2/Bread_2.svg/revision/latest/scale-to-width-down/40",
@@ -4922,7 +4922,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/5d/Philosophy_2.svg/revision/latest/scale-to-width-down/40",
@@ -4948,7 +4948,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8c/Lizard_2.svg/revision/latest/scale-to-width-down/40",
@@ -5010,7 +5010,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e6/Fish_2.svg/revision/latest/scale-to-width-down/40",
@@ -5066,7 +5066,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/68/Flour_2.svg/revision/latest/scale-to-width-down/40",
@@ -5104,7 +5104,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e5/Librarian_2.svg/revision/latest/scale-to-width-down/40",
@@ -5118,7 +5118,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/13/Circus_2.svg/revision/latest/scale-to-width-down/40",
@@ -5138,7 +5138,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d5/Cookie_cutter_2.svg/revision/latest/scale-to-width-down/40",
@@ -5158,7 +5158,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/ce/Gingerbread_house_2.svg/revision/latest/scale-to-width-down/40",
@@ -5202,7 +5202,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/cf/Campfire_2.svg/revision/latest/scale-to-width-down/40",
@@ -5216,7 +5216,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/16/Saddle_2.svg/revision/latest/scale-to-width-down/40",
@@ -5242,7 +5242,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/1f/Dew_2.svg/revision/latest/scale-to-width-down/40",
@@ -5304,7 +5304,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c2/Thread_2.svg/revision/latest/scale-to-width-down/40",
@@ -5336,7 +5336,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/64/Vase_2.svg/revision/latest/scale-to-width-down/40",
@@ -5392,7 +5392,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/fe/Printer_2.svg/revision/latest/scale-to-width-down/40",
@@ -5412,7 +5412,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c4/Livestock_2.svg/revision/latest/scale-to-width-down/40",
@@ -5444,7 +5444,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/7c/Flower_2.svg/revision/latest/scale-to-width-down/40",
@@ -5500,7 +5500,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/47/Mailman_2.svg/revision/latest/scale-to-width-down/40",
@@ -5526,7 +5526,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d9/Seed_2.svg/revision/latest/scale-to-width-down/40",
@@ -5552,7 +5552,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/75/Pond_2.svg/revision/latest/scale-to-width-down/40",
@@ -5584,7 +5584,7 @@
         ]
       }
     ],
-    "tier": 2
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c7/Charcoal_2.svg/revision/latest/scale-to-width-down/40",
@@ -5616,7 +5616,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/34/Aurora_2.svg/revision/latest/scale-to-width-down/40",
@@ -5666,7 +5666,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/19/Shuriken_2.svg/revision/latest/scale-to-width-down/40",
@@ -5704,7 +5704,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d0/Seagull_2.svg/revision/latest/scale-to-width-down/40",
@@ -5766,7 +5766,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c5/Spotlight_2.svg/revision/latest/scale-to-width-down/40",
@@ -5792,7 +5792,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/5c/Nuts_2.svg/revision/latest/scale-to-width-down/40",
@@ -5818,7 +5818,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/53/Animal_2.svg/revision/latest/scale-to-width-down/40",
@@ -5862,7 +5862,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a7/Magic_2.svg/revision/latest/scale-to-width-down/40",
@@ -5894,7 +5894,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "name": "Monster",
@@ -5991,7 +5991,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 4
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/7b/Sap_2.svg/revision/latest/scale-to-width-down/40",
@@ -6005,7 +6005,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/38/Granite_2.svg/revision/latest/scale-to-width-down/40",
@@ -6031,7 +6031,7 @@
         ]
       }
     ],
-    "tier": 2
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/64/Diver_2.svg/revision/latest/scale-to-width-down/40",
@@ -6069,7 +6069,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c8/Carrot_2.svg/revision/latest/scale-to-width-down/40",
@@ -6101,7 +6101,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/32/Steak_2.svg/revision/latest/scale-to-width-down/40",
@@ -6133,7 +6133,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/46/Battery_2.svg/revision/latest/scale-to-width-down/40",
@@ -6165,7 +6165,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/12/Penicillin_2.svg/revision/latest/scale-to-width-down/40",
@@ -6197,7 +6197,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/96/Sprinkles_2.svg/revision/latest/scale-to-width-down/40",
@@ -6229,7 +6229,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/18/Rain_2.svg/revision/latest/scale-to-width-down/40",
@@ -6255,7 +6255,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/86/Family_2.svg/revision/latest/scale-to-width-down/40",
@@ -6281,7 +6281,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/2c/Train_2.svg/revision/latest/scale-to-width-down/40",
@@ -6313,7 +6313,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b2/Camel_2.svg/revision/latest/scale-to-width-down/40",
@@ -6399,7 +6399,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "name": "Cupid",
@@ -6448,7 +6448,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a2/Snowboard_2.svg/revision/latest/scale-to-width-down/40",
@@ -6492,7 +6492,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/da/Drunk_2.svg/revision/latest/scale-to-width-down/40",
@@ -6518,7 +6518,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/44/Sheep_2.svg/revision/latest/scale-to-width-down/40",
@@ -6562,7 +6562,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f7/Arctic_2.svg/revision/latest/scale-to-width-down/40",
@@ -6582,7 +6582,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/5b/Blender_2.svg/revision/latest/scale-to-width-down/40",
@@ -6620,7 +6620,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a4/Christmas_stocking_2.svg/revision/latest/scale-to-width-down/40",
@@ -6652,7 +6652,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8e/Don_quixote_2.svg/revision/latest/scale-to-width-down/40",
@@ -6684,7 +6684,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f5/Kite_2.svg/revision/latest/scale-to-width-down/40",
@@ -6710,7 +6710,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/0b/Vinegar_2.svg/revision/latest/scale-to-width-down/40",
@@ -6736,14 +6736,14 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/63/Time_2.svg/revision/latest/scale-to-width-down/40",
     "localImage": "images\\Time_1476febb.png",
     "name": "Time",
     "recipes": [],
-    "tier": 0
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/6a/Boulder_2.svg/revision/latest/scale-to-width-down/40",
@@ -6787,7 +6787,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/85/Vampire_2.svg/revision/latest/scale-to-width-down/40",
@@ -6813,7 +6813,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "name": "Paul bunyan",
@@ -6862,7 +6862,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/37/Lightning_2.svg/revision/latest/scale-to-width-down/40",
@@ -6924,7 +6924,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/db/Catnip_2.svg/revision/latest/scale-to-width-down/40",
@@ -6956,7 +6956,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8b/Medusa_2.svg/revision/latest/scale-to-width-down/40",
@@ -6988,7 +6988,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/70/Lasso_2.svg/revision/latest/scale-to-width-down/40",
@@ -7032,7 +7032,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/cf/Hill_2.svg/revision/latest/scale-to-width-down/40",
@@ -7070,7 +7070,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c4/Spaceship_2.svg/revision/latest/scale-to-width-down/40",
@@ -7126,7 +7126,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/04/Turtle_2.svg/revision/latest/scale-to-width-down/40",
@@ -7152,7 +7152,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d5/Penguin_2.svg/revision/latest/scale-to-width-down/40",
@@ -7190,7 +7190,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9b/Ruler_2.svg/revision/latest/scale-to-width-down/40",
@@ -7204,7 +7204,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8e/Polar_bear_2.svg/revision/latest/scale-to-width-down/40",
@@ -7224,7 +7224,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/3c/Beekeeper_2.svg/revision/latest/scale-to-width-down/40",
@@ -7256,7 +7256,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9a/Wind_turbine_2.svg/revision/latest/scale-to-width-down/40",
@@ -7288,7 +7288,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/7e/Sunglasses_2.svg/revision/latest/scale-to-width-down/40",
@@ -7326,7 +7326,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/36/Astronaut_2.svg/revision/latest/scale-to-width-down/40",
@@ -7406,7 +7406,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/7d/Peacock_2.svg/revision/latest/scale-to-width-down/40",
@@ -7432,7 +7432,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/35/Werewolf_2.svg/revision/latest/scale-to-width-down/40",
@@ -7458,7 +7458,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/04/Safe_2.svg/revision/latest/scale-to-width-down/40",
@@ -7502,7 +7502,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/7f/Farmer_2.svg/revision/latest/scale-to-width-down/40",
@@ -7552,7 +7552,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/25/Hamster_2.svg/revision/latest/scale-to-width-down/40",
@@ -7584,7 +7584,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/ba/Coffin_2.svg/revision/latest/scale-to-width-down/40",
@@ -7610,7 +7610,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/86/Mermaid_2.svg/revision/latest/scale-to-width-down/40",
@@ -7654,7 +7654,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/3d/Pencil_sharpener_2.svg/revision/latest/scale-to-width-down/40",
@@ -7680,7 +7680,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/3f/Mountain_2.svg/revision/latest/scale-to-width-down/40",
@@ -7724,7 +7724,7 @@
         ]
       }
     ],
-    "tier": 3
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f6/Allergy_2.svg/revision/latest/scale-to-width-down/40",
@@ -7744,7 +7744,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f5/Net_2.svg/revision/latest/scale-to-width-down/40",
@@ -7782,7 +7782,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e8/Skateboard_2.svg/revision/latest/scale-to-width-down/40",
@@ -7808,7 +7808,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f5/Ambulance_2.svg/revision/latest/scale-to-width-down/40",
@@ -7828,7 +7828,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/0a/Machine_2.svg/revision/latest/scale-to-width-down/40",
@@ -7878,7 +7878,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/57/Firefighter_2.svg/revision/latest/scale-to-width-down/40",
@@ -7904,7 +7904,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/2a/Seal_2.svg/revision/latest/scale-to-width-down/40",
@@ -7942,7 +7942,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/da/Jar_2.svg/revision/latest/scale-to-width-down/40",
@@ -7974,7 +7974,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/05/Jam_2.svg/revision/latest/scale-to-width-down/40",
@@ -8012,7 +8012,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8e/Mayonnaise_2.svg/revision/latest/scale-to-width-down/40",
@@ -8026,7 +8026,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/1d/Wheel_2.svg/revision/latest/scale-to-width-down/40",
@@ -8076,7 +8076,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/77/Sickness_2.svg/revision/latest/scale-to-width-down/40",
@@ -8102,7 +8102,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/34/Flamethrower_2.svg/revision/latest/scale-to-width-down/40",
@@ -8128,7 +8128,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/99/Bird_2.svg/revision/latest/scale-to-width-down/40",
@@ -8184,7 +8184,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/65/Box_2.svg/revision/latest/scale-to-width-down/40",
@@ -8234,7 +8234,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/ab/Cereal_2.svg/revision/latest/scale-to-width-down/40",
@@ -8260,7 +8260,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/86/Plasma_2.svg/revision/latest/scale-to-width-down/40",
@@ -8292,7 +8292,7 @@
         ]
       }
     ],
-    "tier": 3
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/13/Wizard_2.svg/revision/latest/scale-to-width-down/40",
@@ -8324,7 +8324,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/88/Parrot_2.svg/revision/latest/scale-to-width-down/40",
@@ -8356,7 +8356,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/49/Ant_2.svg/revision/latest/scale-to-width-down/40",
@@ -8376,7 +8376,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f7/Hacker_2.svg/revision/latest/scale-to-width-down/40",
@@ -8408,7 +8408,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c1/Rabbit_2.svg/revision/latest/scale-to-width-down/40",
@@ -8428,7 +8428,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9d/Vine_2.svg/revision/latest/scale-to-width-down/40",
@@ -8454,7 +8454,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/77/Sound_2.svg/revision/latest/scale-to-width-down/40",
@@ -8486,7 +8486,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/ef/Hurricane_2.svg/revision/latest/scale-to-width-down/40",
@@ -8518,7 +8518,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9f/Pigeon_2.svg/revision/latest/scale-to-width-down/40",
@@ -8556,7 +8556,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e0/Painter_2.svg/revision/latest/scale-to-width-down/40",
@@ -8582,7 +8582,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b9/Cloud_2.svg/revision/latest/scale-to-width-down/40",
@@ -8614,7 +8614,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/af/Primordial_soup_2.svg/revision/latest/scale-to-width-down/40",
@@ -8658,7 +8658,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8e/Light_bulb_2.svg/revision/latest/scale-to-width-down/40",
@@ -8684,7 +8684,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c9/Magma_2.svg/revision/latest/scale-to-width-down/40",
@@ -8704,7 +8704,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "name": "Faerie",
@@ -8729,7 +8729,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9b/Land_2.svg/revision/latest/scale-to-width-down/40",
@@ -8767,7 +8767,7 @@
         ]
       }
     ],
-    "tier": 1
+    "tier": 2
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b6/Vulture_2.svg/revision/latest/scale-to-width-down/40",
@@ -8865,7 +8865,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/78/Antarctica_2.svg/revision/latest/scale-to-width-down/40",
@@ -8897,7 +8897,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d9/Archipelago_2.svg/revision/latest/scale-to-width-down/40",
@@ -8923,7 +8923,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e1/Pencil_2.svg/revision/latest/scale-to-width-down/40",
@@ -8943,7 +8943,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f8/Organic_matter_2.svg/revision/latest/scale-to-width-down/40",
@@ -8975,7 +8975,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/77/Wool_2.svg/revision/latest/scale-to-width-down/40",
@@ -9001,7 +9001,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8b/Dry_ice_2.svg/revision/latest/scale-to-width-down/40",
@@ -9021,7 +9021,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/74/Field_2.svg/revision/latest/scale-to-width-down/40",
@@ -9083,7 +9083,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/7b/Goat_2.svg/revision/latest/scale-to-width-down/40",
@@ -9127,7 +9127,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f0/Snow_globe_2.svg/revision/latest/scale-to-width-down/40",
@@ -9243,7 +9243,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/19/Love_2.svg/revision/latest/scale-to-width-down/40",
@@ -9269,7 +9269,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d7/Carbon_dioxide_2.svg/revision/latest/scale-to-width-down/40",
@@ -9319,7 +9319,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8e/Water_pipe_2.svg/revision/latest/scale-to-width-down/40",
@@ -9333,7 +9333,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/ae/Grilled_cheese_2.svg/revision/latest/scale-to-width-down/40",
@@ -9347,7 +9347,7 @@
         ]
       }
     ],
-    "tier": 15
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/89/Ocean_2.svg/revision/latest/scale-to-width-down/40",
@@ -9379,7 +9379,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/2a/Prism_2.svg/revision/latest/scale-to-width-down/40",
@@ -9411,7 +9411,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/46/Bakery_2.svg/revision/latest/scale-to-width-down/40",
@@ -9497,7 +9497,7 @@
         ]
       }
     ],
-    "tier": 14
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/21/Butterfly_2.svg/revision/latest/scale-to-width-down/40",
@@ -9529,7 +9529,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e8/Donut_2.svg/revision/latest/scale-to-width-down/40",
@@ -9561,7 +9561,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/04/Cup_2.svg/revision/latest/scale-to-width-down/40",
@@ -9605,7 +9605,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/65/Pan_flute_2.svg/revision/latest/scale-to-width-down/40",
@@ -9619,7 +9619,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f0/Ruins_2.svg/revision/latest/scale-to-width-down/40",
@@ -9669,7 +9669,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/0a/Beehive_2.svg/revision/latest/scale-to-width-down/40",
@@ -9713,7 +9713,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c6/Gust_2.svg/revision/latest/scale-to-width-down/40",
@@ -9733,7 +9733,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/4c/Pinocchio_2.svg/revision/latest/scale-to-width-down/40",
@@ -9759,7 +9759,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/03/Idea_2.svg/revision/latest/scale-to-width-down/40",
@@ -9953,7 +9953,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/bc/Fruit_2.svg/revision/latest/scale-to-width-down/40",
@@ -9997,7 +9997,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/14/Sundial_2.svg/revision/latest/scale-to-width-down/40",
@@ -10065,7 +10065,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/cc/Squirrel_2.svg/revision/latest/scale-to-width-down/40",
@@ -10097,7 +10097,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f0/Tent_2.svg/revision/latest/scale-to-width-down/40",
@@ -10129,7 +10129,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/db/Wave_2.svg/revision/latest/scale-to-width-down/40",
@@ -10191,7 +10191,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c2/Mummy_2.svg/revision/latest/scale-to-width-down/40",
@@ -10235,7 +10235,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 3
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9f/Chameleon_2.svg/revision/latest/scale-to-width-down/40",
@@ -10279,7 +10279,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/29/Roe_2.svg/revision/latest/scale-to-width-down/40",
@@ -10323,7 +10323,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/0a/Bullet_2.svg/revision/latest/scale-to-width-down/40",
@@ -10355,7 +10355,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/1b/Warrior_2.svg/revision/latest/scale-to-width-down/40",
@@ -10375,7 +10375,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/65/Bulletproof_vest_2.svg/revision/latest/scale-to-width-down/40",
@@ -10395,7 +10395,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "name": "Paladin",
@@ -10414,7 +10414,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f9/Gingerbread_man_2.svg/revision/latest/scale-to-width-down/40",
@@ -10476,7 +10476,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/60/Night_2.svg/revision/latest/scale-to-width-down/40",
@@ -10508,7 +10508,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/45/Beach_2.svg/revision/latest/scale-to-width-down/40",
@@ -10546,7 +10546,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/99/Village_2.svg/revision/latest/scale-to-width-down/40",
@@ -10584,7 +10584,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e9/Telescope_2.svg/revision/latest/scale-to-width-down/40",
@@ -10676,7 +10676,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9b/Galaxy_cluster_2.svg/revision/latest/scale-to-width-down/40",
@@ -10696,7 +10696,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 7
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/be/Force_knight_2.svg/revision/latest/scale-to-width-down/40",
@@ -10722,7 +10722,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/83/Cage_2.svg/revision/latest/scale-to-width-down/40",
@@ -10802,7 +10802,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8f/Candle_2.svg/revision/latest/scale-to-width-down/40",
@@ -10840,7 +10840,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/69/Web_2.svg/revision/latest/scale-to-width-down/40",
@@ -10872,7 +10872,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/1a/Gun_2.svg/revision/latest/scale-to-width-down/40",
@@ -10922,7 +10922,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/ef/Farm_2.svg/revision/latest/scale-to-width-down/40",
@@ -10960,7 +10960,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/ec/Story_2.svg/revision/latest/scale-to-width-down/40",
@@ -10980,7 +10980,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/fd/Cyborg_2.svg/revision/latest/scale-to-width-down/40",
@@ -11060,7 +11060,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/5f/Domestication_2.svg/revision/latest/scale-to-width-down/40",
@@ -11092,7 +11092,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/65/Ice_cream_2.svg/revision/latest/scale-to-width-down/40",
@@ -11118,7 +11118,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e9/Zoo_2.svg/revision/latest/scale-to-width-down/40",
@@ -11138,7 +11138,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/22/Pizza_2.svg/revision/latest/scale-to-width-down/40",
@@ -11164,7 +11164,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/7c/Electricity_2.svg/revision/latest/scale-to-width-down/40",
@@ -11232,7 +11232,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/1a/Pebble_2.svg/revision/latest/scale-to-width-down/40",
@@ -11258,7 +11258,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/5a/Palm_2.svg/revision/latest/scale-to-width-down/40",
@@ -11284,7 +11284,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/36/Excalibur_2.svg/revision/latest/scale-to-width-down/40",
@@ -11328,7 +11328,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/41/Golem_2.svg/revision/latest/scale-to-width-down/40",
@@ -11366,7 +11366,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/1a/Statue_2.svg/revision/latest/scale-to-width-down/40",
@@ -11578,7 +11578,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/37/Ring_2.svg/revision/latest/scale-to-width-down/40",
@@ -11628,7 +11628,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/00/Bonsai_tree_2.svg/revision/latest/scale-to-width-down/40",
@@ -11660,7 +11660,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/df/Egg_2.svg/revision/latest/scale-to-width-down/40",
@@ -11878,7 +11878,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/02/Constellation_2.svg/revision/latest/scale-to-width-down/40",
@@ -11892,7 +11892,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9a/Juice_2.svg/revision/latest/scale-to-width-down/40",
@@ -11966,7 +11966,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a2/Mold_2.svg/revision/latest/scale-to-width-down/40",
@@ -12010,7 +12010,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/7d/Bus_2.svg/revision/latest/scale-to-width-down/40",
@@ -12042,7 +12042,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/31/Ice_cream_truck_2.svg/revision/latest/scale-to-width-down/40",
@@ -12068,7 +12068,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/7a/Pressure_2.svg/revision/latest/scale-to-width-down/40",
@@ -12138,7 +12138,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/68/Oxygen_2.svg/revision/latest/scale-to-width-down/40",
@@ -12194,7 +12194,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f3/Tide_2.svg/revision/latest/scale-to-width-down/40",
@@ -12226,7 +12226,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/87/Double_rainbow%21_2.svg/revision/latest/scale-to-width-down/40",
@@ -12240,7 +12240,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/2e/Gardener_2.svg/revision/latest/scale-to-width-down/40",
@@ -12260,7 +12260,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/47/Toolbox_2.svg/revision/latest/scale-to-width-down/40",
@@ -12334,7 +12334,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/58/Coral_2.svg/revision/latest/scale-to-width-down/40",
@@ -12378,7 +12378,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/07/Snow_2.svg/revision/latest/scale-to-width-down/40",
@@ -12410,7 +12410,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/55/Clay_2.svg/revision/latest/scale-to-width-down/40",
@@ -12460,7 +12460,7 @@
         ]
       }
     ],
-    "tier": 3
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/6b/Eclipse_2.svg/revision/latest/scale-to-width-down/40",
@@ -12474,7 +12474,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/39/Space_station_2.svg/revision/latest/scale-to-width-down/40",
@@ -12518,7 +12518,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/88/Armor_2.svg/revision/latest/scale-to-width-down/40",
@@ -12538,7 +12538,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9e/Gnome_2.svg/revision/latest/scale-to-width-down/40",
@@ -12570,7 +12570,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e8/Fruit_tree_2.svg/revision/latest/scale-to-width-down/40",
@@ -12596,7 +12596,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e1/Eruption_2.svg/revision/latest/scale-to-width-down/40",
@@ -12622,7 +12622,7 @@
         ]
       }
     ],
-    "tier": 2
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/da/Pollen_2.svg/revision/latest/scale-to-width-down/40",
@@ -12654,7 +12654,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/be/Frog_2.svg/revision/latest/scale-to-width-down/40",
@@ -12686,7 +12686,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/5d/Hippo_2.svg/revision/latest/scale-to-width-down/40",
@@ -12718,7 +12718,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/08/Ivy_2.svg/revision/latest/scale-to-width-down/40",
@@ -12738,7 +12738,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8b/Mud_2.svg/revision/latest/scale-to-width-down/40",
@@ -12796,7 +12796,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/07/Darkness_2.svg/revision/latest/scale-to-width-down/40",
@@ -12816,7 +12816,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/0f/Corpse_2.svg/revision/latest/scale-to-width-down/40",
@@ -12878,7 +12878,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 2
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b5/Butcher_2.svg/revision/latest/scale-to-width-down/40",
@@ -12898,7 +12898,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/04/Kaiju_2.svg/revision/latest/scale-to-width-down/40",
@@ -12942,7 +12942,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/ab/Cashmere_2.svg/revision/latest/scale-to-width-down/40",
@@ -12980,7 +12980,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/1d/Acid_rain_2.svg/revision/latest/scale-to-width-down/40",
@@ -13030,7 +13030,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8d/Cannon_2.svg/revision/latest/scale-to-width-down/40",
@@ -13062,7 +13062,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/93/Soap_2.svg/revision/latest/scale-to-width-down/40",
@@ -13100,7 +13100,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f7/Batter_2.svg/revision/latest/scale-to-width-down/40",
@@ -13120,7 +13120,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/49/Fortune_cookie_2.svg/revision/latest/scale-to-width-down/40",
@@ -13146,7 +13146,7 @@
         ]
       }
     ],
-    "tier": 14
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/75/Solar_system_2.svg/revision/latest/scale-to-width-down/40",
@@ -13208,7 +13208,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 5
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/30/Snowmobile_2.svg/revision/latest/scale-to-width-down/40",
@@ -13252,7 +13252,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b0/Sand_castle_2.svg/revision/latest/scale-to-width-down/40",
@@ -13284,7 +13284,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e8/Reindeer_2.svg/revision/latest/scale-to-width-down/40",
@@ -13322,7 +13322,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/aa/Sugar_2.svg/revision/latest/scale-to-width-down/40",
@@ -13390,7 +13390,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/85/Smoke_signal_2.svg/revision/latest/scale-to-width-down/40",
@@ -13416,7 +13416,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "name": "Book of the dead",
@@ -13525,7 +13525,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/cc/Tractor_2.svg/revision/latest/scale-to-width-down/40",
@@ -13569,7 +13569,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8c/Electrician_2.svg/revision/latest/scale-to-width-down/40",
@@ -13589,7 +13589,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/77/Doctor_2.svg/revision/latest/scale-to-width-down/40",
@@ -13609,7 +13609,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c4/Fabric_2.svg/revision/latest/scale-to-width-down/40",
@@ -13635,7 +13635,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/85/Lighthouse_2.svg/revision/latest/scale-to-width-down/40",
@@ -13691,7 +13691,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8f/Rat_2.svg/revision/latest/scale-to-width-down/40",
@@ -13747,7 +13747,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/3e/Container_2.svg/revision/latest/scale-to-width-down/40",
@@ -13791,7 +13791,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8b/Explosion_2.svg/revision/latest/scale-to-width-down/40",
@@ -13859,7 +13859,7 @@
         ]
       }
     ],
-    "tier": 3
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/bf/Ham_2.svg/revision/latest/scale-to-width-down/40",
@@ -13879,7 +13879,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/45/Musician_2.svg/revision/latest/scale-to-width-down/40",
@@ -13917,7 +13917,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/dd/Narwhal_2.svg/revision/latest/scale-to-width-down/40",
@@ -13967,7 +13967,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a7/Yeti_2.svg/revision/latest/scale-to-width-down/40",
@@ -14047,7 +14047,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/1c/Blood_bag_2.svg/revision/latest/scale-to-width-down/40",
@@ -14073,7 +14073,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c9/Broom_2.svg/revision/latest/scale-to-width-down/40",
@@ -14093,7 +14093,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/57/Waterfall_2.svg/revision/latest/scale-to-width-down/40",
@@ -14137,7 +14137,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8a/Safety_glasses_2.svg/revision/latest/scale-to-width-down/40",
@@ -14175,7 +14175,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/32/Pipe_2.svg/revision/latest/scale-to-width-down/40",
@@ -14195,7 +14195,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a3/Snowman_2.svg/revision/latest/scale-to-width-down/40",
@@ -14239,7 +14239,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/1b/Mouse_2.svg/revision/latest/scale-to-width-down/40",
@@ -14277,7 +14277,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c1/Ant_farm_2.svg/revision/latest/scale-to-width-down/40",
@@ -14315,7 +14315,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c6/Toast_2.svg/revision/latest/scale-to-width-down/40",
@@ -14335,7 +14335,7 @@
         ]
       }
     ],
-    "tier": 14
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/ab/Meteoroid_2.svg/revision/latest/scale-to-width-down/40",
@@ -14397,7 +14397,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/32/Scissors_2.svg/revision/latest/scale-to-width-down/40",
@@ -14435,7 +14435,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/53/Solar_cell_2.svg/revision/latest/scale-to-width-down/40",
@@ -14473,7 +14473,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/59/Light_sword_2.svg/revision/latest/scale-to-width-down/40",
@@ -14511,7 +14511,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/74/Hail_2.svg/revision/latest/scale-to-width-down/40",
@@ -14555,7 +14555,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/95/Butterfly_net_2.svg/revision/latest/scale-to-width-down/40",
@@ -14575,7 +14575,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/2b/Rainforest_2.svg/revision/latest/scale-to-width-down/40",
@@ -14589,7 +14589,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/cc/Mousetrap_2.svg/revision/latest/scale-to-width-down/40",
@@ -14621,7 +14621,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e1/Grass_2.svg/revision/latest/scale-to-width-down/40",
@@ -14641,7 +14641,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d5/Dam_2.svg/revision/latest/scale-to-width-down/40",
@@ -14703,7 +14703,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "name": "Demon",
@@ -14746,7 +14746,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 3
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c5/Sword_2.svg/revision/latest/scale-to-width-down/40",
@@ -14772,7 +14772,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/77/Graveyard_2.svg/revision/latest/scale-to-width-down/40",
@@ -14822,7 +14822,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 4
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/81/Cuckoo_2.svg/revision/latest/scale-to-width-down/40",
@@ -14866,7 +14866,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/cd/Chain_2.svg/revision/latest/scale-to-width-down/40",
@@ -14898,7 +14898,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/3a/Samurai_2.svg/revision/latest/scale-to-width-down/40",
@@ -14912,7 +14912,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/db/Wand_2.svg/revision/latest/scale-to-width-down/40",
@@ -14944,7 +14944,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/eb/Alpaca_2.svg/revision/latest/scale-to-width-down/40",
@@ -14970,7 +14970,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/74/Crystal_ball_2.svg/revision/latest/scale-to-width-down/40",
@@ -15014,7 +15014,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/72/Caviar_2.svg/revision/latest/scale-to-width-down/40",
@@ -15034,7 +15034,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/5e/Blade_2.svg/revision/latest/scale-to-width-down/40",
@@ -15066,7 +15066,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/62/Beaver_2.svg/revision/latest/scale-to-width-down/40",
@@ -15098,7 +15098,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8a/Salt_2.svg/revision/latest/scale-to-width-down/40",
@@ -15142,7 +15142,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/37/Snowball_2.svg/revision/latest/scale-to-width-down/40",
@@ -15174,7 +15174,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c1/Scuba_tank_2.svg/revision/latest/scale-to-width-down/40",
@@ -15200,7 +15200,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/5f/Rock_2.svg/revision/latest/scale-to-width-down/40",
@@ -15226,7 +15226,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/23/Fence_2.svg/revision/latest/scale-to-width-down/40",
@@ -15270,7 +15270,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/73/Ozone_2.svg/revision/latest/scale-to-width-down/40",
@@ -15302,7 +15302,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/14/Titanic_2.svg/revision/latest/scale-to-width-down/40",
@@ -15334,7 +15334,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/7b/Desert_2.svg/revision/latest/scale-to-width-down/40",
@@ -15372,7 +15372,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/0a/Clock_2.svg/revision/latest/scale-to-width-down/40",
@@ -15440,7 +15440,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/96/Watch_2.svg/revision/latest/scale-to-width-down/40",
@@ -15460,7 +15460,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a3/Birdcage_2.svg/revision/latest/scale-to-width-down/40",
@@ -15492,7 +15492,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b4/Parachute_2.svg/revision/latest/scale-to-width-down/40",
@@ -15536,7 +15536,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f7/Scalpel_2.svg/revision/latest/scale-to-width-down/40",
@@ -15580,7 +15580,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/4d/Sphinx_2.svg/revision/latest/scale-to-width-down/40",
@@ -15612,7 +15612,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/dd/Glasses_2.svg/revision/latest/scale-to-width-down/40",
@@ -15656,7 +15656,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/50/Eagle_2.svg/revision/latest/scale-to-width-down/40",
@@ -15676,7 +15676,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9a/Flying_fish_2.svg/revision/latest/scale-to-width-down/40",
@@ -15702,7 +15702,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/ab/Diamond_2.svg/revision/latest/scale-to-width-down/40",
@@ -15716,7 +15716,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "name": "Cockatrice",
@@ -15747,7 +15747,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/cb/Cake_2.svg/revision/latest/scale-to-width-down/40",
@@ -15773,7 +15773,7 @@
         ]
       }
     ],
-    "tier": 14
+    "tier": 1
   },
   {
     "name": "Dionysus",
@@ -15816,7 +15816,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/79/Chicken_2.svg/revision/latest/scale-to-width-down/40",
@@ -15884,7 +15884,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/59/Meat_2.svg/revision/latest/scale-to-width-down/40",
@@ -16138,7 +16138,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d7/Lava_lamp_2.svg/revision/latest/scale-to-width-down/40",
@@ -16164,7 +16164,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/11/Perfume_2.svg/revision/latest/scale-to-width-down/40",
@@ -16226,7 +16226,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9f/Mail_truck_2.svg/revision/latest/scale-to-width-down/40",
@@ -16252,7 +16252,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/17/Coal_2.svg/revision/latest/scale-to-width-down/40",
@@ -16296,7 +16296,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/cb/Ice_2.svg/revision/latest/scale-to-width-down/40",
@@ -16328,7 +16328,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/2d/Mineral_2.svg/revision/latest/scale-to-width-down/40",
@@ -16372,7 +16372,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/11/Factory_2.svg/revision/latest/scale-to-width-down/40",
@@ -16392,7 +16392,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d6/Blood_2.svg/revision/latest/scale-to-width-down/40",
@@ -16412,7 +16412,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/43/Bat_2.svg/revision/latest/scale-to-width-down/40",
@@ -16450,7 +16450,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d7/Tunnel_2.svg/revision/latest/scale-to-width-down/40",
@@ -16512,7 +16512,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a4/Dust_2.svg/revision/latest/scale-to-width-down/40",
@@ -16570,7 +16570,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a2/Cotton_candy_2.svg/revision/latest/scale-to-width-down/40",
@@ -16596,7 +16596,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e0/Heat_2.svg/revision/latest/scale-to-width-down/40",
@@ -16628,7 +16628,7 @@
         ]
       }
     ],
-    "tier": 2
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/4b/Plow_2.svg/revision/latest/scale-to-width-down/40",
@@ -16678,7 +16678,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/fe/Mars_2.svg/revision/latest/scale-to-width-down/40",
@@ -16698,7 +16698,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/7f/Moon_rover_2.svg/revision/latest/scale-to-width-down/40",
@@ -16718,7 +16718,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/04/Scorpion_2.svg/revision/latest/scale-to-width-down/40",
@@ -16756,7 +16756,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c2/Husky_2.svg/revision/latest/scale-to-width-down/40",
@@ -16800,7 +16800,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/7f/Fork_2.svg/revision/latest/scale-to-width-down/40",
@@ -16814,7 +16814,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/88/Glass_2.svg/revision/latest/scale-to-width-down/40",
@@ -16846,7 +16846,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/2d/Computer_2.svg/revision/latest/scale-to-width-down/40",
@@ -16884,7 +16884,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b1/Drone_2.svg/revision/latest/scale-to-width-down/40",
@@ -16916,7 +16916,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/10/Harp_2.svg/revision/latest/scale-to-width-down/40",
@@ -16948,7 +16948,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e8/Hospital_2.svg/revision/latest/scale-to-width-down/40",
@@ -16998,7 +16998,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/bf/Unicorn_2.svg/revision/latest/scale-to-width-down/40",
@@ -17036,7 +17036,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e0/Centaur_2.svg/revision/latest/scale-to-width-down/40",
@@ -17056,7 +17056,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/aa/Silo_2.svg/revision/latest/scale-to-width-down/40",
@@ -17106,7 +17106,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a6/Steamboat_2.svg/revision/latest/scale-to-width-down/40",
@@ -17144,7 +17144,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "name": "Heaven",
@@ -17181,7 +17181,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d0/Small_2.svg/revision/latest/scale-to-width-down/40",
@@ -17261,7 +17261,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/49/Wall_2.svg/revision/latest/scale-to-width-down/40",
@@ -17287,7 +17287,7 @@
         ]
       }
     ],
-    "tier": 3
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/55/Cheese_2.svg/revision/latest/scale-to-width-down/40",
@@ -17319,7 +17319,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f3/Baker_2.svg/revision/latest/scale-to-width-down/40",
@@ -17393,7 +17393,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b3/Sailboat_2.svg/revision/latest/scale-to-width-down/40",
@@ -17425,7 +17425,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f7/Fossil_2.svg/revision/latest/scale-to-width-down/40",
@@ -17523,7 +17523,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 5
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d8/Leather_2.svg/revision/latest/scale-to-width-down/40",
@@ -17585,7 +17585,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/eb/Ninja_turtle_2.svg/revision/latest/scale-to-width-down/40",
@@ -17611,7 +17611,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/df/Platypus_2.svg/revision/latest/scale-to-width-down/40",
@@ -17637,7 +17637,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c5/Toucan_2.svg/revision/latest/scale-to-width-down/40",
@@ -17681,7 +17681,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/cf/Doghouse_2.svg/revision/latest/scale-to-width-down/40",
@@ -17725,7 +17725,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e4/Treehouse_2.svg/revision/latest/scale-to-width-down/40",
@@ -17745,7 +17745,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d9/Wax_2.svg/revision/latest/scale-to-width-down/40",
@@ -17789,7 +17789,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/fd/Trainyard_2.svg/revision/latest/scale-to-width-down/40",
@@ -17821,7 +17821,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/43/Fireworks_2.svg/revision/latest/scale-to-width-down/40",
@@ -17841,7 +17841,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/ad/Pottery_2.svg/revision/latest/scale-to-width-down/40",
@@ -17861,7 +17861,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d6/Water_gun_2.svg/revision/latest/scale-to-width-down/40",
@@ -17887,7 +17887,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/4f/Coconut_milk_2.svg/revision/latest/scale-to-width-down/40",
@@ -17931,7 +17931,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/4d/Pilot_2.svg/revision/latest/scale-to-width-down/40",
@@ -17951,7 +17951,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a8/Tyrannosaurus_rex_2.svg/revision/latest/scale-to-width-down/40",
@@ -17977,7 +17977,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/29/Ufo_2.svg/revision/latest/scale-to-width-down/40",
@@ -18021,7 +18021,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/4a/Dog_2.svg/revision/latest/scale-to-width-down/40",
@@ -18071,7 +18071,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/6e/Dinosaur_2.svg/revision/latest/scale-to-width-down/40",
@@ -18091,7 +18091,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9c/Piggy_bank_2.svg/revision/latest/scale-to-width-down/40",
@@ -18117,7 +18117,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/98/Banana_2.svg/revision/latest/scale-to-width-down/40",
@@ -18131,7 +18131,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e4/Tablet_2.svg/revision/latest/scale-to-width-down/40",
@@ -18145,7 +18145,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c0/Mailbox_2.svg/revision/latest/scale-to-width-down/40",
@@ -18201,7 +18201,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/6b/Picnic_2.svg/revision/latest/scale-to-width-down/40",
@@ -18239,7 +18239,7 @@
         ]
       }
     ],
-    "tier": 15
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/51/Earthquake_2.svg/revision/latest/scale-to-width-down/40",
@@ -18265,7 +18265,7 @@
         ]
       }
     ],
-    "tier": 2
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a2/Monarch_2.svg/revision/latest/scale-to-width-down/40",
@@ -18285,7 +18285,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/0f/Life_2.svg/revision/latest/scale-to-width-down/40",
@@ -18365,7 +18365,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/96/Monkey_2.svg/revision/latest/scale-to-width-down/40",
@@ -18379,7 +18379,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/47/Starfish_2.svg/revision/latest/scale-to-width-down/40",
@@ -18405,7 +18405,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b4/Lake_2.svg/revision/latest/scale-to-width-down/40",
@@ -18437,7 +18437,7 @@
         ]
       }
     ],
-    "tier": 3
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/43/Wheat_2.svg/revision/latest/scale-to-width-down/40",
@@ -18463,7 +18463,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/60/Mountain_goat_2.svg/revision/latest/scale-to-width-down/40",
@@ -18483,7 +18483,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/6e/Chicken_coop_2.svg/revision/latest/scale-to-width-down/40",
@@ -18533,7 +18533,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/1f/Barn_2.svg/revision/latest/scale-to-width-down/40",
@@ -18643,7 +18643,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/4d/Sack_2.svg/revision/latest/scale-to-width-down/40",
@@ -18669,7 +18669,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/4a/Little_alchemy_%28element%29_2.svg/revision/latest/scale-to-width-down/40",
@@ -18683,7 +18683,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/38/Horse_2.svg/revision/latest/scale-to-width-down/40",
@@ -18739,7 +18739,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/32/Sea_2.svg/revision/latest/scale-to-width-down/40",
@@ -18771,7 +18771,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/3d/Pirate_ship_2.svg/revision/latest/scale-to-width-down/40",
@@ -18809,7 +18809,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/dd/Flashlight_2.svg/revision/latest/scale-to-width-down/40",
@@ -18841,7 +18841,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/2f/Coconut_2.svg/revision/latest/scale-to-width-down/40",
@@ -18885,7 +18885,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f7/Paraglider_2.svg/revision/latest/scale-to-width-down/40",
@@ -18899,7 +18899,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/68/Storm_2.svg/revision/latest/scale-to-width-down/40",
@@ -18931,7 +18931,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/69/Atomic_bomb_2.svg/revision/latest/scale-to-width-down/40",
@@ -18957,7 +18957,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/5d/Smog_2.svg/revision/latest/scale-to-width-down/40",
@@ -18995,7 +18995,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/25/Potato_2.svg/revision/latest/scale-to-width-down/40",
@@ -19009,7 +19009,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/ad/Snowboarder_2.svg/revision/latest/scale-to-width-down/40",
@@ -19023,7 +19023,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b4/Cactus_2.svg/revision/latest/scale-to-width-down/40",
@@ -19055,7 +19055,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/30/Jupiter_2.svg/revision/latest/scale-to-width-down/40",
@@ -19099,7 +19099,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 5
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/1c/Pig_2.svg/revision/latest/scale-to-width-down/40",
@@ -19125,7 +19125,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d8/Grim_reaper_2.svg/revision/latest/scale-to-width-down/40",
@@ -19175,7 +19175,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/99/Birdhouse_2.svg/revision/latest/scale-to-width-down/40",
@@ -19201,7 +19201,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d2/Paleontologist_2.svg/revision/latest/scale-to-width-down/40",
@@ -19233,7 +19233,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/46/Maple_syrup_2.svg/revision/latest/scale-to-width-down/40",
@@ -19253,7 +19253,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/12/Peanut_butter_2.svg/revision/latest/scale-to-width-down/40",
@@ -19273,7 +19273,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/25/Astronomer_2.svg/revision/latest/scale-to-width-down/40",
@@ -19287,7 +19287,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b9/Shark_2.svg/revision/latest/scale-to-width-down/40",
@@ -19331,7 +19331,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f1/Scythe_2.svg/revision/latest/scale-to-width-down/40",
@@ -19375,7 +19375,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/4d/Garage_2.svg/revision/latest/scale-to-width-down/40",
@@ -19623,7 +19623,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e3/Apron_2.svg/revision/latest/scale-to-width-down/40",
@@ -19643,7 +19643,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/44/Sandwich_2.svg/revision/latest/scale-to-width-down/40",
@@ -19681,7 +19681,7 @@
         ]
       }
     ],
-    "tier": 14
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/69/Paper_cup_2.svg/revision/latest/scale-to-width-down/40",
@@ -19695,7 +19695,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/64/Supernova_2.svg/revision/latest/scale-to-width-down/40",
@@ -19727,7 +19727,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/ce/Stun_gun_2.svg/revision/latest/scale-to-width-down/40",
@@ -19765,7 +19765,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/99/Chill_2.svg/revision/latest/scale-to-width-down/40",
@@ -19791,7 +19791,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c5/Chicken_wing_2.svg/revision/latest/scale-to-width-down/40",
@@ -19811,7 +19811,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/fa/Laptop_2.svg/revision/latest/scale-to-width-down/40",
@@ -19825,7 +19825,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e4/Log_cabin_2.svg/revision/latest/scale-to-width-down/40",
@@ -19839,7 +19839,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9c/Bow_2.svg/revision/latest/scale-to-width-down/40",
@@ -19871,7 +19871,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/da/Cow_2.svg/revision/latest/scale-to-width-down/40",
@@ -19903,7 +19903,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/18/Bayonet_2.svg/revision/latest/scale-to-width-down/40",
@@ -19929,7 +19929,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/fc/Surfer_2.svg/revision/latest/scale-to-width-down/40",
@@ -19949,7 +19949,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/88/Bone_2.svg/revision/latest/scale-to-width-down/40",
@@ -19987,7 +19987,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 3
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/62/Reed_2.svg/revision/latest/scale-to-width-down/40",
@@ -20043,7 +20043,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/52/Pumpkin_2.svg/revision/latest/scale-to-width-down/40",
@@ -20075,7 +20075,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/26/Anthill_2.svg/revision/latest/scale-to-width-down/40",
@@ -20119,7 +20119,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/49/Rust_2.svg/revision/latest/scale-to-width-down/40",
@@ -20151,7 +20151,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/bd/Swimmer_2.svg/revision/latest/scale-to-width-down/40",
@@ -20183,7 +20183,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/18/French_fries_2.svg/revision/latest/scale-to-width-down/40",
@@ -20209,7 +20209,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e2/Restaurant_2.svg/revision/latest/scale-to-width-down/40",
@@ -20223,7 +20223,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8e/Hamburger_2.svg/revision/latest/scale-to-width-down/40",
@@ -20243,7 +20243,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/7d/Sheet_music_2.svg/revision/latest/scale-to-width-down/40",
@@ -20263,7 +20263,7 @@
         ]
       }
     ],
-    "tier": 14
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/4f/Smartphone_2.svg/revision/latest/scale-to-width-down/40",
@@ -20277,7 +20277,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/64/Brick_2.svg/revision/latest/scale-to-width-down/40",
@@ -20315,7 +20315,7 @@
         ]
       }
     ],
-    "tier": 2
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/2d/Dune_2.svg/revision/latest/scale-to-width-down/40",
@@ -20353,7 +20353,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/88/Gold_2.svg/revision/latest/scale-to-width-down/40",
@@ -20451,7 +20451,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/ba/Christmas_tree_2.svg/revision/latest/scale-to-width-down/40",
@@ -20489,7 +20489,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/7d/Hedge_2.svg/revision/latest/scale-to-width-down/40",
@@ -20533,7 +20533,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/20/Seasickness_2.svg/revision/latest/scale-to-width-down/40",
@@ -20577,7 +20577,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d8/Seaweed_2.svg/revision/latest/scale-to-width-down/40",
@@ -20615,7 +20615,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d8/Map_2.svg/revision/latest/scale-to-width-down/40",
@@ -20689,7 +20689,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b5/Human_2.svg/revision/latest/scale-to-width-down/40",
@@ -20727,7 +20727,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/2d/Firewall_2.svg/revision/latest/scale-to-width-down/40",
@@ -20741,7 +20741,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b5/Saturn_2.svg/revision/latest/scale-to-width-down/40",
@@ -20761,7 +20761,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/1c/Sloth_2.svg/revision/latest/scale-to-width-down/40",
@@ -20781,7 +20781,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d3/Cotton_2.svg/revision/latest/scale-to-width-down/40",
@@ -20819,7 +20819,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/82/Drum_2.svg/revision/latest/scale-to-width-down/40",
@@ -20845,7 +20845,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/cb/Yogurt_2.svg/revision/latest/scale-to-width-down/40",
@@ -20865,7 +20865,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/57/Armadillo_2.svg/revision/latest/scale-to-width-down/40",
@@ -20891,7 +20891,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/40/Garden_2.svg/revision/latest/scale-to-width-down/40",
@@ -20953,7 +20953,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8c/Wire_2.svg/revision/latest/scale-to-width-down/40",
@@ -20991,7 +20991,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/4b/Crow_2.svg/revision/latest/scale-to-width-down/40",
@@ -21047,7 +21047,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/6f/Omelette_2.svg/revision/latest/scale-to-width-down/40",
@@ -21073,7 +21073,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/56/Nessie_2.svg/revision/latest/scale-to-width-down/40",
@@ -21105,7 +21105,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c7/Closet_2.svg/revision/latest/scale-to-width-down/40",
@@ -21143,7 +21143,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/69/Solid_2.svg/revision/latest/scale-to-width-down/40",
@@ -21163,7 +21163,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/51/Fireplace_2.svg/revision/latest/scale-to-width-down/40",
@@ -21201,7 +21201,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/90/Avalanche_2.svg/revision/latest/scale-to-width-down/40",
@@ -21287,7 +21287,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/96/Boiler_2.svg/revision/latest/scale-to-width-down/40",
@@ -21325,7 +21325,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "name": "Cyclops",
@@ -21350,7 +21350,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e5/Seahorse_2.svg/revision/latest/scale-to-width-down/40",
@@ -21388,7 +21388,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c2/Lawn_mower_2.svg/revision/latest/scale-to-width-down/40",
@@ -21450,7 +21450,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/3a/Obsidian_2.svg/revision/latest/scale-to-width-down/40",
@@ -21476,7 +21476,7 @@
         ]
       }
     ],
-    "tier": 2
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/92/Post_office_2.svg/revision/latest/scale-to-width-down/40",
@@ -21526,7 +21526,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/0d/Death_2.svg/revision/latest/scale-to-width-down/40",
@@ -21564,7 +21564,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/97/Wagon_2.svg/revision/latest/scale-to-width-down/40",
@@ -21602,7 +21602,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/43/Oil_2.svg/revision/latest/scale-to-width-down/40",
@@ -21634,7 +21634,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/23/Confetti_2.svg/revision/latest/scale-to-width-down/40",
@@ -21654,7 +21654,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e7/Tea_2.svg/revision/latest/scale-to-width-down/40",
@@ -21680,7 +21680,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b5/Tailor_2.svg/revision/latest/scale-to-width-down/40",
@@ -21706,7 +21706,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c1/Alcohol_2.svg/revision/latest/scale-to-width-down/40",
@@ -21738,7 +21738,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/83/Warmth_2.svg/revision/latest/scale-to-width-down/40",
@@ -21758,7 +21758,7 @@
         ]
       }
     ],
-    "tier": 3
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/1a/Steel_2.svg/revision/latest/scale-to-width-down/40",
@@ -21790,7 +21790,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/97/Plankton_2.svg/revision/latest/scale-to-width-down/40",
@@ -21834,7 +21834,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a6/Potter_2.svg/revision/latest/scale-to-width-down/40",
@@ -21854,7 +21854,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9f/Peat_2.svg/revision/latest/scale-to-width-down/40",
@@ -21886,7 +21886,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c3/Cauldron_2.svg/revision/latest/scale-to-width-down/40",
@@ -21930,7 +21930,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/34/Doge_2.svg/revision/latest/scale-to-width-down/40",
@@ -21950,7 +21950,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/5a/House_2.svg/revision/latest/scale-to-width-down/40",
@@ -21988,7 +21988,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d0/Universe_2.svg/revision/latest/scale-to-width-down/40",
@@ -22020,7 +22020,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 8
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/60/Seaplane_2.svg/revision/latest/scale-to-width-down/40",
@@ -22052,7 +22052,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/3f/Spaghetti_2.svg/revision/latest/scale-to-width-down/40",
@@ -22078,7 +22078,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b0/Treasure_2.svg/revision/latest/scale-to-width-down/40",
@@ -22110,7 +22110,7 @@
         ]
       }
     ],
-    "tier": 14
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/06/Gas_2.svg/revision/latest/scale-to-width-down/40",
@@ -22136,7 +22136,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/bc/Tree_2.svg/revision/latest/scale-to-width-down/40",
@@ -22168,7 +22168,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/38/Gravestone_2.svg/revision/latest/scale-to-width-down/40",
@@ -22212,7 +22212,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/fe/Twilight_2.svg/revision/latest/scale-to-width-down/40",
@@ -22232,7 +22232,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/43/Fountain_2.svg/revision/latest/scale-to-width-down/40",
@@ -22252,7 +22252,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/bf/Frozen_yogurt_2.svg/revision/latest/scale-to-width-down/40",
@@ -22272,7 +22272,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/3b/Library_2.svg/revision/latest/scale-to-width-down/40",
@@ -22292,7 +22292,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/25/Pasta_2.svg/revision/latest/scale-to-width-down/40",
@@ -22306,7 +22306,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/eb/Stone_2.svg/revision/latest/scale-to-width-down/40",
@@ -22332,7 +22332,7 @@
         ]
       }
     ],
-    "tier": 2
+    "tier": 1
   },
   {
     "name": "Curse",
@@ -22363,7 +22363,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/5e/Science_2.svg/revision/latest/scale-to-width-down/40",
@@ -22389,7 +22389,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a7/Sandstorm_2.svg/revision/latest/scale-to-width-down/40",
@@ -22439,7 +22439,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9d/Dawn_2.svg/revision/latest/scale-to-width-down/40",
@@ -22459,7 +22459,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/5c/Arrow_2.svg/revision/latest/scale-to-width-down/40",
@@ -22479,7 +22479,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/fd/Cookie_2.svg/revision/latest/scale-to-width-down/40",
@@ -22517,7 +22517,7 @@
         ]
       }
     ],
-    "tier": 14
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/06/Hot_chocolate_2.svg/revision/latest/scale-to-width-down/40",
@@ -22537,7 +22537,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/4d/Continent_2.svg/revision/latest/scale-to-width-down/40",
@@ -22569,7 +22569,7 @@
         ]
       }
     ],
-    "tier": 2
+    "tier": 3
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/32/Smoke_2.svg/revision/latest/scale-to-width-down/40",
@@ -22687,7 +22687,7 @@
         ]
       }
     ],
-    "tier": 2
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/97/Horizon_2.svg/revision/latest/scale-to-width-down/40",
@@ -22731,7 +22731,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "name": "Jiangshi",
@@ -22791,7 +22791,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e0/String_phone_2.svg/revision/latest/scale-to-width-down/40",
@@ -22823,7 +22823,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/ee/Mountain_range_2.svg/revision/latest/scale-to-width-down/40",
@@ -22843,7 +22843,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f8/Motion_2.svg/revision/latest/scale-to-width-down/40",
@@ -22905,7 +22905,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/bb/Wind_2.svg/revision/latest/scale-to-width-down/40",
@@ -22931,7 +22931,7 @@
         ]
       }
     ],
-    "tier": 2
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/80/Light_2.svg/revision/latest/scale-to-width-down/40",
@@ -22951,7 +22951,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/17/Windmill_2.svg/revision/latest/scale-to-width-down/40",
@@ -22989,7 +22989,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/91/Bee_2.svg/revision/latest/scale-to-width-down/40",
@@ -23009,7 +23009,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/7c/Egg_timer_2.svg/revision/latest/scale-to-width-down/40",
@@ -23035,7 +23035,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/22/Tool_2.svg/revision/latest/scale-to-width-down/40",
@@ -23097,7 +23097,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/3d/River_2.svg/revision/latest/scale-to-width-down/40",
@@ -23135,7 +23135,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/5e/Electric_eel_2.svg/revision/latest/scale-to-width-down/40",
@@ -23149,7 +23149,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "name": "Holy grail",
@@ -23173,7 +23173,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9f/Hedgehog_2.svg/revision/latest/scale-to-width-down/40",
@@ -23199,7 +23199,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c3/Puddle_2.svg/revision/latest/scale-to-width-down/40",
@@ -23263,7 +23263,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/50/Park_2.svg/revision/latest/scale-to-width-down/40",
@@ -23319,7 +23319,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/dc/Spider_2.svg/revision/latest/scale-to-width-down/40",
@@ -23345,7 +23345,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "name": "Necromancer",
@@ -23376,7 +23376,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/55/Aviary_2.svg/revision/latest/scale-to-width-down/40",
@@ -23390,7 +23390,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a6/Honey_2.svg/revision/latest/scale-to-width-down/40",
@@ -23428,7 +23428,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9b/Aquarium_2.svg/revision/latest/scale-to-width-down/40",
@@ -23472,7 +23472,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/a1/Hay_bale_2.svg/revision/latest/scale-to-width-down/40",
@@ -23504,7 +23504,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c1/Sun_2.svg/revision/latest/scale-to-width-down/40",
@@ -23554,7 +23554,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/82/Thermometer_2.svg/revision/latest/scale-to-width-down/40",
@@ -23580,7 +23580,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d8/Ostrich_2.svg/revision/latest/scale-to-width-down/40",
@@ -23606,7 +23606,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "name": "Deity",
@@ -23643,7 +23643,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "name": "Baba yaga",
@@ -23680,7 +23680,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/12/Treasure_map_2.svg/revision/latest/scale-to-width-down/40",
@@ -23712,7 +23712,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "name": "Philosopher's stone",
@@ -23737,7 +23737,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/07/Tsunami_2.svg/revision/latest/scale-to-width-down/40",
@@ -23781,7 +23781,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/07/Island_2.svg/revision/latest/scale-to-width-down/40",
@@ -23813,7 +23813,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/50/Binoculars_2.svg/revision/latest/scale-to-width-down/40",
@@ -23833,7 +23833,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f3/Pitchfork_2.svg/revision/latest/scale-to-width-down/40",
@@ -23865,7 +23865,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f6/Canvas_2.svg/revision/latest/scale-to-width-down/40",
@@ -23879,7 +23879,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/05/Chainsaw_2.svg/revision/latest/scale-to-width-down/40",
@@ -23917,7 +23917,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8e/Tornado_2.svg/revision/latest/scale-to-width-down/40",
@@ -23961,7 +23961,7 @@
         ]
       }
     ],
-    "tier": 3
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/af/Duck_2.svg/revision/latest/scale-to-width-down/40",
@@ -24053,7 +24053,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b0/Email_2.svg/revision/latest/scale-to-width-down/40",
@@ -24085,7 +24085,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c5/Gift_2.svg/revision/latest/scale-to-width-down/40",
@@ -24153,7 +24153,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/2c/Rivulet_2.svg/revision/latest/scale-to-width-down/40",
@@ -24173,7 +24173,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/25/Wine_2.svg/revision/latest/scale-to-width-down/40",
@@ -24199,7 +24199,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/5d/Candy_cane_2.svg/revision/latest/scale-to-width-down/40",
@@ -24231,7 +24231,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/df/Banana_bread_2.svg/revision/latest/scale-to-width-down/40",
@@ -24251,7 +24251,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/08/Big_2.svg/revision/latest/scale-to-width-down/40",
@@ -24295,7 +24295,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e8/Wood_2.svg/revision/latest/scale-to-width-down/40",
@@ -24375,7 +24375,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c3/Gunpowder_2.svg/revision/latest/scale-to-width-down/40",
@@ -24413,7 +24413,7 @@
         ]
       }
     ],
-    "tier": 2
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/14/Pie_2.svg/revision/latest/scale-to-width-down/40",
@@ -24451,7 +24451,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/89/Witch_2.svg/revision/latest/scale-to-width-down/40",
@@ -24507,7 +24507,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/90/Scarecrow_2.svg/revision/latest/scale-to-width-down/40",
@@ -24563,7 +24563,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/35/Stethoscope_2.svg/revision/latest/scale-to-width-down/40",
@@ -24601,7 +24601,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/ff/Black_hole_2.svg/revision/latest/scale-to-width-down/40",
@@ -24633,7 +24633,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/54/Phoenix_2.svg/revision/latest/scale-to-width-down/40",
@@ -24665,7 +24665,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/74/Duckling_2.svg/revision/latest/scale-to-width-down/40",
@@ -24679,7 +24679,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/72/Spoon_2.svg/revision/latest/scale-to-width-down/40",
@@ -24693,7 +24693,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/70/Needle_2.svg/revision/latest/scale-to-width-down/40",
@@ -24719,7 +24719,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/35/Barrel_2.svg/revision/latest/scale-to-width-down/40",
@@ -24739,7 +24739,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/f3/Horseshoe_2.svg/revision/latest/scale-to-width-down/40",
@@ -24759,7 +24759,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "name": "Good",
@@ -24788,7 +24788,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/7e/Excavator_2.svg/revision/latest/scale-to-width-down/40",
@@ -24808,7 +24808,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/97/Rocket_2.svg/revision/latest/scale-to-width-down/40",
@@ -24870,7 +24870,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e3/Airplane_2.svg/revision/latest/scale-to-width-down/40",
@@ -25106,7 +25106,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/1/1e/Swamp_2.svg/revision/latest/scale-to-width-down/40",
@@ -25162,7 +25162,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/32/Sewing_machine_2.svg/revision/latest/scale-to-width-down/40",
@@ -25206,7 +25206,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/a/ab/Forest_2.svg/revision/latest/scale-to-width-down/40",
@@ -25238,7 +25238,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/fd/Pirate_2.svg/revision/latest/scale-to-width-down/40",
@@ -25270,7 +25270,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/4a/Umbrella_2.svg/revision/latest/scale-to-width-down/40",
@@ -25302,7 +25302,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/eb/Music_2.svg/revision/latest/scale-to-width-down/40",
@@ -25334,7 +25334,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/78/Trojan_horse_2.svg/revision/latest/scale-to-width-down/40",
@@ -25360,7 +25360,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c8/City_2.svg/revision/latest/scale-to-width-down/40",
@@ -25422,7 +25422,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/cb/Lens_2.svg/revision/latest/scale-to-width-down/40",
@@ -25442,7 +25442,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/32/Wolf_2.svg/revision/latest/scale-to-width-down/40",
@@ -25474,7 +25474,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/df/Pterodactyl_2.svg/revision/latest/scale-to-width-down/40",
@@ -25518,7 +25518,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/3c/Alligator_2.svg/revision/latest/scale-to-width-down/40",
@@ -25544,7 +25544,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/85/Bacon_2.svg/revision/latest/scale-to-width-down/40",
@@ -25576,7 +25576,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/06/Wild_boar_2.svg/revision/latest/scale-to-width-down/40",
@@ -25602,7 +25602,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/01/Sand_2.svg/revision/latest/scale-to-width-down/40",
@@ -25652,7 +25652,7 @@
         ]
       }
     ],
-    "tier": 3
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/4d/Quicksilver_2.svg/revision/latest/scale-to-width-down/40",
@@ -25666,7 +25666,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/ed/Grenade_2.svg/revision/latest/scale-to-width-down/40",
@@ -25692,7 +25692,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9b/Mirror_2.svg/revision/latest/scale-to-width-down/40",
@@ -25718,7 +25718,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/5c/Boat_2.svg/revision/latest/scale-to-width-down/40",
@@ -25756,7 +25756,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/91/Archeologist_2.svg/revision/latest/scale-to-width-down/40",
@@ -25776,7 +25776,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b7/Snake_2.svg/revision/latest/scale-to-width-down/40",
@@ -25802,7 +25802,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/5/5a/Angel_2.svg/revision/latest/scale-to-width-down/40",
@@ -25846,7 +25846,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 2
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8d/Bank_2.svg/revision/latest/scale-to-width-down/40",
@@ -25920,7 +25920,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/bb/Bridge_2.svg/revision/latest/scale-to-width-down/40",
@@ -25964,7 +25964,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/c5/Flood_2.svg/revision/latest/scale-to-width-down/40",
@@ -26026,7 +26026,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/ee/Oasis_2.svg/revision/latest/scale-to-width-down/40",
@@ -26082,7 +26082,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/67/Engineer_2.svg/revision/latest/scale-to-width-down/40",
@@ -26102,7 +26102,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/8e/Lawn_2.svg/revision/latest/scale-to-width-down/40",
@@ -26134,7 +26134,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/c/cc/Moss_2.svg/revision/latest/scale-to-width-down/40",
@@ -26196,7 +26196,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/f/fb/Sunflower_2.svg/revision/latest/scale-to-width-down/40",
@@ -26216,7 +26216,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b3/Venus_2.svg/revision/latest/scale-to-width-down/40",
@@ -26242,7 +26242,7 @@
         ]
       }
     ],
-    "tier": 4
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/ee/Alien_2.svg/revision/latest/scale-to-width-down/40",
@@ -26304,7 +26304,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/b8/Firestation_2.svg/revision/latest/scale-to-width-down/40",
@@ -26342,7 +26342,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/48/Windsurfer_2.svg/revision/latest/scale-to-width-down/40",
@@ -26356,7 +26356,7 @@
         ]
       }
     ],
-    "tier": 9
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/b/be/Cart_2.svg/revision/latest/scale-to-width-down/40",
@@ -26370,7 +26370,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/9/9d/Bottle_2.svg/revision/latest/scale-to-width-down/40",
@@ -26450,7 +26450,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/09/Book_2.svg/revision/latest/scale-to-width-down/40",
@@ -26500,7 +26500,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/3a/Sleigh_2.svg/revision/latest/scale-to-width-down/40",
@@ -26556,7 +26556,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d7/Firetruck_2.svg/revision/latest/scale-to-width-down/40",
@@ -26600,7 +26600,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e7/Igloo_2.svg/revision/latest/scale-to-width-down/40",
@@ -26632,7 +26632,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/0f/Ski_goggles_2.svg/revision/latest/scale-to-width-down/40",
@@ -26688,7 +26688,7 @@
         ]
       }
     ],
-    "tier": 8
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/dc/Sweater_2.svg/revision/latest/scale-to-width-down/40",
@@ -26708,7 +26708,7 @@
         ]
       }
     ],
-    "tier": 11
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/33/Caramel_2.svg/revision/latest/scale-to-width-down/40",
@@ -26722,7 +26722,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/d/d4/Cigarette_2.svg/revision/latest/scale-to-width-down/40",
@@ -26736,7 +26736,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/8/83/Mac_and_cheese_2.svg/revision/latest/scale-to-width-down/40",
@@ -26750,7 +26750,7 @@
         ]
       }
     ],
-    "tier": 13
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/08/Car_2.svg/revision/latest/scale-to-width-down/40",
@@ -26812,7 +26812,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e0/Geyser_2.svg/revision/latest/scale-to-width-down/40",
@@ -26844,7 +26844,7 @@
         ]
       }
     ],
-    "tier": 2
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/6/69/Skyscraper_2.svg/revision/latest/scale-to-width-down/40",
@@ -26876,7 +26876,7 @@
         ]
       }
     ],
-    "tier": 6
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/2/22/Katana_2.svg/revision/latest/scale-to-width-down/40",
@@ -26914,7 +26914,7 @@
         ]
       }
     ],
-    "tier": 5
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/4/4a/Bacteria_2.svg/revision/latest/scale-to-width-down/40",
@@ -26940,7 +26940,7 @@
         ]
       }
     ],
-    "tier": 7
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/7/7d/Lumberjack_2.svg/revision/latest/scale-to-width-down/40",
@@ -26972,7 +26972,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/3/30/Jack-o%27-lantern_2.svg/revision/latest/scale-to-width-down/40",
@@ -27034,7 +27034,7 @@
         ]
       }
     ],
-    "tier": 10
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/0/07/Marshmallows_2.svg/revision/latest/scale-to-width-down/40",
@@ -27048,7 +27048,7 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   },
   {
     "image": "https://static.wikia.nocookie.net/little-alchemy/images/e/e0/Milk_shake_2.svg/revision/latest/scale-to-width-down/40",
@@ -27074,6 +27074,6 @@
         ]
       }
     ],
-    "tier": 12
+    "tier": 1
   }
 ]
