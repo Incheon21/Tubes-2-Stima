@@ -14,6 +14,7 @@ type Recipe struct {
 type ElementGraphNode struct {
 	Name                      string    `json:"name"`
 	ImagePath                 string    `json:"image_path"`
+    Tier                      int       `json:"tier"`  // Added tier field
 	RecipesToMakeThisElement  []*Recipe `json:"recipes_to_make_this_element"`
 	RecipesToMakeOtherElement []*Recipe `json:"recipes_to_make_other_element"`
 	IsVisited                 bool      `json:"is_visited"`
@@ -37,6 +38,7 @@ func NewElementGraph(elements map[string]model.Element) *ElementGraph {
 		g.Nodes[name] = &ElementGraphNode{
 			Name:                      name,
 			ImagePath:                 element.ImagePath,
+            Tier:                      element.Tier,
 			RecipesToMakeThisElement:  make([]*Recipe, 0),
 			RecipesToMakeOtherElement: make([]*Recipe, 0),
 		}
