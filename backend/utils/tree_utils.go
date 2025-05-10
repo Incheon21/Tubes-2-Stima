@@ -327,6 +327,7 @@ func GenerateTreesForRecipe(
 
 func BuildElementTreeBFS(g *graph.ElementGraph, elementName string, visited map[string]bool, visitedCount *int) map[string]interface{} {
 	if visited[elementName] {
+		// If already visited, return without recursion
 		node := g.Nodes[elementName]
 		return map[string]interface{}{
 			"name":                elementName,
@@ -341,6 +342,7 @@ func BuildElementTreeBFS(g *graph.ElementGraph, elementName string, visited map[
 	node := g.Nodes[elementName]
 	baseElements := []string{"Water", "Fire", "Earth", "Air"}
 
+	// Check if it's a base element
 	for _, base := range baseElements {
 		if elementName == base {
 			return map[string]interface{}{
@@ -351,6 +353,8 @@ func BuildElementTreeBFS(g *graph.ElementGraph, elementName string, visited map[
 			}
 		}
 	}
+
+	// No recipes to make this element
 	if len(node.RecipesToMakeThisElement) == 0 {
 		return map[string]interface{}{
 			"name":        elementName,
@@ -359,8 +363,11 @@ func BuildElementTreeBFS(g *graph.ElementGraph, elementName string, visited map[
 			"noRecipe":    true,
 		}
 	}
+
 	recipe := node.RecipesToMakeThisElement[0]
 	ingredients := make([]interface{}, 0, len(recipe.Ingredients))
+
+	// Process ingredients
 	for _, ingredientName := range recipe.Ingredients {
 		ingredientTree := BuildElementTreeBFS(g, ingredientName, visited, visitedCount)
 		ingredients = append(ingredients, ingredientTree)
@@ -372,6 +379,7 @@ func BuildElementTreeBFS(g *graph.ElementGraph, elementName string, visited map[
 		"ingredients": ingredients,
 	}
 }
+
 func BuildElementTreeDFS(g *graph.ElementGraph, elementName string, visited map[string]bool, visitedCount *int) map[string]interface{} {
 	*visitedCount++
 	node := g.Nodes[elementName]
@@ -440,4 +448,12 @@ func BuildElementTreeDFS(g *graph.ElementGraph, elementName string, visited map[
 
 func CreateElementGraph(elements map[string]model.Element) *graph.ElementGraph {
 	return graph.NewElementGraph(elements)
+}
+
+func GetElementTreeBFS(g *graph.ElementGraph, elementName string) (map[string]interface{}, int) {
+	visited := make(map[string]bool)
+	visitedCount := 0
+
+	result := BuildElementTreeBFS(g, elementName, visited, &visitedCount)
+	return result, visitedCount
 }
