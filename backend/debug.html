@@ -467,13 +467,17 @@ imaaaReal\backend\debug.html -->
         let url;
         // Use different endpoints based on algorithm and tree type
         if (algorithm === 'bfs') {
-            // Use dedicated BFS endpoint for BFS algorithm
-            url = `${serverUrl}/api/bfs/${encodeURIComponent(target)}?count=${treeCount}&singlePath=false`;
-            log(`Using BFS endpoint: ${url}`);
+            // Use dedicated BFS tree endpoint
+            url = `${serverUrl}/api/bfs-tree/${encodeURIComponent(target)}?count=${treeCount}`;
+            log(`Using BFS tree endpoint: ${url}`);
         } else if (algorithm === 'dfs') {
-            // Use dedicated endpoint for DFS (correct endpoint)
-            url = `${serverUrl}/api/multiple-recipes/${encodeURIComponent(target)}?count=${treeCount}`;
-            log(`Using DFS endpoint: ${url}`);
+            // Use dedicated endpoint for DFS multiple recipes
+            url = `${serverUrl}/api/dfs-tree/${encodeURIComponent(target)}?count=${treeCount}`;
+            log(`Using DFS tree endpoint: ${url}`);
+        } else if (algorithm === 'multithreaded-bfs') {
+            // Use multithreaded BFS endpoint
+            url = `${serverUrl}/api/bfs-tree/${encodeURIComponent(target)}?count=${treeCount}&multithreaded=true`;
+            log(`Using multithreaded BFS endpoint: ${url}`);
         } else {
             // Default endpoint format
             url = `${serverUrl}/api/${treeType}/${encodeURIComponent(target)}?count=${treeCount}&algorithm=${algorithm}`;

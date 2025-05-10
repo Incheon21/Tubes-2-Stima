@@ -327,12 +327,12 @@ func GenerateTreesForRecipe(
 
 func BuildElementTreeBFS(g *graph.ElementGraph, elementName string, visited map[string]bool, visitedCount *int) map[string]interface{} {
 	if visited[elementName] {
-		// If already visited, return without recursion
 		node := g.Nodes[elementName]
 		return map[string]interface{}{
 			"name":                elementName,
 			"imagePath":           node.ImagePath,
 			"isCircularReference": true,
+			"ingredients":         []interface{}{},
 		}
 	}
 
@@ -342,7 +342,6 @@ func BuildElementTreeBFS(g *graph.ElementGraph, elementName string, visited map[
 	node := g.Nodes[elementName]
 	baseElements := []string{"Water", "Fire", "Earth", "Air"}
 
-	// Check if it's a base element
 	for _, base := range baseElements {
 		if elementName == base {
 			return map[string]interface{}{
@@ -354,7 +353,6 @@ func BuildElementTreeBFS(g *graph.ElementGraph, elementName string, visited map[
 		}
 	}
 
-	// No recipes to make this element
 	if len(node.RecipesToMakeThisElement) == 0 {
 		return map[string]interface{}{
 			"name":        elementName,
@@ -364,20 +362,47 @@ func BuildElementTreeBFS(g *graph.ElementGraph, elementName string, visited map[
 		}
 	}
 
-	recipe := node.RecipesToMakeThisElement[0]
-	ingredients := make([]interface{}, 0, len(recipe.Ingredients))
+	var bestRecipe *graph.Recipe
+	bestBaseCount := -1
 
-	// Process ingredients
-	for _, ingredientName := range recipe.Ingredients {
-		ingredientTree := BuildElementTreeBFS(g, ingredientName, visited, visitedCount)
-		ingredients = append(ingredients, ingredientTree)
+	for _, recipe := range node.RecipesToMakeThisElement {
+		baseCount := 0
+		for _, ingredient := range recipe.Ingredients {
+			for _, base := range baseElements {
+				if ingredient == base {
+					baseCount++
+					break
+				}
+			}
+		}
+
+		if baseCount > bestBaseCount {
+			bestBaseCount = baseCount
+			bestRecipe = recipe
+		}
 	}
 
-	return map[string]interface{}{
+	if bestRecipe == nil && len(node.RecipesToMakeThisElement) > 0 {
+		bestRecipe = node.RecipesToMakeThisElement[0]
+	}
+
+	resultTree := map[string]interface{}{
 		"name":        elementName,
 		"imagePath":   node.ImagePath,
-		"ingredients": ingredients,
+		"ingredients": []interface{}{},
 	}
+
+	for _, ingredientName := range bestRecipe.Ingredients {
+		childVisited := make(map[string]bool)
+		for k, v := range visited {
+			childVisited[k] = v
+		}
+
+		ingredientTree := BuildElementTreeBFS(g, ingredientName, childVisited, visitedCount)
+		resultTree["ingredients"] = append(resultTree["ingredients"].([]interface{}), ingredientTree)
+	}
+
+	return resultTree
 }
 
 func BuildElementTreeDFS(g *graph.ElementGraph, elementName string, visited map[string]bool, visitedCount *int) map[string]interface{} {
