@@ -113,7 +113,7 @@ const RecipeExplorer = () => {
       } else if (algorithm === 'dfs') {
         // Backend endpoint: GET /api/multiple-recipes/{target}?count={count}
         // This should return DFS paths to create the target element
-        url = `${serverUrl}/api/multiple-recipes/${encodeURIComponent(target)}?count=${treeCount}`;
+        url = `${serverUrl}/api/dfs-tree/${encodeURIComponent(target)}?count=${treeCount}`;
         addLog(`Using DFS endpoint: ${url}`);
       } else if (algorithm === 'multithreaded-bfs') {
         // Backend endpoint: GET /api/mt-bfs/{target}?count={count}
