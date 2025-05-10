@@ -37,13 +37,8 @@ func main() {
 	mux := http.NewServeMux()
 
 	//cors middleware ke semua route
-	mux.Handle("/api/elements/", corsMiddleware(http.HandlerFunc(handler.HandleGetElements)))
-	mux.Handle("/api/search", corsMiddleware(http.HandlerFunc(handler.HandleSearch)))
-	mux.Handle("/api/elements", corsMiddleware(http.HandlerFunc(handler.HandleGetElements)))
-	mux.Handle("/api/recipes/", corsMiddleware(http.HandlerFunc(handler.HandleRecipePath)))
-	mux.Handle("/api/tree/", corsMiddleware(http.HandlerFunc(handler.HandleElementTree)))
-	mux.Handle("/api/multiple-recipes/", corsMiddleware(http.HandlerFunc(handler.HandleMultipleRecipes)))
 	mux.Handle("/api/bfs/", corsMiddleware(http.HandlerFunc(handler.HandleBFS)))
+	mux.Handle("/api/dfs-tree/", corsMiddleware(http.HandlerFunc(handler.HandleDFSTree)))
 	port := ":8080"
 	log.Printf("Server berhasil jalan pada port %s", port)
 	if err := http.ListenAndServe(port, mux); err != nil {

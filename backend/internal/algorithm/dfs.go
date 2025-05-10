@@ -1,10 +1,12 @@
 package algorithm
 
 import (
-	"backend/internal/graph"
-	"backend/model"
-	"backend/utils"
-	"log"
+    "backend/internal/graph"
+    "backend/model"
+    "backend/utils"
+    "log"
+    "sync"
+    "sort"
 )
 
 func DFS(elements map[string]model.Element, target string, maxResults int, debug bool) ([][]model.Node, int) {
@@ -255,4 +257,339 @@ func GetElementTreeDFS(g *graph.ElementGraph, elementName string) (map[string]in
 
 	result := utils.BuildElementTreeDFS(g, elementName, visited, &visitedCount)
 	return result, visitedCount
+}
+
+// Add after the existing functions
+
+// MultiThreadedDFS generates multiple different recipe paths using DFS traversal
+// Similar to MultiThreadedBFS but optimized for depth-first exploration
+func MultiThreadedDFS(elements map[string]model.Element, target string, maxResults int, singlePath bool) ([][]model.Node, int) {
+    g := graph.NewElementGraph(elements)
+
+    targetNode, exists := g.Nodes[target]
+    if !exists {
+        log.Printf("Target element '%s' not found in database", target)
+        return [][]model.Node{}, 0
+    }
+
+    baseElements := []string{"Water", "Fire", "Earth", "Air"}
+    for _, base := range baseElements {
+        if target == base {
+            log.Printf("Target '%s' is a base element, returning direct path", target)
+            return [][]model.Node{{
+                {Element: target, ImagePath: targetNode.ImagePath},
+            }}, 0
+        }
+    }
+
+    // Channel to collect results from different goroutines
+    resultChan := make(chan []model.Node, maxResults*2)
+    visitCountChan := make(chan int, 1)
+    
+    var wg sync.WaitGroup
+    var mu sync.Mutex
+
+    // Prevent duplicates by tracking unique path signatures
+    uniquePathSignatures := make(map[string]bool)
+    totalVisitedCount := 0
+    
+    // Different exploration strategies for variety
+    strategies := []struct {
+        name           string
+        maxDepth       int
+        favorSimplicity bool // If true, prefers paths with more base elements
+    }{
+        {"deep", 30, false},
+        {"simple", 20, true},
+        {"balanced", 25, true},
+        {"varied", 22, false},
+    }
+    
+    // Start a goroutine for each base element with each strategy
+    routineCount := 0
+    for _, strategy := range strategies {
+        wg.Add(1)
+        routineCount++
+        
+        go func(strat struct {
+            name           string
+            maxDepth       int
+            favorSimplicity bool
+        }) {
+            defer wg.Done()
+            
+            localVisited := make(map[string]bool)
+            localCount := 0
+            localResults := [][]model.Node{}
+            
+            // Explore target using this strategy
+            for _, recipe := range targetNode.RecipesToMakeThisElement {
+                // Skip recipes with no ingredients
+                if len(recipe.Ingredients) == 0 {
+                    continue
+                }
+                
+                path := []*model.Node{
+                    {Element: target, ImagePath: targetNode.ImagePath},
+                }
+                
+                // Custom explore function for this goroutine
+                exploreWithStrategy(
+                    g, 
+                    recipe, 
+                    path, 
+                    localVisited, 
+                    &localCount,
+                    &localResults, 
+                    maxResults, 
+                    baseElements, 
+                    strat.maxDepth,
+                    strat.favorSimplicity,
+                )
+                
+                // Select best paths to return
+                if len(localResults) > 0 {
+                    // Sort by path length - shorter is better
+                    sort.Slice(localResults, func(i, j int) bool {
+                        return len(localResults[i]) < len(localResults[j])
+                    })
+                    
+                    // Take the best path found with this strategy
+                    bestPath := localResults[0]
+                    
+                    // Add path to the result channel if it's unique
+                    mu.Lock()
+                    // Use the existing generatePathSignature from bfs.go
+                    pathSignature := generatePathSignature(bestPath)
+                    if !uniquePathSignatures[pathSignature] {
+                        uniquePathSignatures[pathSignature] = true
+                        resultChan <- bestPath
+                        totalVisitedCount += localCount
+                    }
+                    mu.Unlock()
+                    
+                    // If we only need a single path and found one, return
+                    if singlePath {
+                        return
+                    }
+                }
+            }
+            
+            log.Printf("Goroutine '%s' finished with %d paths", strat.name, len(localResults))
+        }(strategy)
+    }
+    
+    // Close channels when all goroutines complete
+    go func() {
+        wg.Wait()
+        visitCountChan <- totalVisitedCount
+        close(resultChan)
+        close(visitCountChan)
+    }()
+    
+    // Collect results
+    results := make([][]model.Node, 0, maxResults)
+    for path := range resultChan {
+        results = append(results, path)
+        if len(results) >= maxResults {
+            break
+        }
+    }
+    
+    visitedCount := <-visitCountChan
+    
+    // If no paths found, run regular DFS
+    if len(results) == 0 {
+        log.Printf("No paths found in parallel exploration, falling back to standard DFS")
+        return DFS(elements, target, maxResults, false)
+    }
+    
+    log.Printf("MultiThreadedDFS found %d unique paths after visiting %d nodes", len(results), visitedCount)
+    return results, visitedCount
+}
+
+// Helper function for MultiThreadedDFS to explore with different strategies
+func exploreWithStrategy(
+    g *graph.ElementGraph,
+    recipe *graph.Recipe,
+    currentPath []*model.Node,
+    visited map[string]bool,
+    visitCount *int,
+    results *[][]model.Node,
+    maxResults int,
+    baseElements []string,
+    maxDepth int,
+    favorSimplicity bool,
+) {
+    // Don't go too deep
+    if len(currentPath) > maxDepth {
+        return
+    }
+    
+    ingredients := recipe.Ingredients
+    if len(ingredients) == 0 {
+        return
+    }
+    
+    newPath := make([]*model.Node, len(currentPath))
+    copy(newPath, currentPath)
+    
+    // Check if all ingredients are base elements
+    allIngredientsAreBaseElements := true
+    ingredientNodes := make([]*model.Node, 0, len(ingredients))
+    
+    baseElementCount := 0
+    for _, ingredient := range ingredients {
+        ingredientNode := g.Nodes[ingredient]
+        *visitCount++
+        
+        ingredientNodeObj := &model.Node{
+            Element:   ingredient,
+            ImagePath: ingredientNode.ImagePath,
+        }
+        ingredientNodes = append(ingredientNodes, ingredientNodeObj)
+        
+        isBase := false
+        for _, base := range baseElements {
+            if ingredient == base {
+                isBase = true
+                baseElementCount++
+                break
+            }
+        }
+        
+        if !isBase && len(ingredientNode.RecipesToMakeThisElement) > 0 {
+            allIngredientsAreBaseElements = false
+        }
+    }
+    
+    // Add ingredients to path
+    newPath = append(newPath, ingredientNodes...)
+    
+    // If all ingredients are base elements, we found a valid path
+    if allIngredientsAreBaseElements {
+        finalPath := make([]model.Node, len(newPath))
+        for i, node := range newPath {
+            finalPath[i] = *node
+        }
+        
+        // Reverse the path to start with base elements
+        for i, j := 0, len(finalPath)-1; i < j; i, j = i+1, j-1 {
+            finalPath[i], finalPath[j] = finalPath[j], finalPath[i]
+        }
+        
+        *results = append(*results, finalPath)
+        return
+    }
+    
+    // Process ingredients - use a different order based on strategy
+    recipeIngredients := make([]string, len(ingredients))
+    copy(recipeIngredients, ingredients)
+    
+    // If we favor simplicity, prioritize base elements
+    if favorSimplicity {
+        // Sort ingredients - base elements first
+        sort.SliceStable(recipeIngredients, func(i, j int) bool {
+            iIsBase := false
+            jIsBase := false
+            
+            for _, base := range baseElements {
+                if recipeIngredients[i] == base {
+                    iIsBase = true
+                }
+                if recipeIngredients[j] == base {
+                    jIsBase = true
+                }
+            }
+            
+            // Base elements come first
+            return iIsBase && !jIsBase
+        })
+    }
+    
+    // Recursively explore ingredients
+    for _, ingredient := range recipeIngredients {
+        isBase := false
+        for _, base := range baseElements {
+            if ingredient == base {
+                isBase = true
+                break
+            }
+        }
+        
+        // Skip base elements and already visited elements
+        if isBase || visited[ingredient] {
+            continue
+        }
+        
+        // Mark as visited
+        visited[ingredient] = true
+        
+        ingredientNode := g.Nodes[ingredient]
+        
+        // Sort recipes by complexity - simpler recipes first if favoring simplicity
+        subRecipes := make([]*graph.Recipe, len(ingredientNode.RecipesToMakeThisElement))
+        copy(subRecipes, ingredientNode.RecipesToMakeThisElement)
+        
+        if favorSimplicity {
+            sort.Slice(subRecipes, func(i, j int) bool {
+                // Count base elements in each recipe
+                iBaseCount := 0
+                jBaseCount := 0
+                
+                for _, ing := range subRecipes[i].Ingredients {
+                    for _, base := range baseElements {
+                        if ing == base {
+                            iBaseCount++
+                            break
+                        }
+                    }
+                }
+                
+                for _, ing := range subRecipes[j].Ingredients {
+                    for _, base := range baseElements {
+                        if ing == base {
+                            jBaseCount++
+                            break
+                        }
+                    }
+                }
+                
+                // If both have base elements, prefer the one with more
+                if iBaseCount > 0 && jBaseCount > 0 {
+                    return iBaseCount > jBaseCount
+                }
+                
+                // Otherwise prefer shorter recipes
+                return len(subRecipes[i].Ingredients) < len(subRecipes[j].Ingredients)
+            })
+        }
+        
+        // Explore each recipe for this ingredient
+        for _, subRecipe := range subRecipes {
+            ingredientPath := make([]*model.Node, len(newPath))
+            copy(ingredientPath, newPath)
+            
+            exploreWithStrategy(
+                g, 
+                subRecipe, 
+                ingredientPath, 
+                visited, 
+                visitCount, 
+                results, 
+                maxResults, 
+                baseElements, 
+                maxDepth,
+                favorSimplicity,
+            )
+            
+            // If we found enough results, stop
+            if len(*results) >= maxResults && maxResults > 0 {
+                break
+            }
+        }
+        
+        // Backtrack
+        delete(visited, ingredient)
+    }
 }

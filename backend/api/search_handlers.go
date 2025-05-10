@@ -260,3 +260,104 @@ func (h *Handler) HandleSearch(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("DEBUG: Successfully sent response in %d ms", time.Since(startTime).Milliseconds())
 }
+
+// Add this function after HandleBFS or HandleSearch
+
+func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "application/json")
+    
+    // Parse request path and extract element name
+    pathParts := strings.Split(strings.TrimPrefix(r.URL.Path, "/api/dfs-tree/"), "/")
+    if len(pathParts) < 1 {
+        http.Error(w, "Invalid URL format. Use /api/dfs-tree/{elementName}?count=N", http.StatusBadRequest)
+        return
+    }
+    elementName := strings.Join(pathParts, "/")
+    
+    // Parse query parameters
+    count := 3
+    if countParam := r.URL.Query().Get("count"); countParam != "" {
+        if parsedCount, err := strconv.Atoi(countParam); err == nil && parsedCount > 0 {
+            count = parsedCount
+        }
+    }
+    
+    // Validate element exists
+    element, exists := h.elements[elementName]
+    if !exists {
+        http.Error(w, "Element not found", http.StatusNotFound)
+        log.Printf("DEBUG: Element '%s' not found in database", elementName)
+        return
+    }
+    
+    // Handle base elements quickly
+    baseElements := []string{"Water", "Fire", "Earth", "Air"}
+    for _, base := range baseElements {
+        if elementName == base {
+            log.Printf("DEBUG: Requested element '%s' is a base element, returning simple result", elementName)
+            result := map[string]interface{}{
+                "trees": []map[string]interface{}{{
+                    "name":          elementName,
+                    "imagePath":     element.ImagePath,
+                    "ingredients":   []interface{}{},
+                    "isBaseElement": true,
+                }},
+                "nodesVisited": 1,
+                "timeElapsed":  0,
+                "algorithm":    "dfs",
+            }
+
+            if err := json.NewEncoder(w).Encode(result); err != nil {
+                http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+                log.Printf("Error encoding response: %v", err)
+            }
+            return
+        }
+    }
+    
+    // Start searching for recipes
+    log.Printf("DEBUG: Starting DFS tree search for element '%s' (requesting %d trees)", 
+        elementName, count)
+    startTime := time.Now()
+    
+    if count > 10 {
+        count = 10
+        log.Printf("DEBUG: Limiting count to maximum of 10 for tree format")
+    }
+    
+    // Create element graph
+    g := utils.CreateElementGraph(h.elements)
+    
+    // Get multiple recipe trees using MultiThreadedElementTreeDFS
+    trees, visited := alg.MultiThreadedElementTreeDFS(g, elementName, count)
+    
+    // If no trees found, fallback to single tree
+    if len(trees) == 0 {
+        visitCount := 0
+        visitedNodes := make(map[string]bool)
+        tree := utils.BuildElementTreeDFS(g, elementName, visitedNodes, &visitCount)
+        trees = []map[string]interface{}{tree}
+        visited = visitCount
+        log.Printf("DEBUG: Added fallback element tree using DFS (nodes visited: %d)", visitCount)
+    }
+    
+    // Track time elapsed
+    timeElapsed := time.Since(startTime).Milliseconds()
+    
+    // Prepare and send response
+    result := map[string]interface{}{
+        "trees":        trees,
+        "nodesVisited": visited,
+        "timeElapsed":  timeElapsed,
+        "algorithm":    "dfs",
+    }
+    
+    if err := json.NewEncoder(w).Encode(result); err != nil {
+        http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+        log.Printf("Error encoding response: %v", err)
+        return
+    }
+    
+    log.Printf("DEBUG: Successfully sent DFS tree response with %d trees in %d ms", 
+        len(trees), timeElapsed)
+}
