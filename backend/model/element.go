@@ -1,11 +1,15 @@
 package model
 
-//kombinasi ingredient untuk elemen
+type Recipe struct {
+	Ingredients []string `json:"ingredients"`
+}
+
+// kombinasi ingredient untuk elemen
 type ElementRecipe struct {
 	Ingredients []string `json:"ingredients"`
 }
 
-//struktur untuk elemen
+// struktur untuk elemen
 type Element struct {
 	Name       string          `json:"name"`
 	ImagePath  string          `json:"image,omitempty"`
@@ -14,7 +18,7 @@ type Element struct {
 	Tier       int             `json:"tier"`
 }
 
-//searchconfig untuk pencarian elemen
+// searchconfig untuk pencarian elemen
 type SearchConfig struct {
 	TargetElement string `json:"targetElement"`
 	Algorithm     string `json:"algorithm"` // "bfs", "dfs", ato "bidirectional" kalo yg lain ya ga bakal la wkwk
@@ -22,14 +26,14 @@ type SearchConfig struct {
 	SinglePath    bool   `json:"singlePath"`
 }
 
-//hasil dari pencarian elemen
+// hasil dari pencarian elemen
 type SearchResult struct {
 	Paths        [][]Node `json:"paths"`
 	TimeElapsed  int64    `json:"timeElapsed"` //ms
 	NodesVisited int      `json:"nodesVisited"`
 }
 
-//struct node untuk menyimpan elemen dan ingredientnya
+// struct node untuk menyimpan elemen dan ingredientnya
 type Node struct {
 	Element     string   `json:"element"`
 	ImagePath   string   `json:"image,omitempty"`

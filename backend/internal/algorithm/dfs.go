@@ -334,7 +334,7 @@ func MultiThreadedDFS(elements map[string]model.Element, target string, maxResul
 					bestPath := localResults[0]
 
 					mu.Lock()
-					pathSignature := generatePathSignature(bestPath)
+					pathSignature := GeneratePathSignature(bestPath)
 					if !uniquePathSignatures[pathSignature] {
 						uniquePathSignatures[pathSignature] = true
 						resultChan <- bestPath

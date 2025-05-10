@@ -6,7 +6,6 @@ import (
 	"backend/model"
 	"backend/utils"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"sort"
@@ -15,193 +14,353 @@ import (
 	"time"
 )
 
-func (h *Handler) HandleBFS(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) HandleBFSTree(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	pathParts := strings.Split(strings.TrimPrefix(r.URL.Path, "/api/bfs/"), "/")
+	pathParts := strings.Split(strings.TrimPrefix(r.URL.Path, "/api/bfs-tree/"), "/")
 	if len(pathParts) < 1 {
-		http.Error(w, "Invalid URL format. Use /api/bfs/{elementName}?count=N&singlePath=true", http.StatusBadRequest)
+		http.Error(w, "Invalid URL format. Use /api/bfs-tree/{elementName}?count=N", http.StatusBadRequest)
 		return
 	}
 	elementName := strings.Join(pathParts, "/")
-	count := 1
+
+	log.Printf("DEBUG: BFS Tree request for element: %s", elementName)
+
+	count := 3
 	if countParam := r.URL.Query().Get("count"); countParam != "" {
 		if parsedCount, err := strconv.Atoi(countParam); err == nil && parsedCount > 0 {
 			count = parsedCount
+			log.Printf("DEBUG: Requested tree count: %d", count)
 		}
 	}
-	singlePath := true
-	if singlePathParam := r.URL.Query().Get("singlePath"); singlePathParam != "" {
-		parsedValue, err := strconv.ParseBool(singlePathParam)
-		if err == nil {
-			singlePath = parsedValue
-		} else {
-		}
+
+	useMultithreaded := false
+	if mtParam := r.URL.Query().Get("multithreaded"); mtParam != "" {
+		useMultithreaded = mtParam == "true"
+		log.Printf("DEBUG: Multithreaded mode: %v", useMultithreaded)
+	} else if count > 1 {
+		useMultithreaded = true
+		log.Printf("DEBUG: Count > 1, automatically using multithreaded BFS")
 	}
-	if _, exists := h.elements[elementName]; !exists {
+
+	algoName := "bfs"
+	if useMultithreaded {
+		algoName = "multithreaded-bfs"
+	}
+
+	// Validate element exists
+	element, exists := h.elements[elementName]
+	if !exists {
 		http.Error(w, "Element not found", http.StatusNotFound)
+		log.Printf("DEBUG: Element '%s' not found in database", elementName)
 		return
 	}
+
+	// Handle base elements quickly
 	baseElements := []string{"Water", "Fire", "Earth", "Air"}
+	isBaseElement := false
 	for _, base := range baseElements {
 		if elementName == base {
-			element := h.elements[base]
-			result := model.SearchResult{
-				Paths:        [][]model.Node{{{Element: elementName, ImagePath: element.ImagePath}}},
-				NodesVisited: 1,
-				TimeElapsed:  0,
-			}
-			if err := json.NewEncoder(w).Encode(result); err != nil {
-				http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-			}
-			return
+			isBaseElement = true
+			break
 		}
 	}
+
+	if isBaseElement {
+		log.Printf("DEBUG: Requested element '%s' is a base element, returning simple result", elementName)
+		result := map[string]interface{}{
+			"trees": []map[string]interface{}{{
+				"name":          elementName,
+				"imagePath":     element.ImagePath,
+				"ingredients":   []interface{}{},
+				"isBaseElement": true,
+			}},
+			"nodesVisited": 1,
+			"timeElapsed":  0,
+			"algorithm":    algoName,
+		}
+
+		if err := json.NewEncoder(w).Encode(result); err != nil {
+			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+			log.Printf("Error encoding response: %v", err)
+		}
+		return
+	}
+
+	log.Printf("DEBUG: Starting %s tree search for element '%s'", algoName, elementName)
 	startTime := time.Now()
-	var allPaths [][]model.Node
-	var visited int
-	if !singlePath && count > 1 {
-		explorationCount := count * 15
-		if explorationCount > 60 {
-			explorationCount = 60
-		}
-		paths1, visited1 := alg.MultiThreadedBFS(h.elements, elementName, explorationCount, false)
-		paths2, visited2 := alg.BFS(h.elements, elementName, count*3, false)
-		allPaths = append(paths1, paths2...)
-		visited = visited1 + visited2
+
+	var paths [][]model.Node
+	var visitedCount int
+
+	if useMultithreaded {
+		paths, visitedCount = alg.MultiThreadedBFS(h.elements, elementName, count*2, false)
 	} else {
-		allPaths, visited = alg.BFS(h.elements, elementName, 1, true)
+		paths, visitedCount = alg.BFS(h.elements, elementName, count*2, false)
 	}
-	var validPaths [][]model.Node
-	targetTier := h.elements[elementName].Tier
-	for i, path := range allPaths {
-		valid := true
-		for _, node := range path {
-			if node.Element == elementName {
-				continue
-			}
-			if ingredient, exists := h.elements[node.Element]; exists {
-				if ingredient.Tier > targetTier {
-					log.Printf("DEBUG: Path %d invalid: ingredient %s (tier %d) > target %s (tier %d)",
-						i, node.Element, ingredient.Tier, elementName, targetTier)
-					valid = false
-					break
-				}
+
+	log.Printf("DEBUG: %s found %d paths after visiting %d nodes", algoName, len(paths), visitedCount)
+
+	trees := make([]map[string]interface{}, 0, len(paths))
+	uniqueSignatures := make(map[string]bool)
+
+	for _, path := range paths {
+		tree := convertPathToTree(path, elementName, h.elements, baseElements)
+
+		ensureIngredientsExpanded(tree, h.elements, baseElements, make(map[string]bool))
+
+		if tree != nil {
+			signature := generateDetailedTreeSignature(tree)
+
+			if !uniqueSignatures[signature] {
+				uniqueSignatures[signature] = true
+				trees = append(trees, tree)
 			}
 		}
-		if valid {
-			validPaths = append(validPaths, path)
-		}
 	}
-	allPaths = validPaths
+
+	log.Printf("DEBUG: Generated %d unique trees from %d paths", len(trees), len(paths))
+
+	if len(trees) > count {
+		trees = trees[:count]
+	}
+	totalNodeCount := 0
+	for _, tree := range trees {
+		totalNodeCount += countNodesInTree(tree)
+	}
+
+	log.Printf("DEBUG: Total nodes in final trees: %d", totalNodeCount)
+
 	timeElapsed := time.Since(startTime).Milliseconds()
-	for i := range allPaths {
-		for j := range allPaths[i] {
-			elem := allPaths[i][j].Element
-			if elemData, exists := h.elements[elem]; exists && allPaths[i][j].ImagePath == "" {
-				allPaths[i][j].ImagePath = elemData.ImagePath
-			}
-		}
+
+	result := map[string]interface{}{
+		"trees":          trees,
+		"nodesVisited":   visitedCount,
+		"totalTreeNodes": totalNodeCount,
+		"timeElapsed":    timeElapsed,
+		"algorithm":      algoName,
 	}
-	var finalPaths [][]model.Node
-	if !singlePath && len(allPaths) > 1 {
-		pathGroups := make(map[string][]model.Node)
-		log.Printf("DEBUG: Grouping paths by base elements for diversity")
-		for i, path := range allPaths {
-			if len(path) < 2 {
-				continue
-			}
-			var baseElementsUsed []string
-			for _, node := range path {
-				isBase := false
-				for _, base := range baseElements {
-					if node.Element == base {
-						baseElementsUsed = append(baseElementsUsed, base)
-						isBase = true
-						break
-					}
-				}
-				if !isBase && len(node.Ingredients) > 0 {
-					if len(baseElementsUsed) < 5 {
-						baseElementsUsed = append(baseElementsUsed, node.Element)
-					}
-				}
-			}
-			sort.Strings(baseElementsUsed)
-			signature := strings.Join(baseElementsUsed, ",") + fmt.Sprintf("|len:%d", len(path))
-			log.Printf("DEBUG: Path %d has signature: %s", i, signature)
-			if _, exists := pathGroups[signature]; !exists {
-				pathGroups[signature] = path
-				log.Printf("DEBUG: Added path with unique signature: %s", signature)
-			}
-		}
-		for _, path := range pathGroups {
-			finalPaths = append(finalPaths, path)
-			if len(finalPaths) >= count {
-				log.Printf("DEBUG: Selected %d diverse paths, stopping", count)
-				break
-			}
-		}
-		if len(finalPaths) < count && len(allPaths) > len(finalPaths) {
-			log.Printf("DEBUG: Still need more paths, adding from all paths")
-			sort.Slice(allPaths, func(i, j int) bool {
-				return len(allPaths[i]) < len(allPaths[j])
-			})
-			for _, path := range allPaths {
-				if len(finalPaths) >= count {
-					break
-				}
-				alreadyIncluded := false
-				for _, existingPath := range finalPaths {
-					if utils.GeneratePathFingerprint(existingPath) == utils.GeneratePathFingerprint(path) {
-						alreadyIncluded = true
-						break
-					}
-				}
-				if !alreadyIncluded {
-					finalPaths = append(finalPaths, path)
-				}
-			}
-		}
-	} else {
-		finalPaths = allPaths
-	}
-	if len(finalPaths) == 0 && len(allPaths) > 0 {
-		finalPaths = allPaths[:1]
-		log.Printf("DEBUG: No diverse paths found, using first available path")
-	} else if len(finalPaths) == 0 {
-		element := h.elements[elementName]
-		if len(element.Recipes) > 0 {
-			log.Printf("DEBUG: Creating manual path from first recipe")
-			recipe := element.Recipes[0]
-			path := []model.Node{{Element: elementName, ImagePath: element.ImagePath}}
-			for _, ing := range recipe.Ingredients {
-				if ingElement, exists := h.elements[ing]; exists {
-					if ingElement.Tier <= targetTier {
-						path = append([]model.Node{{
-							Element:   ing,
-							ImagePath: ingElement.ImagePath,
-						}}, path...)
-					}
-				}
-			}
-			finalPaths = [][]model.Node{path}
-		} else {
-			finalPaths = [][]model.Node{{{Element: elementName, ImagePath: element.ImagePath}}}
-			log.Printf("DEBUG: No recipes available, returning just the target element")
-		}
-	}
-	log.Printf("DEBUG: Final result contains %d paths", len(finalPaths))
-	result := model.SearchResult{
-		Paths:        finalPaths,
-		NodesVisited: visited,
-		TimeElapsed:  timeElapsed,
-	}
+
 	if err := json.NewEncoder(w).Encode(result); err != nil {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 		log.Printf("Error encoding response: %v", err)
 		return
 	}
-	log.Printf("DEBUG: Successfully sent BFS response with %d paths", len(finalPaths))
+
+	log.Printf("DEBUG: Successfully sent %s tree response with %d trees in %d ms",
+		algoName, len(trees), timeElapsed)
+}
+
+func countNodesInTree(tree map[string]interface{}) int {
+	if tree == nil {
+		return 0
+	}
+
+	count := 1 // Count the current node
+
+	// Count nodes in ingredient subtrees
+	ingredients, ok := tree["ingredients"].([]interface{})
+	if !ok {
+		return count
+	}
+
+	for _, ing := range ingredients {
+		ingTree, ok := ing.(map[string]interface{})
+		if ok {
+			count += countNodesInTree(ingTree)
+		}
+	}
+
+	return count
+}
+
+func ensureIngredientsExpanded(tree map[string]interface{}, elements map[string]model.Element, baseElements []string, visited map[string]bool) {
+	if tree == nil {
+		return
+	}
+
+	elementName, ok := tree["name"].(string)
+	if !ok || visited[elementName] {
+		return
+	}
+
+	visited[elementName] = true
+	defer delete(visited, elementName)
+
+	isBase := false
+	for _, base := range baseElements {
+		if elementName == base {
+			isBase = true
+			break
+		}
+	}
+
+	if isBase {
+		tree["isBaseElement"] = true
+		return
+	}
+
+	ingredients, ok := tree["ingredients"].([]interface{})
+
+	if (!ok || len(ingredients) == 0) && !isBase {
+		if elemData, exists := elements[elementName]; exists && len(elemData.Recipes) > 0 {
+			recipe := elemData.Recipes[0]
+			newIngredients := make([]interface{}, 0, len(recipe.Ingredients))
+
+			for _, ingName := range recipe.Ingredients {
+				ingIsBase := false
+				for _, base := range baseElements {
+					if ingName == base {
+						ingIsBase = true
+						break
+					}
+				}
+
+				ingData, ingExists := elements[ingName]
+				if !ingExists {
+					continue
+				}
+
+				ingTree := map[string]interface{}{
+					"name":          ingName,
+					"imagePath":     ingData.ImagePath,
+					"isBaseElement": ingIsBase,
+					"ingredients":   []interface{}{},
+				}
+
+				if !ingIsBase {
+					ensureIngredientsExpanded(ingTree, elements, baseElements, visited)
+				}
+
+				newIngredients = append(newIngredients, ingTree)
+			}
+
+			tree["ingredients"] = newIngredients
+		}
+	} else {
+		for _, ing := range ingredients {
+			if ingTree, ok := ing.(map[string]interface{}); ok {
+				ensureIngredientsExpanded(ingTree, elements, baseElements, visited)
+			}
+		}
+	}
+}
+
+func convertPathToTree(path []model.Node, targetElement string, elements map[string]model.Element, baseElements []string) map[string]interface{} {
+	if len(path) == 0 {
+		return nil
+	}
+
+	var targetNode *model.Node
+	for i := range path {
+		if path[i].Element == targetElement {
+			targetNode = &path[i]
+			break
+		}
+	}
+
+	if targetNode == nil {
+		return nil
+	}
+
+	nodeMap := make(map[string]*model.Node)
+	for i := range path {
+		nodeMap[path[i].Element] = &path[i]
+	}
+
+	processedInBranch := make(map[string]bool)
+
+	var buildTree func(element string, depth int) map[string]interface{}
+	buildTree = func(element string, depth int) map[string]interface{} {
+		if processedInBranch[element] {
+			return map[string]interface{}{
+				"name":                element,
+				"isCircularReference": true,
+				"ingredients":         []interface{}{},
+			}
+		}
+
+		processedInBranch[element] = true
+		defer func() {
+			delete(processedInBranch, element)
+		}()
+
+		node, found := nodeMap[element]
+		if !found {
+			elemData, exists := elements[element]
+			if !exists {
+				return nil
+			}
+
+			isBase := false
+			for _, base := range baseElements {
+				if element == base {
+					isBase = true
+					break
+				}
+			}
+
+			treeNode := map[string]interface{}{
+				"name":          element,
+				"imagePath":     elemData.ImagePath,
+				"isBaseElement": isBase,
+				"ingredients":   []interface{}{},
+			}
+
+			// If it's not a base element, try to expand its ingredients
+			if !isBase && depth < 10 && len(elemData.Recipes) > 0 {
+				recipe := elemData.Recipes[0]
+				for _, ingredient := range recipe.Ingredients {
+					// Recursively build subtree for this ingredient
+					subtree := buildTree(ingredient, depth+1)
+					if subtree != nil {
+						treeNode["ingredients"] = append(treeNode["ingredients"].([]interface{}), subtree)
+					}
+				}
+			}
+
+			return treeNode
+		}
+
+		isBase := false
+		for _, base := range baseElements {
+			if element == base {
+				isBase = true
+				break
+			}
+		}
+
+		treeNode := map[string]interface{}{
+			"name":        element,
+			"imagePath":   node.ImagePath,
+			"ingredients": []interface{}{},
+		}
+
+		if isBase {
+			treeNode["isBaseElement"] = true
+			return treeNode
+		}
+
+		ingredients := node.Ingredients
+		if ingredients == nil || len(ingredients) == 0 {
+			// Try to get from element data
+			if elemData, exists := elements[element]; exists && len(elemData.Recipes) > 0 {
+				ingredients = elemData.Recipes[0].Ingredients
+			}
+		}
+
+		if depth < 10 {
+			for _, ingredient := range ingredients {
+				subtree := buildTree(ingredient, depth+1)
+				if subtree != nil {
+					treeNode["ingredients"] = append(treeNode["ingredients"].([]interface{}), subtree)
+				}
+			}
+		}
+
+		return treeNode
+	}
+
+	return buildTree(targetElement, 0)
 }
 
 func generateTreeCombinations(baseTree map[string]interface{}, ingredientVariations [][]map[string]interface{}, currentIndex int) []map[string]interface{} {
@@ -291,18 +450,14 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Start searching for recipes
 	log.Printf("DEBUG: Starting DFS tree search for element '%s' (requesting %d trees)",
 		elementName, count)
 	startTime := time.Now()
 
-	// Create element graph
 	g := utils.CreateElementGraph(h.elements)
 
-	// Generate all possible recipe trees with our improved function
 	trees, visited := generateAllRecipeTrees(g, elementName, element.ImagePath, count, baseElements)
 
-	// If no trees found, fallback to single tree
 	if len(trees) == 0 {
 		visitCount := 0
 		visitedNodes := make(map[string]bool)
@@ -312,8 +467,6 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 		log.Printf("DEBUG: No recipe trees found, added fallback element tree using DFS (nodes visited: %d)", visitCount)
 	}
 
-	// Limit the number of trees to respect the requested count
-	// But ensure we keep at least 4 for Metal
 	minCount := count
 	if elementName == "Metal" && count < 5 {
 		minCount = 5
@@ -325,10 +478,8 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 		log.Printf("DEBUG: Limited trees to requested count: %d", minCount)
 	}
 
-	// Track time elapsed
 	timeElapsed := time.Since(startTime).Milliseconds()
 
-	// Prepare and send response
 	result := map[string]interface{}{
 		"trees":        trees,
 		"nodesVisited": visited,
