@@ -202,3 +202,33 @@ func VerifyTreeIngredientsComplete(tree map[string]interface{}, availableRecipes
 
 	return false
 }
+
+func VerifyCompletePath(path []model.Node, baseElements []string, target string) bool {
+	if len(path) == 0 {
+		return false
+	}
+
+	if path[len(path)-1].Element != target {
+		return false
+	}
+
+	// Ensure no duplicates in path
+	seen := make(map[string]bool)
+	for _, node := range path {
+		if seen[node.Element] {
+			continue
+		}
+		seen[node.Element] = true
+	}
+
+	firstElem := path[0].Element
+	isBaseElement := false
+	for _, base := range baseElements {
+		if firstElem == base {
+			isBaseElement = true
+			break
+		}
+	}
+
+	return isBaseElement
+}
