@@ -48,7 +48,7 @@ func (h *Handler) HandleBFSTree(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate element exists
-	element, exists := h.elements[elementName]
+	_, exists := h.elements[elementName]
 	if !exists {
 		http.Error(w, "Element not found", http.StatusNotFound)
 		log.Printf("DEBUG: Element '%s' not found in database", elementName)
@@ -67,10 +67,11 @@ func (h *Handler) HandleBFSTree(w http.ResponseWriter, r *http.Request) {
 
 	if isBaseElement {
 		log.Printf("DEBUG: Requested element '%s' is a base element, returning simple result", elementName)
+		elementData := h.elements[elementName]
 		result := map[string]interface{}{
 			"trees": []map[string]interface{}{{
 				"name":          elementName,
-				"imagePath":     element.ImagePath,
+				"imagePath":     elementData.ImagePath,
 				"ingredients":   []interface{}{},
 				"isBaseElement": true,
 			}},
@@ -658,4 +659,356 @@ func generateDetailedTreeSignature(tree map[string]interface{}) string {
 	sb.WriteString("]")
 
 	return sb.String()
+}
+func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	// Extract element name from URL
+	pathParts := strings.Split(strings.TrimPrefix(r.URL.Path, "/api/bidirectional/"), "/")
+	if len(pathParts) < 1 {
+		http.Error(w, "Invalid URL format. Use /api/bidirectional/{elementName}", http.StatusBadRequest)
+		return
+	}
+	elementName := strings.Join(pathParts, "/")
+
+	log.Printf("DEBUG: Bidirectional search request for element: %s", elementName)
+
+	// Parse query parameters
+	count := 3 // Default number of results
+	if countParam := r.URL.Query().Get("count"); countParam != "" {
+		if parsedCount, err := strconv.Atoi(countParam); err == nil && parsedCount > 0 {
+			count = parsedCount
+			log.Printf("DEBUG: Requested result count: %d", count)
+		}
+	}
+
+	useMultithreaded := true
+	if mtParam := r.URL.Query().Get("multithreaded"); mtParam != "" {
+		useMultithreaded = mtParam == "true"
+		log.Printf("DEBUG: Multithreaded mode: %v", useMultithreaded)
+	}
+
+	singlePath := false
+	if singleParam := r.URL.Query().Get("single"); singleParam == "true" {
+		singlePath = true
+		log.Printf("DEBUG: Single path mode enabled")
+	}
+
+	// Check if tree visualization is requested
+	treeView := false
+	if treeParam := r.URL.Query().Get("tree"); treeParam == "true" {
+		treeView = true
+		log.Printf("DEBUG: Tree visualization requested")
+	}
+
+	// Validate element exists
+	_, exists := h.elements[elementName]
+	if !exists {
+		http.Error(w, "Element not found", http.StatusNotFound)
+		log.Printf("DEBUG: Element '%s' not found in database", elementName)
+		return
+	}
+
+	// Handle base elements quickly
+	baseElements := []string{"Water", "Fire", "Earth", "Air"}
+	isBaseElement := false
+	for _, base := range baseElements {
+		if elementName == base {
+			isBaseElement = true
+			break
+		}
+	}
+
+	if isBaseElement {
+		log.Printf("DEBUG: Requested element '%s' is a base element, returning simple result", elementName)
+
+		// Adapt response based on whether tree view is requested
+		if treeView {
+			elementData := h.elements[elementName]
+			result := map[string]interface{}{
+				"trees": []map[string]interface{}{{
+					"name":          elementName,
+					"imagePath":     elementData.ImagePath,
+					"ingredients":   []interface{}{},
+					"isBaseElement": true,
+				}},
+				"nodesVisited": 1,
+				"timeElapsed":  0,
+				"algorithm":    "bidirectional",
+			}
+			if err := json.NewEncoder(w).Encode(result); err != nil {
+				http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+				log.Printf("ERROR: Failed to encode response: %v", err)
+			}
+		} else {
+			result := map[string]interface{}{
+				"paths":        []map[string]interface{}{},
+				"nodesVisited": 0,
+				"timeElapsed":  0,
+				"algorithm":    "bidirectional",
+			}
+			if err := json.NewEncoder(w).Encode(result); err != nil {
+				http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+				log.Printf("ERROR: Failed to encode response: %v", err)
+			}
+		}
+		return
+	}
+
+	// Run the search with a higher count to ensure diversity
+	log.Printf("DEBUG: Starting bidirectional search for element '%s'", elementName)
+	startTime := time.Now()
+
+	// Request MANY more paths to ensure we get diverse recipes
+	searchCount := count * 10
+
+	var paths [][]model.Node
+	var visitedCount int
+	var algoName string
+
+	if useMultithreaded {
+		algoName = "multithreaded-bidirectional"
+		paths, visitedCount = alg.MultiThreadedBidirectionalBFS(h.elements, elementName, searchCount, singlePath)
+	} else {
+		algoName = "bidirectional"
+		paths, visitedCount = alg.BidirectionalBFS(h.elements, elementName, searchCount, singlePath)
+	}
+
+	timeElapsed := time.Since(startTime).Milliseconds()
+
+	log.Printf("DEBUG: %s search found %d paths after visiting %d nodes in %d ms",
+		algoName, len(paths), visitedCount, timeElapsed)
+
+	if treeView {
+		log.Printf("DEBUG: Processing %d paths to create tree visualizations", len(paths))
+
+		trees := make([]map[string]interface{}, 0)
+		uniqueSignatures := make(map[string]bool)
+
+		// Get element recipes directly from the database
+		element := h.elements[elementName]
+		recipeList := element.Recipes
+
+		// Log the available recipes
+		log.Printf("DEBUG: Element '%s' has %d recipes in database", elementName, len(recipeList))
+
+		// First approach: Generate trees directly from recipes in the database
+		if len(recipeList) > 0 && len(trees) < count {
+			log.Printf("DEBUG: Generating trees from database recipes first")
+
+			// Get graph for recipe generation
+			g := utils.CreateElementGraph(h.elements)
+
+			// Create one tree per recipe
+			for _, recipe := range recipeList {
+				if len(trees) >= count {
+					break
+				}
+
+				// Skip recipes without enough ingredients
+				if len(recipe.Ingredients) < 2 {
+					continue
+				}
+
+				// Build tree for this specific recipe
+				tree := map[string]interface{}{
+					"name":        elementName,
+					"imagePath":   element.ImagePath,
+					"ingredients": make([]interface{}, 0),
+				}
+
+				// Add ingredient trees
+				for _, ingredient := range recipe.Ingredients {
+					// Check if ingredient is a base element
+					isIngBase := false
+					for _, base := range baseElements {
+						if ingredient == base {
+							isIngBase = true
+							break
+						}
+					}
+
+					ingElement, exists := h.elements[ingredient]
+					if !exists {
+						continue
+					}
+
+					ingTree := map[string]interface{}{
+						"name":          ingredient,
+						"imagePath":     ingElement.ImagePath,
+						"isBaseElement": isIngBase,
+					}
+
+					if isIngBase {
+						ingTree["ingredients"] = []interface{}{}
+					} else {
+						// Generate a small tree for each non-base ingredient
+						visitCount := 0
+						visitedNodes := make(map[string]bool)
+						subTree := utils.BuildElementTreeDFS(g, ingredient, visitedNodes, &visitCount)
+						ingTree = subTree
+					}
+
+					tree["ingredients"] = append(tree["ingredients"].([]interface{}), ingTree)
+				}
+
+				// Ensure all ingredients are expanded properly
+				ensureIngredientsExpanded(tree, h.elements, baseElements, make(map[string]bool))
+
+				// Add tree if unique
+				signature := generateDetailedTreeSignature(tree)
+				if !uniqueSignatures[signature] {
+					uniqueSignatures[signature] = true
+					trees = append(trees, tree)
+					log.Printf("DEBUG: Added tree from database recipe (total: %d)", len(trees))
+				}
+			}
+		}
+
+		// Second approach: Process search paths
+		if len(trees) < count {
+			log.Printf("DEBUG: Still need more trees, processing search paths")
+
+			// Group paths by recipe
+			recipeGroups := make(map[string][][]model.Node)
+
+			for _, path := range paths {
+				if len(path) == 0 {
+					continue
+				}
+
+				// Find the target node in the path
+				var targetNode *model.Node
+				for i := range path {
+					if path[i].Element == elementName {
+						targetNode = &path[i]
+						break
+					}
+				}
+
+				// Skip invalid paths
+				if targetNode == nil || targetNode.Ingredients == nil || len(targetNode.Ingredients) < 2 {
+					continue
+				}
+
+				// Create recipe key
+				sortedIngredients := make([]string, len(targetNode.Ingredients))
+				copy(sortedIngredients, targetNode.Ingredients)
+				sort.Strings(sortedIngredients)
+				recipeKey := strings.Join(sortedIngredients, "+")
+
+				// Add to recipe group
+				recipeGroups[recipeKey] = append(recipeGroups[recipeKey], path)
+			}
+
+			log.Printf("DEBUG: Found %d unique recipes from paths", len(recipeGroups))
+
+			// Process recipes in sorted order for consistency
+			recipeKeys := make([]string, 0, len(recipeGroups))
+			for key := range recipeGroups {
+				recipeKeys = append(recipeKeys, key)
+			}
+			sort.Strings(recipeKeys)
+
+			// Create one tree per recipe
+			for _, recipeKey := range recipeKeys {
+				if len(trees) >= count {
+					break
+				}
+
+				recipePaths := recipeGroups[recipeKey]
+
+				// Sort paths by length
+				sort.Slice(recipePaths, func(i, j int) bool {
+					return len(recipePaths[i]) < len(recipePaths[j])
+				})
+
+				// Try each path until we get a valid tree
+				treeCreated := false
+				for _, path := range recipePaths {
+					tree := convertPathToTree(path, elementName, h.elements, baseElements)
+
+					if tree != nil {
+						ensureIngredientsExpanded(tree, h.elements, baseElements, make(map[string]bool))
+
+						signature := generateDetailedTreeSignature(tree)
+
+						if !uniqueSignatures[signature] {
+							uniqueSignatures[signature] = true
+							trees = append(trees, tree)
+							log.Printf("DEBUG: Added tree for recipe: %s (tree count: %d)", recipeKey, len(trees))
+							treeCreated = true
+							break // Move to next recipe
+						}
+					}
+				}
+
+				// Log if we couldn't create a tree for this recipe
+				if !treeCreated {
+					log.Printf("DEBUG: Failed to create tree for recipe: %s", recipeKey)
+				}
+			}
+		}
+
+		// Third approach: Fallback to graph-based generation if needed
+		if len(trees) < count {
+			log.Printf("DEBUG: Still need %d more trees, using fallback generation", count-len(trees))
+
+			g := utils.CreateElementGraph(h.elements)
+			additionalTrees, _ := generateAllRecipeTrees(g, elementName, element.ImagePath, count, baseElements)
+
+			// Add these trees with duplicate checking
+			for _, tree := range additionalTrees {
+				if len(trees) >= count {
+					break
+				}
+
+				signature := generateDetailedTreeSignature(tree)
+
+				if !uniqueSignatures[signature] {
+					uniqueSignatures[signature] = true
+					trees = append(trees, tree)
+					log.Printf("DEBUG: Added fallback tree (total: %d)", len(trees))
+				}
+			}
+		}
+
+		log.Printf("DEBUG: Final tree count: %d", len(trees))
+
+		// Calculate total node count
+		totalNodeCount := 0
+		for _, tree := range trees {
+			totalNodeCount += countNodesInTree(tree)
+		}
+
+		result := map[string]interface{}{
+			"trees":          trees,
+			"nodesVisited":   visitedCount,
+			"totalTreeNodes": totalNodeCount,
+			"timeElapsed":    timeElapsed,
+			"algorithm":      algoName,
+		}
+
+		if err := json.NewEncoder(w).Encode(result); err != nil {
+			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+			log.Printf("ERROR: Failed to encode response: %v", err)
+			return
+		}
+	} else {
+		// Return standard path results
+		result := map[string]interface{}{
+			"paths":        paths,
+			"nodesVisited": visitedCount,
+			"timeElapsed":  timeElapsed,
+			"algorithm":    algoName,
+		}
+
+		if err := json.NewEncoder(w).Encode(result); err != nil {
+			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+			log.Printf("ERROR: Failed to encode response: %v", err)
+			return
+		}
+	}
+
+	log.Printf("DEBUG: Successfully sent bidirectional search response")
 }

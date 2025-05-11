@@ -39,6 +39,7 @@ func main() {
 	//cors middleware ke semua route
 	mux.Handle("/api/bfs-tree/", corsMiddleware(http.HandlerFunc(handler.HandleBFSTree)))
 	mux.Handle("/api/dfs-tree/", corsMiddleware(http.HandlerFunc(handler.HandleDFSTree)))
+	mux.Handle("/api/bidirectional/", corsMiddleware(http.HandlerFunc(handler.HandleBidirectionalSearch)))
 	port := ":8080"
 	log.Printf("Server berhasil jalan pada port %s", port)
 	if err := http.ListenAndServe(port, mux); err != nil {
