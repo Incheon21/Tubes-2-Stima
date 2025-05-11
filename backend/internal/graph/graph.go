@@ -4,22 +4,19 @@ import (
 	"backend/model"
 )
 
-// struct struktur recipe -> result nya apa dan ingridientnya , tier ga penting soalnya udah di validasi
 type Recipe struct {
 	Result      string   `json:"result"`
 	Ingredients []string `json:"ingredients"`
 }
 
-// graph node untuk menyimpan elemen dan koneksinya
 type ElementGraphNode struct {
-	Name                      string    `json:"name"`
-	ImagePath                 string    `json:"image_path"`
-	RecipesToMakeThisElement  []*Recipe `json:"recipes_to_make_this_element"`
-	RecipesToMakeOtherElement []*Recipe `json:"recipes_to_make_other_element"`
-	IsVisited                 bool      `json:"is_visited"`
+	Name                       string    `json:"name"`
+	ImagePath                  string    `json:"image_path"`
+	RecipesToMakeThisElement   []*Recipe `json:"recipes_to_make_this_element"`
+	RecipesMakingOtherElements []*Recipe `json:"recipes_making_other_elements"`
+	IsVisited                  bool      `json:"is_visited"`
 }
 
-// graf komplit
 type ElementGraph struct {
 	Nodes        map[string]*ElementGraphNode
 	BaseElements []string
@@ -31,15 +28,17 @@ func NewElementGraph(elements map[string]model.Element) *ElementGraph {
 		BaseElements: make([]string, 0),
 	}
 
+	// First pass: Create nodes
 	for name, element := range elements {
 		g.Nodes[name] = &ElementGraphNode{
-			Name:                      name,
-			ImagePath:                 element.ImagePath,
-			RecipesToMakeThisElement:  make([]*Recipe, 0),
-			RecipesToMakeOtherElement: make([]*Recipe, 0),
+			Name:                       name,
+			ImagePath:                  element.ImagePath,
+			RecipesToMakeThisElement:   make([]*Recipe, 0),
+			RecipesMakingOtherElements: make([]*Recipe, 0),
 		}
 	}
 
+	// Second pass: Connect recipes
 	for name, element := range elements {
 		for _, recipe := range element.Recipes {
 			g.Nodes[name].RecipesToMakeThisElement = append(
@@ -52,8 +51,8 @@ func NewElementGraph(elements map[string]model.Element) *ElementGraph {
 
 			for _, ingredient := range recipe.Ingredients {
 				if ingNode, exists := g.Nodes[ingredient]; exists {
-					ingNode.RecipesToMakeOtherElement = append(
-						ingNode.RecipesToMakeOtherElement,
+					ingNode.RecipesMakingOtherElements = append(
+						ingNode.RecipesMakingOtherElements,
 						&Recipe{
 							Result:      name,
 							Ingredients: recipe.Ingredients,
@@ -91,7 +90,7 @@ func (g *ElementGraph) GetPossibleCombinations(elem1, elem2 string) []string {
 		return results
 	}
 
-	for _, recipe := range node1.RecipesToMakeOtherElement {
+	for _, recipe := range node1.RecipesMakingOtherElements {
 		if (recipe.Ingredients[0] == elem1 && recipe.Ingredients[1] == elem2) ||
 			(recipe.Ingredients[0] == elem2 && recipe.Ingredients[1] == elem1) {
 			results = append(results, recipe.Result)

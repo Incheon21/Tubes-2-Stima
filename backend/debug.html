@@ -278,7 +278,7 @@ imaaaReal\backend\debug.html -->
                 <div class="algorithm-buttons">
                     <button id="bfs-btn" class="algorithm-btn active">BFS</button>
                     <button id="dfs-btn" class="algorithm-btn">DFS</button>
-                    <button id="mt-bfs-btn" class="algorithm-btn">Multi-threaded</button>
+                    <button id="bidirec-btn" class="algorithm-btn">Bidirectional</button>
                 </div>
                 <input type="hidden" id="algorithm" value="bfs">
             </div>
@@ -365,8 +365,8 @@ imaaaReal\backend\debug.html -->
                         algorithmInput.value = 'bfs';
                     } else if (this.id === 'dfs-btn') {
                         algorithmInput.value = 'dfs';
-                    } else if (this.id === 'mt-bfs-btn') {
-                        algorithmInput.value = 'multithreaded-bfs';
+                    } else if (this.id === 'bidirec-btn') {
+                        algorithmInput.value = 'bidirectional';
                     }
                     
                     log(`Algorithm changed to ${algorithmInput.value.toUpperCase()}`);
@@ -461,7 +461,7 @@ imaaaReal\backend\debug.html -->
                 return;
             }
             
-           try {
+            try {
         log(`Fetching ${treeType} for ${target} using ${algorithm} algorithm...`);
         
         let url;
@@ -474,14 +474,14 @@ imaaaReal\backend\debug.html -->
             // Use dedicated endpoint for DFS multiple recipes
             url = `${serverUrl}/api/dfs-tree/${encodeURIComponent(target)}?count=${treeCount}`;
             log(`Using DFS tree endpoint: ${url}`);
-        } else if (algorithm === 'multithreaded-bfs') {
-            // Use multithreaded BFS endpoint
-            url = `${serverUrl}/api/bfs-tree/${encodeURIComponent(target)}?count=${treeCount}&multithreaded=true`;
-            log(`Using multithreaded BFS endpoint: ${url}`);
+        } else if (algorithm === 'bidirectional') {
+            // Use bidirectional endpoint with tree visualization
+            url = `${serverUrl}/api/bidirectional/${encodeURIComponent(target)}?count=${treeCount}&multithreaded=true&tree=true`;
+            log(`Using bidirectional search endpoint with tree visualization: ${url}`);
         } else {
             // Default endpoint format
             url = `${serverUrl}/api/${treeType}/${encodeURIComponent(target)}?count=${treeCount}&algorithm=${algorithm}`;
-            log(`Using default endpoint: ${url}`);
+            log(`Using default endpoint: ${url}`);log(`Using default endpoint: ${url}`);
         }
                 
                 const response = await fetch(url);
