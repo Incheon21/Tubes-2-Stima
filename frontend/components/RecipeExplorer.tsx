@@ -36,10 +36,9 @@ const RecipeExplorer = () => {
       addLog('Fetching all elements...');
       setIsLoading(true);
       
-      // Backend endpoint: GET /api/elements
+      // Backend endpoint: GET /api/elements/
       // This should return an array of all available elements
-      const response = await axios.get<ElementData[]>(`${serverUrl}/api/elements`);
-      
+      const response = await axios.get<ElementData[]>(`${serverUrl}/api/elements/`);      
       setAllElements(response.data);
       addLog(`Successfully loaded ${response.data.length} elements`, 'success');
       setIsLoading(false);
@@ -108,7 +107,7 @@ const RecipeExplorer = () => {
       if (algorithm === 'bfs') {
         // Backend endpoint: GET /api/bfs/{target}?count={count}&singlePath=false
         // This should return BFS paths to create the target element
-        url = `${serverUrl}/api/bfs/${encodeURIComponent(target)}?count=${treeCount}&singlePath=false`;
+        url = `${serverUrl}/api/bfs-tree/${encodeURIComponent(target)}?count=${treeCount}&singlePath=false`;
         addLog(`Using BFS endpoint: ${url}`);
       } else if (algorithm === 'dfs') {
         // Backend endpoint: GET /api/multiple-recipes/{target}?count={count}
@@ -118,8 +117,8 @@ const RecipeExplorer = () => {
       } else if (algorithm === 'multithreaded-bfs') {
         // Backend endpoint: GET /api/mt-bfs/{target}?count={count}
         // This should return results from the multi-threaded BFS algorithm
-        url = `${serverUrl}/api/mt-bfs/${encodeURIComponent(target)}?count=${treeCount}`;
-        addLog(`Using multithreaded BFS endpoint: ${url}`);
+        url = `${serverUrl}/api/bidirectional/${encodeURIComponent(target)}?count=${treeCount}`;
+        addLog(`Using bidirectional: ${url}`);
       } else {
         // Backend endpoint: GET /api/{treeType}/{target}?count={count}&algorithm={algorithm}
         // General endpoint format for other algorithms

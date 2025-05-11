@@ -37,6 +37,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	//cors middleware ke semua route
+	mux.Handle("/api/elements/", corsMiddleware(http.HandlerFunc(handler.HandleGetElements)))
 	mux.Handle("/api/bfs-tree/", corsMiddleware(http.HandlerFunc(handler.HandleBFSTree)))
 	mux.Handle("/api/dfs-tree/", corsMiddleware(http.HandlerFunc(handler.HandleDFSTree)))
 	mux.Handle("/api/bidirectional/", corsMiddleware(http.HandlerFunc(handler.HandleBidirectionalSearch)))
