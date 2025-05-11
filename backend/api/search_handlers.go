@@ -663,7 +663,6 @@ func generateDetailedTreeSignature(tree map[string]interface{}) string {
 func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	// Extract element name from URL
 	pathParts := strings.Split(strings.TrimPrefix(r.URL.Path, "/api/bidirectional/"), "/")
 	if len(pathParts) < 1 {
 		http.Error(w, "Invalid URL format. Use /api/bidirectional/{elementName}", http.StatusBadRequest)
@@ -673,8 +672,7 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 
 	log.Printf("DEBUG: Bidirectional search request for element: %s", elementName)
 
-	// Parse query parameters
-	count := 3 // Default number of results
+	count := 3
 	if countParam := r.URL.Query().Get("count"); countParam != "" {
 		if parsedCount, err := strconv.Atoi(countParam); err == nil && parsedCount > 0 {
 			count = parsedCount
@@ -694,14 +692,12 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 		log.Printf("DEBUG: Single path mode enabled")
 	}
 
-	// Check if tree visualization is requested
 	treeView := false
 	if treeParam := r.URL.Query().Get("tree"); treeParam == "true" {
 		treeView = true
 		log.Printf("DEBUG: Tree visualization requested")
 	}
 
-	// Validate element exists
 	_, exists := h.elements[elementName]
 	if !exists {
 		http.Error(w, "Element not found", http.StatusNotFound)
@@ -709,7 +705,6 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	// Handle base elements quickly
 	baseElements := []string{"Water", "Fire", "Earth", "Air"}
 	isBaseElement := false
 	for _, base := range baseElements {
@@ -722,7 +717,6 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 	if isBaseElement {
 		log.Printf("DEBUG: Requested element '%s' is a base element, returning simple result", elementName)
 
-		// Adapt response based on whether tree view is requested
 		if treeView {
 			elementData := h.elements[elementName]
 			result := map[string]interface{}{
@@ -755,12 +749,12 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	// Run the search with a higher count to ensure diversity
 	log.Printf("DEBUG: Starting bidirectional search for element '%s'", elementName)
 	startTime := time.Now()
 
-	// Request MANY more paths to ensure we get diverse recipes
-	searchCount := count * 10
+	// Request more paths to ensure we get diversity in recipes
+	// We're especially looking for multiple recipes
+	searchCount := count * 15
 
 	var paths [][]model.Node
 	var visitedCount int
@@ -776,8 +770,32 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 
 	timeElapsed := time.Since(startTime).Milliseconds()
 
-	log.Printf("DEBUG: %s search found %d paths after visiting %d nodes in %d ms",
-		algoName, len(paths), visitedCount, timeElapsed)
+	// Group by recipe for analytics
+	recipeGroups := make(map[string][][]model.Node)
+	for _, path := range paths {
+		if len(path) == 0 {
+			continue
+		}
+
+		var targetNode *model.Node
+		for i := range path {
+			if path[i].Element == elementName {
+				targetNode = &path[i]
+				break
+			}
+		}
+
+		if targetNode != nil && targetNode.Ingredients != nil && len(targetNode.Ingredients) >= 2 {
+			sortedIngs := make([]string, len(targetNode.Ingredients))
+			copy(sortedIngs, targetNode.Ingredients)
+			sort.Strings(sortedIngs)
+			recipeKey := strings.Join(sortedIngs, "+")
+			recipeGroups[recipeKey] = append(recipeGroups[recipeKey], path)
+		}
+	}
+
+	log.Printf("DEBUG: %s search found %d paths (%d unique recipes) after visiting %d nodes in %d ms",
+		algoName, len(paths), len(recipeGroups), visitedCount, timeElapsed)
 
 	if treeView {
 		log.Printf("DEBUG: Processing %d paths to create tree visualizations", len(paths))
@@ -785,197 +803,141 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 		trees := make([]map[string]interface{}, 0)
 		uniqueSignatures := make(map[string]bool)
 
-		// Get element recipes directly from the database
 		element := h.elements[elementName]
 		recipeList := element.Recipes
 
-		// Log the available recipes
 		log.Printf("DEBUG: Element '%s' has %d recipes in database", elementName, len(recipeList))
 
-		// First approach: Generate trees directly from recipes in the database
-		if len(recipeList) > 0 && len(trees) < count {
-			log.Printf("DEBUG: Generating trees from database recipes first")
-
-			// Get graph for recipe generation
-			g := utils.CreateElementGraph(h.elements)
-
-			// Create one tree per recipe
-			for _, recipe := range recipeList {
-				if len(trees) >= count {
-					break
-				}
-
-				// Skip recipes without enough ingredients
-				if len(recipe.Ingredients) < 2 {
-					continue
-				}
-
-				// Build tree for this specific recipe
-				tree := map[string]interface{}{
-					"name":        elementName,
-					"imagePath":   element.ImagePath,
-					"ingredients": make([]interface{}, 0),
-				}
-
-				// Add ingredient trees
-				for _, ingredient := range recipe.Ingredients {
-					// Check if ingredient is a base element
-					isIngBase := false
-					for _, base := range baseElements {
-						if ingredient == base {
-							isIngBase = true
-							break
-						}
-					}
-
-					ingElement, exists := h.elements[ingredient]
-					if !exists {
-						continue
-					}
-
-					ingTree := map[string]interface{}{
-						"name":          ingredient,
-						"imagePath":     ingElement.ImagePath,
-						"isBaseElement": isIngBase,
-					}
-
-					if isIngBase {
-						ingTree["ingredients"] = []interface{}{}
-					} else {
-						// Generate a small tree for each non-base ingredient
-						visitCount := 0
-						visitedNodes := make(map[string]bool)
-						subTree := utils.BuildElementTreeDFS(g, ingredient, visitedNodes, &visitCount)
-						ingTree = subTree
-					}
-
-					tree["ingredients"] = append(tree["ingredients"].([]interface{}), ingTree)
-				}
-
-				// Ensure all ingredients are expanded properly
-				ensureIngredientsExpanded(tree, h.elements, baseElements, make(map[string]bool))
-
-				// Add tree if unique
-				signature := generateDetailedTreeSignature(tree)
-				if !uniqueSignatures[signature] {
-					uniqueSignatures[signature] = true
-					trees = append(trees, tree)
-					log.Printf("DEBUG: Added tree from database recipe (total: %d)", len(trees))
-				}
+		// Group recipes by their keys for better matching
+		dbRecipesByKey := make(map[string]model.ElementRecipe)
+		for _, recipe := range recipeList {
+			if len(recipe.Ingredients) >= 2 {
+				sortedIngs := make([]string, len(recipe.Ingredients))
+				copy(sortedIngs, recipe.Ingredients)
+				sort.Strings(sortedIngs)
+				recipeKey := strings.Join(sortedIngs, "+")
+				dbRecipesByKey[recipeKey] = recipe
 			}
 		}
 
-		// Second approach: Process search paths
-		if len(trees) < count {
-			log.Printf("DEBUG: Still need more trees, processing search paths")
+		// First, process paths by recipe to ensure recipe diversity
+		for recipeKey, recipePaths := range recipeGroups {
+			if len(trees) >= count {
+				break
+			}
 
-			// Group paths by recipe
-			recipeGroups := make(map[string][][]model.Node)
+			log.Printf("DEBUG: Processing recipe '%s' with %d paths", recipeKey, len(recipePaths))
 
-			for _, path := range paths {
-				if len(path) == 0 {
-					continue
-				}
+			// Sort paths by length for this recipe
+			sort.Slice(recipePaths, func(i, j int) bool {
+				return len(recipePaths[i]) < len(recipePaths[j])
+			})
 
-				// Find the target node in the path
-				var targetNode *model.Node
-				for i := range path {
-					if path[i].Element == elementName {
-						targetNode = &path[i]
+			// Try each path until we get a valid tree for this recipe
+			treeCreated := false
+			for _, path := range recipePaths {
+				tree := convertPathToTree(path, elementName, h.elements, baseElements)
+
+				if tree != nil {
+					ensureIngredientsExpanded(tree, h.elements, baseElements, make(map[string]bool))
+					signature := generateDetailedTreeSignature(tree)
+
+					if !uniqueSignatures[signature] {
+						uniqueSignatures[signature] = true
+						trees = append(trees, tree)
+						log.Printf("DEBUG: Added tree for recipe: %s (tree count: %d)", recipeKey, len(trees))
+						treeCreated = true
 						break
 					}
 				}
-
-				// Skip invalid paths
-				if targetNode == nil || targetNode.Ingredients == nil || len(targetNode.Ingredients) < 2 {
-					continue
-				}
-
-				// Create recipe key
-				sortedIngredients := make([]string, len(targetNode.Ingredients))
-				copy(sortedIngredients, targetNode.Ingredients)
-				sort.Strings(sortedIngredients)
-				recipeKey := strings.Join(sortedIngredients, "+")
-
-				// Add to recipe group
-				recipeGroups[recipeKey] = append(recipeGroups[recipeKey], path)
 			}
 
-			log.Printf("DEBUG: Found %d unique recipes from paths", len(recipeGroups))
+			if !treeCreated {
+				log.Printf("DEBUG: Failed to create tree for recipe: %s, trying manual approach", recipeKey)
 
-			// Process recipes in sorted order for consistency
-			recipeKeys := make([]string, 0, len(recipeGroups))
-			for key := range recipeGroups {
-				recipeKeys = append(recipeKeys, key)
-			}
-			sort.Strings(recipeKeys)
-
-			// Create one tree per recipe
-			for _, recipeKey := range recipeKeys {
-				if len(trees) >= count {
-					break
-				}
-
-				recipePaths := recipeGroups[recipeKey]
-
-				// Sort paths by length
-				sort.Slice(recipePaths, func(i, j int) bool {
-					return len(recipePaths[i]) < len(recipePaths[j])
-				})
-
-				// Try each path until we get a valid tree
-				treeCreated := false
-				for _, path := range recipePaths {
-					tree := convertPathToTree(path, elementName, h.elements, baseElements)
-
-					if tree != nil {
-						ensureIngredientsExpanded(tree, h.elements, baseElements, make(map[string]bool))
-
-						signature := generateDetailedTreeSignature(tree)
-
-						if !uniqueSignatures[signature] {
-							uniqueSignatures[signature] = true
-							trees = append(trees, tree)
-							log.Printf("DEBUG: Added tree for recipe: %s (tree count: %d)", recipeKey, len(trees))
-							treeCreated = true
-							break // Move to next recipe
+				// Create tree manually using the recipe ingredients
+				recipe, exists := dbRecipesByKey[recipeKey]
+				if !exists {
+					// Try to extract from a path
+					if len(recipePaths) > 0 {
+						for _, node := range recipePaths[0] {
+							if node.Element == elementName && node.Ingredients != nil {
+								recipe.Ingredients = node.Ingredients
+								break
+							}
 						}
 					}
 				}
 
-				// Log if we couldn't create a tree for this recipe
-				if !treeCreated {
-					log.Printf("DEBUG: Failed to create tree for recipe: %s", recipeKey)
-				}
-			}
-		}
+				if len(recipe.Ingredients) >= 2 {
+					tree := map[string]interface{}{
+						"name":        elementName,
+						"imagePath":   element.ImagePath,
+						"ingredients": make([]interface{}, 0),
+					}
 
-		// Third approach: Fallback to graph-based generation if needed
-		if len(trees) < count {
-			log.Printf("DEBUG: Still need %d more trees, using fallback generation", count-len(trees))
+					// Find the best paths for each ingredient
+					for _, ingredient := range recipe.Ingredients {
+						isIngBase := utils.IsBaseElementName(ingredient, baseElements)
+						ingElement, exists := h.elements[ingredient]
+						if !exists {
+							continue
+						}
 
-			g := utils.CreateElementGraph(h.elements)
-			additionalTrees, _ := generateAllRecipeTrees(g, elementName, element.ImagePath, count, baseElements)
+						ingTree := map[string]interface{}{
+							"name":          ingredient,
+							"imagePath":     ingElement.ImagePath,
+							"isBaseElement": isIngBase,
+						}
 
-			// Add these trees with duplicate checking
-			for _, tree := range additionalTrees {
-				if len(trees) >= count {
-					break
-				}
+						if isIngBase {
+							ingTree["ingredients"] = []interface{}{}
+						} else {
+							// Find the best path for this ingredient from our search results
+							var bestPath []model.Node
+							for _, searchPath := range paths {
+								for _, node := range searchPath {
+									if node.Element == ingredient {
+										subPath := extractSubPath(searchPath, ingredient)
+										if len(subPath) > 0 {
+											if bestPath == nil || len(subPath) < len(bestPath) {
+												bestPath = subPath
+											}
+										}
+										break
+									}
+								}
+							}
 
-				signature := generateDetailedTreeSignature(tree)
+							if bestPath != nil {
+								ingSubTree := convertPathToTree(bestPath, ingredient, h.elements, baseElements)
+								if ingSubTree != nil {
+									ingTree = ingSubTree
+								} else {
+									ingTree["ingredients"] = []interface{}{}
+								}
+							} else {
+								ingTree["ingredients"] = []interface{}{}
+							}
+						}
 
-				if !uniqueSignatures[signature] {
-					uniqueSignatures[signature] = true
-					trees = append(trees, tree)
-					log.Printf("DEBUG: Added fallback tree (total: %d)", len(trees))
+						tree["ingredients"] = append(tree["ingredients"].([]interface{}), ingTree)
+					}
+
+					ensureIngredientsExpanded(tree, h.elements, baseElements, make(map[string]bool))
+					signature := generateDetailedTreeSignature(tree)
+
+					if !uniqueSignatures[signature] {
+						uniqueSignatures[signature] = true
+						trees = append(trees, tree)
+						log.Printf("DEBUG: Added manual tree for recipe: %s (tree count: %d)", recipeKey, len(trees))
+					}
 				}
 			}
 		}
 
 		log.Printf("DEBUG: Final tree count: %d", len(trees))
 
-		// Calculate total node count
 		totalNodeCount := 0
 		for _, tree := range trees {
 			totalNodeCount += countNodesInTree(tree)
@@ -1001,6 +963,7 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 			"nodesVisited": visitedCount,
 			"timeElapsed":  timeElapsed,
 			"algorithm":    algoName,
+			"recipeCount":  len(recipeGroups),
 		}
 
 		if err := json.NewEncoder(w).Encode(result); err != nil {
@@ -1011,4 +974,16 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 	}
 
 	log.Printf("DEBUG: Successfully sent bidirectional search response")
+}
+
+// Helper function to extract a subpath leading to a target element
+func extractSubPath(path []model.Node, targetElement string) []model.Node {
+	for i, node := range path {
+		if node.Element == targetElement {
+			subPath := make([]model.Node, i+1)
+			copy(subPath, path[:i+1])
+			return subPath
+		}
+	}
+	return nil
 }
