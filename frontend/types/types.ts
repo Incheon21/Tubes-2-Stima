@@ -1,4 +1,4 @@
-export type Algorithm = 'bfs' | 'dfs' | 'multithreaded-bfs';
+export type Algorithm = 'bfs' | 'dfs' | 'bidirectional';
 export type TreeType = 'best-recipes-tree' | 'multiple-recipes-tree';
 
 export interface ElementData {

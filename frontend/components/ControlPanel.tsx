@@ -81,7 +81,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           >
             {isLoading ? (
               <>
-                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -89,10 +89,10 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
               </>
             ) : (
               <>
-                <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="black">
                   <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clipRule="evenodd" />
                 </svg>
-                <span>Test Connection</span>
+                <span className="text-lg font-bold text-black">Test Connection</span>
               </>
             )}
           </button>
@@ -178,16 +178,16 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
               </button>
               <button 
                 className={`relative p-3 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
-                  ${algorithm === 'multithreaded-bfs' 
+                  ${algorithm === 'bidirectional' 
                   ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg' 
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-                onClick={() => setAlgorithm('multithreaded-bfs')}
+                onClick={() => setAlgorithm('bidirectional')}
               >
                 <div className="flex flex-col items-center">
-                  <span className="font-medium">MT-BFS</span>
-                  <span className="text-xs mt-1 opacity-75">Multi-threaded</span>
+                  <span className="font-medium text-xs flex">Bidirectional</span>
+                  <span className="text-xs mt-1 opacity-75">Bidirectional BFS</span>
                 </div>
-                {algorithm === 'multithreaded-bfs' && (
+                {algorithm === 'bidirectional' && (
                   <span className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full"></span>
                 )}
               </button>

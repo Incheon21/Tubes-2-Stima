@@ -30,14 +30,11 @@ const RecipeExplorer = () => {
     setLogs(prev => [...prev, { message, type }]);
   };
 
-  // Load elements
   const loadElements = async () => {
     try {
       addLog('Fetching all elements...');
       setIsLoading(true);
       
-      // Backend endpoint: GET /api/elements/
-      // This should return an array of all available elements
       const response = await axios.get<ElementData[]>(`${serverUrl}/api/elements/`);      
       setAllElements(response.data);
       addLog(`Successfully loaded ${response.data.length} elements`, 'success');
@@ -62,14 +59,11 @@ const RecipeExplorer = () => {
       addLog(`Testing connection to ${serverUrl}...`);
       setIsLoading(true);
       
-      // Backend endpoint: GET /api/elements
-      // Used here just to test if the backend is responding
-      const response = await axios.get(`${serverUrl}/api/elements`);
+      const response = await axios.get(`${serverUrl}/api/elements/`);
       
       addLog(`Connection successful! Server is running at ${serverUrl}`, 'success');
       toast.success('Connection successful!');
       
-      // Load elements if connection is successful
       await loadElements();
       setIsLoading(false);
     } catch (error) {
@@ -89,7 +83,6 @@ const RecipeExplorer = () => {
     }
   };
 
-  // Visualize recipe trees
   const visualizeRecipes = async () => {
     if (!target) {
       addLog('Please enter a target element', 'error');
@@ -103,25 +96,16 @@ const RecipeExplorer = () => {
       
       let url: string;
       
-      // Determine which endpoint to use based on the algorithm
       if (algorithm === 'bfs') {
-        // Backend endpoint: GET /api/bfs/{target}?count={count}&singlePath=false
-        // This should return BFS paths to create the target element
         url = `${serverUrl}/api/bfs-tree/${encodeURIComponent(target)}?count=${treeCount}&singlePath=false`;
         addLog(`Using BFS endpoint: ${url}`);
       } else if (algorithm === 'dfs') {
-        // Backend endpoint: GET /api/multiple-recipes/{target}?count={count}
-        // This should return DFS paths to create the target element
         url = `${serverUrl}/api/dfs-tree/${encodeURIComponent(target)}?count=${treeCount}`;
         addLog(`Using DFS endpoint: ${url}`);
-      } else if (algorithm === 'multithreaded-bfs') {
-        // Backend endpoint: GET /api/mt-bfs/{target}?count={count}
-        // This should return results from the multi-threaded BFS algorithm
-        url = `${serverUrl}/api/bidirectional/${encodeURIComponent(target)}?count=${treeCount}`;
+      } else if (algorithm === 'bidirectional') {
+        url = `${serverUrl}/api/bidirectional/${encodeURIComponent(target)}?count=${treeCount}&multithreaded=true&tree=true`;
         addLog(`Using bidirectional: ${url}`);
       } else {
-        // Backend endpoint: GET /api/{treeType}/{target}?count={count}&algorithm={algorithm}
-        // General endpoint format for other algorithms
         url = `${serverUrl}/api/${treeType}/${encodeURIComponent(target)}?count=${treeCount}&algorithm=${algorithm}`;
         addLog(`Using default endpoint: ${url}`);
       }
@@ -132,7 +116,6 @@ const RecipeExplorer = () => {
       addLog('Data received successfully');
       setIsLoading(false);
       
-      // Update stats
       setStats({
         algorithm: algorithm.toUpperCase(),
         timeElapsed: result.timeElapsed || 0,
@@ -140,7 +123,6 @@ const RecipeExplorer = () => {
         treesFound: (result.trees?.length || result.paths?.length || 0)
       });
       
-      // Handle the results
       handleResults(result);
     } catch (error) {
       setIsLoading(false);
