@@ -278,7 +278,6 @@ func MultiThreadedDFS(elements map[string]model.Element, target string, maxResul
 		}
 	}
 
-	// Channel to collect results from different goroutines
 	resultChan := make(chan []model.Node, maxResults*2)
 	visitCountChan := make(chan int, 1)
 
@@ -518,7 +517,6 @@ func exploreWithStrategy(g *graph.ElementGraph, recipe *graph.Recipe, currentPat
 			}
 		}
 
-		// Backtrack
 		delete(visited, ingredient)
 	}
 }
