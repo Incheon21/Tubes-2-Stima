@@ -9,6 +9,8 @@ import (
 	"sync"
 )
 
+
+
 func DFS(elements map[string]model.Element, target string, maxResults int, debug bool) ([][]model.Node, int) {
 	if debug {
 		log.Printf("DEBUG: Starting ReverseDFS for target: %s (max results: %d)", target, maxResults)
