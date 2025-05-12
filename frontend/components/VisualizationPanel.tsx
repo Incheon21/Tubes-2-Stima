@@ -801,7 +801,7 @@ const VisualizationPanel: React.FC<VisualizationPanelProps> = ({
               className={`px-3 py-1.5 rounded text-sm font-medium flex items-center ${
                 isAnimating 
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
-                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+                  : 'bg-blue-600 hover:bg-blue-700 text-black'
               }`}
             >
               <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
