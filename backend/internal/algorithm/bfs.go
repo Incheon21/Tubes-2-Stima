@@ -296,7 +296,6 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 				path       []model.Node
 				recipe     *graph.Recipe
 				deadEndIng map[string]bool // Track ingredients that lead to dead ends
-				posMap     map[int]int     // Track positions of ingredients in the recipe
 			}
 
 			localVisited := 0
@@ -395,10 +394,7 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 					mu.Lock()
 					// Skip path signature since we're checking for duplicates in the collecting phase
 					log.Printf("DEBUG: Found complete path in goroutine %d: %s", recipeIdx, pathToString(reversedPath))
-					log.Printf("DEBUG: Path details:\n%s", detailedPathToString(reversedPath))
 
-					// Dan di blok untuk output path yang ditemukan
-					// Debug logs for paths will be printed after collection
 					if allBase && !hasDeadEnd {
 						// Prioritize complete paths
 						completePathChan <- reversedPath
@@ -459,84 +455,50 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 						log.Printf("DEBUG: Special case: %s appears %d times in recipe and has %d ways to make it",
 							ing, ingCount, len(ingNode.RecipesToMakeThisElement))
 
-						// Untuk elemen dengan banyak posisi sama dan resep berbeda, buat permutasi untuk setiap kombinasi
-						// Ini sangat penting untuk kasus seperti Planet(Continent+Continent) di mana tiap Continent bisa dibuat berbeda
+						// Coba semua kombinasi resep untuk setiap kemunculan
+						for i := 0; i < len(ingRecipes); i++ {
+							recipeIdx := i // Gunakan semua resep langsung
+							ingRecipe := ingRecipes[recipeIdx]
 
-						// Generate semua kombinasi resep untuk elemen ini
-						// Misalnya untuk 2 Continent dengan 2 resep, kita bisa punya:
-						// - Continent(Land+Land) + Continent(Land+Land)
-						// - Continent(Land+Land) + Continent(Land+Earth)
-						// - Continent(Land+Earth) + Continent(Land+Land)
-						// - Continent(Land+Earth) + Continent(Land+Earth)
-
-						// Hitung berapa posisi elemen ini muncul
-						positions := []int{}
-						for pos, recipeIng := range item.recipe.Ingredients {
-							if recipeIng == ing {
-								positions = append(positions, pos)
+							if len(ingRecipe.Ingredients) == 0 {
+								continue
 							}
-						}
 
-						// Untuk setiap posisi, coba semua resep
-						for posIdx, pos := range positions {
-							for i := 0; i < len(ingRecipes); i++ {
-								ingRecipe := ingRecipes[i]
-								if len(ingRecipe.Ingredients) == 0 {
-									continue
-								}
+							log.Printf("DEBUG: Trying ingredient %s recipe permutation %d: %v",
+								ing, recipeIdx, ingRecipe.Ingredients)
 
-								log.Printf("DEBUG: Trying %s recipe %d at position %d: %v",
-									ing, i, pos, ingRecipe.Ingredients)
+							// Create a copy of the path up to the current node
+							basePath := make([]model.Node, len(item.path))
+							copy(basePath, item.path)
 
-								// Create a copy of the path
-								basePath := make([]model.Node, len(item.path))
-								copy(basePath, item.path)
+							// Add this specific ingredient node with its recipe
+							nextNode := model.Node{
+								Element:     ing,
+								ImagePath:   ingNode.ImagePath,
+								Ingredients: ingRecipe.Ingredients,
+							}
 
-								// Create a special path signature that includes position
-								posPathSig := ing + ":" + pathSignature + ":" + strconv.Itoa(i) +
-									":" + strconv.Itoa(pos) + ":" + strconv.Itoa(posIdx)
+							// Create new path for this recipe branch
+							newItem := queueItem{
+								path:       append(basePath, nextNode),
+								recipe:     ingRecipe,
+								deadEndIng: make(map[string]bool),
+							}
 
-								if visited[posPathSig] {
-									continue
-								}
+							// Copy over known dead ends
+							for k, v := range item.deadEndIng {
+								newItem.deadEndIng[k] = v
+							}
 
-								// Mark this combination as visited
-								visited[posPathSig] = true
+							// Use a unique signature for each position to explore all options
+							positionSig := strconv.Itoa(idx) // Include position in signature
+							newPathSig := ing + ":" + pathSignature + ":" + strconv.Itoa(i) + ":" + positionSig
 
-								// Add node with specific recipe for this position
-								nextNode := model.Node{
-									Element:     ing,
-									ImagePath:   ingNode.ImagePath,
-									Ingredients: ingRecipe.Ingredients,
-									Position:    pos, // Add position info to help track
-								}
-
-								// Create a special new item for this position
-								newItem := queueItem{
-									path:       append(basePath, nextNode),
-									recipe:     ingRecipe,
-									deadEndIng: make(map[string]bool),
-									posMap:     make(map[int]int), // Track which positions have been filled
-								}
-
-								// Copy deadEnds
-								for k, v := range item.deadEndIng {
-									newItem.deadEndIng[k] = v
-								}
-
-								// Copy existing position map if any
-								if item.posMap != nil {
-									for k, v := range item.posMap {
-										newItem.posMap[k] = v
-									}
-								}
-
-								// Mark this position as filled with this recipe
-								newItem.posMap[pos] = i
-
-								log.Printf("DEBUG: Adding unique permutation for %s (recipe %d) at position %d",
-									ing, i, pos)
+							if !visited[newPathSig] {
+								visited[newPathSig] = true
 								queue = append(queue, newItem)
+								log.Printf("DEBUG: Adding unique permutation for %s (recipe %d of %d) at position %d",
+									ing, i+1, len(ingRecipes), idx)
 							}
 						}
 					} else {

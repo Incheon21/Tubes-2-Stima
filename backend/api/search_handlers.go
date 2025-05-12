@@ -1122,16 +1122,6 @@ func generateDetailedTreeSignature(tree map[string]interface{}) string {
 		sb.WriteString(fmt.Sprintf("#%d", pos))
 	}
 
-	// Include path index if available
-	if idx, ok := tree["pathIndex"].(int); ok {
-		sb.WriteString(fmt.Sprintf("@%d", idx))
-	}
-
-	// Include ingredient index if available
-	if idx, ok := tree["ingredientIndex"].(int); ok {
-		sb.WriteString(fmt.Sprintf(":%d", idx))
-	}
-
 	sb.WriteString(":")
 
 	ingredients, ok := tree["ingredients"].([]interface{})
@@ -1139,28 +1129,11 @@ func generateDetailedTreeSignature(tree map[string]interface{}) string {
 		return sb.String() + "[]"
 	}
 
-	// If this is Planet or any element that has duplicate ingredients (like Continent+Continent),
-	// preserve the exact order and paths
+	// For combinations like Planet(Continent+Continent), preserve the original order
+	// and include more details about each ingredient's path
 	elementName, _ := tree["name"].(string)
-	hasDuplicateIngredients := false
-
-	if len(ingredients) >= 2 {
-		ingNames := make(map[string]int)
-		for _, ing := range ingredients {
-			if ingredient, ok := ing.(map[string]interface{}); ok {
-				ingName, _ := ingredient["name"].(string)
-				ingNames[ingName]++
-				if ingNames[ingName] > 1 {
-					hasDuplicateIngredients = true
-					break
-				}
-			}
-		}
-	}
-
 	preserveOrder := (elementName == "Planet" || elementName == "Continent") ||
-		hasDuplicateIngredients ||
-		tree["preserveOrder"] == true
+		(len(ingredients) >= 2 && ingredients[0].(map[string]interface{})["name"] == ingredients[1].(map[string]interface{})["name"])
 
 	// Generate detailed signatures including positions and path details
 	ingredientSignatures := make([]string, 0, len(ingredients))
@@ -1171,31 +1144,14 @@ func generateDetailedTreeSignature(tree map[string]interface{}) string {
 			continue
 		}
 
-		// Always preserve order for all ingredients under this element
-		// This ensures Planet's Continents are preserved in their exact order
-		if preserveOrder {
-			ingredient["preserveOrder"] = true
-		}
-
 		// Include position and index in signature
 		ingredientSig := generateDetailedTreeSignature(ingredient)
 
-		// For elements with multiple copies of the same ingredient, include position
-		ingredientName, _ := ingredient["name"].(string)
-		isDuplicate := false
-
-		for j := 0; j < i; j++ {
-			if prevIng, ok := ingredients[j].(map[string]interface{}); ok {
-				prevName, _ := prevIng["name"].(string)
-				if ingredientName == prevName {
-					isDuplicate = true
-					break
-				}
-			}
-		}
-
-		// Include position for duplicates or if we're preserving order
-		if isDuplicate || preserveOrder {
+		// Always include position index for duplicated elements to preserve uniqueness
+		if i > 0 && ingredient["name"] == ingredients[i-1].(map[string]interface{})["name"] {
+			ingredientSig = fmt.Sprintf("%d:%s", i, ingredientSig)
+		} else if preserveOrder {
+			// For elements where order matters, include the position always
 			ingredientSig = fmt.Sprintf("%d:%s", i, ingredientSig)
 		}
 
