@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { TreeData, Algorithm } from '../types/types';
 
 interface TreeDetailsProps {
   tree: TreeData;
-  targetElement: string;
+  targetElement?: string; // Make it optional since it's not currently used
   algorithm: Algorithm;
 }
 
-
 const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
   const [showFullTree, setShowFullTree] = useState<boolean>(true);
+  const [loadingImages, setLoadingImages] = useState<boolean>(false);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+  
   // Calculate recipe complexity
   const calculateComplexity = (node: TreeData): number => {
     if (!node.ingredients?.length) return 0;
@@ -20,8 +22,183 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
   const complexityLabel = complexity <= 1 ? 'Simple' : complexity <= 3 ? 'Moderate' : 'Complex';
   const complexityColor = complexity <= 1 ? 'green' : complexity <= 3 ? 'blue' : 'purple';
 
+  // Use localImage from elements JSON directly
+  const resolveImagePath = (node: TreeData): string => {
+    if (!node) return '';
+    
+    // If it has imagePath, process it
+    if (node.imagePath) {
+      // If it's already a path starting with "/images/" or "images/", keep it as is
+      if (node.imagePath.startsWith('/images/') || node.imagePath.startsWith('images/')) {
+        return node.imagePath;
+      }
+      
+      // Handle Windows-style paths from elements.json (like "images\\Water_916c0384.png")
+      if (node.imagePath.includes('\\images\\')) {
+        // Extract just the filename
+        const filename = node.imagePath.split('\\').pop();
+        return filename ? `/images/${filename}` : '';
+      }
+      
+      // If it's just a filename, prepend the images path
+      if (!node.imagePath.includes('/') && !node.imagePath.includes('\\')) {
+        return `/images/${node.imagePath}`;
+      }
+      
+      return node.imagePath;
+    }
+    
+    return '';
+  };
+
+  // Load images once on component mount
+  useEffect(() => {
+    // Reset errors on new tree
+    setImageErrors(new Set());
+    setLoadingImages(false);
+  }, [tree]);
+
+  // Get element color based on name (for fallbacks)
+  const getElementColor = (name: string) => {
+    const colors = [
+      'from-blue-400 to-indigo-500',
+      'from-green-400 to-emerald-500', 
+      'from-purple-400 to-fuchsia-500',
+      'from-amber-400 to-orange-500',
+      'from-red-400 to-rose-500',
+      'from-cyan-400 to-sky-500'
+    ];
+    
+    // Simple hash to consistently pick a color based on element name
+    const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return colors[hash % colors.length];
+  };
+  
+  // Get element initials for fallback display
+  const getElementInitials = (name: string) => {
+    if (!name) return '??';
+    
+    if (name.includes(' ')) {
+      // For multi-word names, take first letter of each word (up to 2)
+      return name.split(' ')
+        .filter(word => word.length > 0)
+        .slice(0, 2)
+        .map(word => word[0].toUpperCase())
+        .join('');
+    }
+    
+    // For single words, take first 2 letters
+    return name.substring(0, 2).toUpperCase();
+  };
+
+  // Helper function to get image from cache or create fallback
+  const getElementImage = (node: TreeData) => {
+    // If we already know this image failed, show fallback immediately
+    if (imageErrors.has(node.name)) {
+      return (
+        <div className={`w-5 h-5 mr-2 rounded-sm bg-gradient-to-br ${getElementColor(node.name)} flex items-center justify-center text-white text-xs font-medium`}>
+          {getElementInitials(node.name)}
+        </div>
+      );
+    }
+    
+    // Try to get image path from either localImage or imagePath
+    const imagePath = resolveImagePath(node);
+    
+    if (imagePath) {
+      return (
+        <img 
+          src={imagePath}
+          alt={node.name} 
+          className="w-5 h-5 mr-2 object-contain rounded-sm"
+          onError={(e) => {
+            // Handle error gracefully with fallback
+            const target = e.target as HTMLImageElement;
+            target.onerror = null;
+            target.style.display = 'none';
+            
+            // Add to known errors
+            setImageErrors(prev => new Set(prev).add(node.name));
+            
+            // Insert fallback directly
+            const parent = target.parentElement;
+            if (parent) {
+              const fallback = document.createElement('div');
+              fallback.className = `w-5 h-5 mr-2 rounded-sm bg-gradient-to-br ${getElementColor(node.name)} flex items-center justify-center text-white text-xs font-medium`;
+              fallback.innerText = getElementInitials(node.name);
+              parent.insertBefore(fallback, target);
+            }
+          }}
+        />
+      );
+    } else {
+      // No image path at all, use fallback directly
+      return (
+        <div className={`w-5 h-5 mr-2 rounded-sm bg-gradient-to-br ${getElementColor(node.name)} flex items-center justify-center text-white text-xs font-medium`}>
+          {getElementInitials(node.name)}
+        </div>
+      );
+    }
+  };
+
+  // Special function for larger element icon in header
+  const getLargeElementImage = (node: TreeData) => {
+    if (imageErrors.has(node.name)) {
+      return (
+        <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getElementColor(node.name)} flex items-center justify-center text-white text-lg font-medium`}>
+          {getElementInitials(node.name)}
+        </div>
+      );
+    }
+    
+    // Try to get image path from either localImage or imagePath
+    const imagePath = resolveImagePath(node);
+    
+    if (imagePath) {
+      return (
+        <img 
+          src={imagePath} 
+          alt={node.name} 
+          className="w-12 h-12 object-contain" 
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.onerror = null;
+            setImageErrors(prev => new Set(prev).add(node.name));
+            
+            // Replace with fallback
+            const parent = target.parentElement;
+            if (parent) {
+              target.style.display = 'none';
+              const fallback = document.createElement('div');
+              fallback.className = `w-12 h-12 rounded-full bg-gradient-to-br ${getElementColor(node.name)} flex items-center justify-center text-white text-lg font-medium`;
+              fallback.innerText = getElementInitials(node.name);
+              parent.appendChild(fallback);
+            }
+          }}
+        />
+      );
+    } else {
+      return (
+        <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getElementColor(node.name)} flex items-center justify-center text-white text-lg font-medium`}>
+          {getElementInitials(node.name)}
+        </div>
+      );
+    }
+  };
+
   return (
     <div className="animate-fadeIn">
+      {loadingImages && (
+        <div className="flex justify-center items-center py-4">
+          <div className="animate-pulse flex space-x-2">
+            <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+            <div className="w-2 h-2 bg-blue-400 rounded-full animation-delay-200"></div>
+            <div className="w-2 h-2 bg-blue-400 rounded-full animation-delay-400"></div>
+          </div>
+          <span className="text-sm text-gray-500 ml-3">Loading images...</span>
+        </div>
+      )}
+      
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-800 flex items-center">
           <svg className="w-5 h-5 mr-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -66,16 +243,10 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
       </div>
       
       <div className="bg-gradient-to-br from-gray-50 to-blue-50 p-5 rounded-xl border border-blue-100 shadow-sm">
-        {/* Element Header */}
+        {/* Element Header with enhanced image display */}
         <div className="flex items-center space-x-4 mb-6 pb-4 border-b border-blue-100">
           <div className="bg-white p-3 rounded-full shadow-sm flex items-center justify-center">
-            {tree.imagePath ? (
-              <img src={tree.imagePath} alt={tree.name} className="w-12 h-12 object-contain" />
-            ) : (
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white text-lg font-medium">
-                {tree.name.substring(0, 2).toUpperCase()}
-              </div>
-            )}
+            {getLargeElementImage(tree)}
           </div>
           <div>
             <h2 className="text-xl font-bold text-gray-800 flex items-center">
@@ -87,7 +258,7 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
               )}
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              {tree.ingredients.length > 0 
+              {tree.ingredients?.length > 0 
                 ? `Created through ${tree.ingredients.length} ingredient${tree.ingredients.length > 1 ? 's' : ''}` 
                 : tree.isBaseElement 
                   ? 'A fundamental element' 
@@ -97,9 +268,9 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
           </div>
         </div>
         
-        {/* Recipe Visualization */}
+        {/* Recipe Visualization with enhanced image handling */}
         {showFullTree ? (
-          tree.ingredients.length > 0 ? (
+          tree.ingredients?.length > 0 ? (
             <div className="space-y-4">
               <div className="font-medium text-gray-700 flex items-center">
                 <svg className="w-5 h-5 mr-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -137,7 +308,7 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
       </div>
       
       {/* Algorithm-specific Path Summary */}
-      {(algorithm === 'bfs' || algorithm === 'dfs') && tree.ingredients.length > 0 && showFullTree && (
+      {(algorithm === 'bfs' || algorithm === 'dfs') && tree.ingredients?.length > 0 && showFullTree && (
         <div className="mt-6 animate-fadeIn">
           <h4 className="text-gray-800 font-semibold mb-3 flex items-center">
             <svg className="w-5 h-5 mr-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -160,7 +331,7 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
       )}
 
       {/* Ingredient Statistics Section */}
-      {tree.ingredients.length > 0 && showFullTree && (
+      {tree.ingredients?.length > 0 && showFullTree && (
         <div className="mt-6 bg-gray-50 rounded-xl border border-gray-200 p-5 animate-fadeIn">
           <h4 className="text-gray-800 font-semibold mb-3 flex items-center">
             <svg className="w-5 h-5 mr-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -174,234 +345,227 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
           </div>
         </div>
       )}
+
+      {/* Debug display for development */}
+      {process.env.NODE_ENV === 'development' && imageErrors.size > 0 && (
+        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm">
+          <p className="font-medium text-yellow-800">Image Loading Issue</p>
+          <p className="text-yellow-700">Failed to load {imageErrors.size} images. Using fallbacks instead.</p>
+          <details className="mt-1">
+            <summary className="cursor-pointer text-yellow-600 font-medium">Debug details</summary>
+            <div className="text-xs mt-2 text-yellow-700 bg-yellow-100 p-2 rounded overflow-auto max-h-40">
+              {Array.from(imageErrors).map(name => (
+                <div key={name} className="mb-1">• {name}</div>
+              ))}
+            </div>
+          </details>
+        </div>
+      )}
     </div>
   );
-};
-
-// Helper function to render a recipe tree with enhanced visuals
-
-const renderRecipeTree = (node: TreeData, depth: number) => {
-  if (!node) return null;
   
-  // Different colors based on node type
-  const getBgColor = () => {
-    if (node.isBaseElement) return "bg-yellow-50 border-yellow-200";
-    if (depth === 0) return "bg-green-50 border-green-200"; 
-    if (node.isCircularReference) return "bg-orange-50 border-orange-200";
-    return "bg-blue-50 border-blue-200";
-  };
+  // Helper function to render a recipe tree with enhanced image handling
+  function renderRecipeTree(node: TreeData, depth: number) {
+    if (!node) return null;
+    
+    // Different colors based on node type
+    const getBgColor = () => {
+      if (node.isBaseElement) return "bg-yellow-50 border-yellow-200";
+      if (depth === 0) return "bg-green-50 border-green-200"; 
+      if (node.isCircularReference) return "bg-orange-50 border-orange-200";
+      return "bg-blue-50 border-blue-200";
+    };
+    
+    // Different icons based on node type
+    const getNodeIcon = () => {
+      if (node.isBaseElement) {
+        return (
+          <svg className="w-4 h-4 text-yellow-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M11 17a1 1 0 001.447.894l4-2A1 1 0 0017 15V9.236a1 1 0 00-1.447-.894l-4 2a1 1 0 00-.553.894V17zM15.211 6.276a1 1 0 000-1.788l-4.764-2.382a1 1 0 00-.894 0L4.789 4.488a1 1 0 000 1.788l4.764 2.382a1 1 0 00.894 0l4.764-2.382zM4.447 8.342A1 1 0 003 9.236V15a1 1 0 00.553.894l4 2A1 1 0 009 17v-5.764a1 1 0 00-.553-.894l-4-2z" />
+          </svg>
+        );
+      }
+      if (depth === 0) {
+        return (
+          <svg className="w-4 h-4 text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clipRule="evenodd" />
+          </svg>
+        );
+      }
+      if (node.isCircularReference) {
+        return (
+          <svg className="w-4 h-4 text-orange-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+          </svg>
+        );
+      }
+      return (
+        <svg className="w-4 h-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+          <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
+        </svg>
+      );
+    };
   
-  // Different icons based on node type
-  const getNodeIcon = () => {
-    if (node.isBaseElement) {
-      return (
-        <svg className="w-4 h-4 text-yellow-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M11 17a1 1 0 001.447.894l4-2A1 1 0 0017 15V9.236a1 1 0 00-1.447-.894l-4 2a1 1 0 00-.553.894V17zM15.211 6.276a1 1 0 000-1.788l-4.764-2.382a1 1 0 00-.894 0L4.789 4.488a1 1 0 000 1.788l4.764 2.382a1 1 0 00.894 0l4.764-2.382zM4.447 8.342A1 1 0 003 9.236V15a1 1 0 00.553.894l4 2A1 1 0 009 17v-5.764a1 1 0 00-.553-.894l-4-2z" />
-        </svg>
-      );
-    }
-    if (depth === 0) {
-      return (
-        <svg className="w-4 h-4 text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clipRule="evenodd" />
-        </svg>
-      );
-    }
-    if (node.isCircularReference) {
-      return (
-        <svg className="w-4 h-4 text-orange-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
-        </svg>
-      );
-    }
     return (
-      <svg className="w-4 h-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-        <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
-      </svg>
-    );
-  };
-
-  return (
-    <div className="tree-node animate-fadeIn" style={{ animationDelay: `${depth * 1000}ms` }}>
-      <div className={`${getBgColor()} rounded-md p-2 border flex items-center mb-1 shadow-sm group hover:shadow-md transition-all duration-200`}>
-        <div className="mr-2">
-          {getNodeIcon()}
+      <div className="tree-node animate-fadeIn" style={{ animationDelay: `${depth * 100}ms` }}>
+        <div className={`${getBgColor()} rounded-md p-2 border flex items-center mb-1 shadow-sm group hover:shadow-md transition-all duration-200`}>
+          <div className="mr-2">
+            {getNodeIcon()}
+          </div>
+          <div className="flex-grow flex items-center">
+            {getElementImage(node)}
+            <span className={depth === 0 ? "font-medium" : ""}>{node.name}</span>
+          </div>
+          {node.isBaseElement && (
+            <span className="bg-yellow-200 text-yellow-800 text-xs px-1.5 py-0.5 rounded ml-2 hidden group-hover:inline-block">
+              Base
+            </span>
+          )}
+          {node.isCircularReference && (
+            <span className="bg-orange-200 text-orange-800 text-xs px-1.5 py-0.5 rounded ml-2 hidden group-hover:inline-block">
+              Circular
+            </span>
+          )}
         </div>
-        <div className="flex-grow flex items-center">
-          {node.imagePath ? (
-            <img 
-              src={node.imagePath} 
-              alt={node.name} 
-              className="w-5 h-5 mr-2 object-contain rounded-sm"
-              onError={(e) => {
-                // Fallback for image loading errors
-                const target = e.target as HTMLImageElement;
-                target.onerror = null; // Prevent infinite error loop
-                target.style.display = 'none';
-                
-                // Log error for debugging
-                console.warn(`Failed to load image for: ${node.name}`);
-              }}
-            />
-          ) : null}
-          <span className={depth === 0 ? "font-medium" : ""}>{node.name}</span>
-        </div>
-        {node.isBaseElement && (
-          <span className="bg-yellow-200 text-yellow-800 text-xs px-1.5 py-0.5 rounded ml-2 hidden group-hover:inline-block">
-            Base
-          </span>
-        )}
-        {node.isCircularReference && (
-          <span className="bg-orange-200 text-orange-800 text-xs px-1.5 py-0.5 rounded ml-2 hidden group-hover:inline-block">
-            Circular
-          </span>
+  
+        {Array.isArray(node.ingredients) && node.ingredients.length > 0 && (
+          <div className="ml-6 pl-4 border-l-2 border-dashed border-blue-200 space-y-1">
+            {node.ingredients.map((child, idx) => (
+              <div key={idx} className="relative">
+                <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 w-3 h-px bg-blue-200" />
+                {renderRecipeTree(child, depth + 1)}
+              </div>
+            ))}
+          </div>
         )}
       </div>
-
-      {Array.isArray(node.ingredients) && node.ingredients.length > 0 && (
-        <div className="ml-6 pl-4 border-l-2 border-dashed border-blue-200 space-y-1">
-          {node.ingredients.map((child, idx) => (
-            <div key={idx} className="relative">
-              <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 w-3 h-px bg-blue-200" />
-              {renderRecipeTree(child, depth + 1)}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-
-// Helper function to render a short path with improved visuals
-const renderShortPath = (tree: TreeData, algorithm: Algorithm) => {
-  const baseElements = ['Water', 'Fire', 'Earth', 'Air'];
-  const findBaseElements = (node: TreeData): TreeData[] => {
-  // Guard against null/undefined nodes
-  if (!node) return [];
-  
-  // Check base element or no ingredients
-  if (baseElements.includes(node.name) || !node.ingredients || node.ingredients.length === 0) {
-    return [node];
+    );
   }
   
-  // Apply different traversal strategies based on algorithm
-  let bases: TreeData[] = [];
-  if (algorithm === 'dfs') {
-    // Depth-first approach - handle safely
-    if (Array.isArray(node.ingredients)) {
-      for (const ingredient of node.ingredients) {
-        bases = [...bases, ...findBaseElements(ingredient)];
+  // Helper function to render a short path with improved visuals and image handling
+  function renderShortPath(tree: TreeData, algorithm: Algorithm) {
+    const baseElements = ['Water', 'Fire', 'Earth', 'Air'];
+    const findBaseElements = (node: TreeData): TreeData[] => {
+      // Guard against null/undefined nodes
+      if (!node) return [];
+      
+      // Check base element or no ingredients
+      if (baseElements.includes(node.name) || !node.ingredients || node.ingredients.length === 0) {
+        return [node];
       }
-    }
-  } else {
-    // BFS or other algorithms - handle safely
-    if (Array.isArray(node.ingredients)) {
-      for (const ingredient of [...node.ingredients].reverse()) {
-        bases = [...bases, ...findBaseElements(ingredient)];
+      
+      // Apply different traversal strategies based on algorithm
+      let bases: TreeData[] = [];
+      if (algorithm === 'dfs') {
+        // Depth-first approach
+        if (Array.isArray(node.ingredients)) {
+          for (const ingredient of node.ingredients) {
+            bases = [...bases, ...findBaseElements(ingredient)];
+          }
+        }
+      } else {
+        // BFS or other algorithms
+        if (Array.isArray(node.ingredients)) {
+          for (const ingredient of [...node.ingredients].reverse()) {
+            bases = [...bases, ...findBaseElements(ingredient)];
+          }
+        }
       }
-    }
-  }
-  return bases;
-};
-  
-  const findKeyIntermediates = (node: TreeData): TreeData[] => {
-  // Guard against null/undefined nodes
-  if (!node || !node.ingredients) return [];
-  
-  if (node.ingredients.length === 0) {
-    return [];
-  }
-  
-  let intermediates: TreeData[] = [];
-  if (!baseElements.includes(node.name) && node.name !== tree.name) {
-    intermediates.push(node);
-  }
-  
-  // Safely iterate with null checks
-  if (Array.isArray(node.ingredients)) {
-    for (const ingredient of node.ingredients) {
-      intermediates = [...intermediates, ...findKeyIntermediates(ingredient)];
-    }
-  }
-  return intermediates;
-};
-  
-  const baseElementNodes = findBaseElements(tree);
-  const intermediateNodes = findKeyIntermediates(tree);
-  
-  // Create path visualization with animations
-  return (
-    <>
-      {/* Base elements */}
-      {baseElementNodes.map((node, i) => (
-        <React.Fragment key={`base-${i}`}>
-          <div className="bg-yellow-50 border border-yellow-200 px-3 py-2 rounded-lg flex items-center shadow-sm hover:bg-yellow-100 transition duration-300 animate-fadeIn" style={{animationDelay: `${i * 100}ms`}}>
-            {node.imagePath && (
-              <img src={node.imagePath} alt={node.name} className="w-5 h-5 mr-2" />
-            )}
-            {node.name}
-          </div>
-          {i < baseElementNodes.length - 1 && (
-            <div className="text-lg font-bold text-gray-500 animate-fadeIn" style={{animationDelay: `${i * 100 + 50}ms`}}>+</div>
-          )}
-        </React.Fragment>
-      ))}
+      return bases;
+    };
+    
+    const findKeyIntermediates = (node: TreeData): TreeData[] => {
+      // Guard against null/undefined nodes
+      if (!node || !node.ingredients) return [];
       
-      {/* Arrow */}
-      {baseElementNodes.length > 0 && (intermediateNodes.length > 0 || tree) && (
-        <div className="flex items-center mx-3 animate-fadeIn" style={{animationDelay: `${baseElementNodes.length * 100}ms`}}>
-          <svg className="w-6 h-6 text-blue-500 animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-          </svg>
-        </div>
-      )}
+      if (node.ingredients.length === 0) {
+        return [];
+      }
       
-      {/* Intermediates */}
-      {intermediateNodes.slice(0, 3).map((node, i) => (
-        <React.Fragment key={`inter-${i}`}>
-          <div className="bg-blue-50 border border-blue-200 px-3 py-2 rounded-lg flex items-center shadow-sm hover:bg-blue-100 transition duration-300 animate-fadeIn" style={{animationDelay: `${baseElementNodes.length * 100 + 100 + i * 100}ms`}}>
-            {node.imagePath && (
-              <img src={node.imagePath} alt={node.name} className="w-5 h-5 mr-2" />
-            )}
-            {node.name}
-          </div>
-          {i < Math.min(2, intermediateNodes.length - 1) && (
-            <div className="flex items-center mx-2 animate-fadeIn" style={{animationDelay: `${baseElementNodes.length * 100 + 150 + i * 100}ms`}}>
-              <svg className="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
+      let intermediates: TreeData[] = [];
+      if (!baseElements.includes(node.name) && node.name !== tree.name) {
+        intermediates.push(node);
+      }
+      
+      // Safely iterate with null checks
+      if (Array.isArray(node.ingredients)) {
+        for (const ingredient of node.ingredients) {
+          intermediates = [...intermediates, ...findKeyIntermediates(ingredient)];
+        }
+      }
+      return intermediates;
+    };
+    
+    const baseElementNodes = findBaseElements(tree);
+    const intermediateNodes = findKeyIntermediates(tree);
+    
+    // Create path visualization with animations and better image handling
+    return (
+      <>
+        {/* Base elements */}
+        {baseElementNodes.map((node, i) => (
+          <React.Fragment key={`base-${i}`}>
+            <div className="bg-yellow-50 border border-yellow-200 px-3 py-2 rounded-lg flex items-center shadow-sm hover:bg-yellow-100 transition duration-300 animate-fadeIn" style={{animationDelay: `${i * 100}ms`}}>
+              {getElementImage(node)}
+              {node.name}
             </div>
-          )}
-        </React.Fragment>
-      ))}
-      
-      {/* Ellipsis for long paths */}
-      {intermediateNodes.length > 3 && (
-        <div className="flex items-center mx-3 px-3 py-1 bg-gray-100 rounded-lg text-gray-700 font-medium animate-fadeIn" style={{animationDelay: `${baseElementNodes.length * 100 + 400}ms`}}>
-          <span className="animate-bounce">•••</span>
-        </div>
-      )}
-      
-      {/* Target element */}
-      {tree && (
-        <>
-          <div className="flex items-center mx-3 animate-fadeIn" style={{animationDelay: `${baseElementNodes.length * 100 + 500}ms`}}>
-            <svg className="w-6 h-6 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            {i < baseElementNodes.length - 1 && (
+              <div className="text-lg font-bold text-gray-500 animate-fadeIn" style={{animationDelay: `${i * 100 + 50}ms`}}>+</div>
+            )}
+          </React.Fragment>
+        ))}
+        
+        {/* Arrow */}
+        {baseElementNodes.length > 0 && (intermediateNodes.length > 0 || tree) && (
+          <div className="flex items-center mx-3 animate-fadeIn" style={{animationDelay: `${baseElementNodes.length * 100}ms`}}>
+            <svg className="w-6 h-6 text-blue-500 animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </div>
-          <div className="bg-green-50 border border-green-200 px-3 py-2 rounded-lg flex items-center shadow-sm hover:bg-green-100 transition duration-300 animate-fadeIn animate-pulse" style={{animationDelay: `${baseElementNodes.length * 100 + 600}ms`}}>
-            {tree.imagePath && (
-              <img src={tree.imagePath} alt={tree.name} className="w-5 h-5 mr-2" />
+        )}
+        
+        {/* Intermediates */}
+        {intermediateNodes.slice(0, 3).map((node, i) => (
+          <React.Fragment key={`inter-${i}`}>
+            <div className="bg-blue-50 border border-blue-200 px-3 py-2 rounded-lg flex items-center shadow-sm hover:bg-blue-100 transition duration-300 animate-fadeIn" style={{animationDelay: `${baseElementNodes.length * 100 + 100 + i * 100}ms`}}>
+              {getElementImage(node)}
+              {node.name}
+            </div>
+            {i < Math.min(2, intermediateNodes.length - 1) && (
+              <div className="flex items-center mx-2 animate-fadeIn" style={{animationDelay: `${baseElementNodes.length * 100 + 150 + i * 100}ms`}}>
+                <svg className="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </div>
             )}
-            <span className="font-medium">{tree.name}</span>
+          </React.Fragment>
+        ))}
+        
+        {/* Ellipsis for long paths */}
+        {intermediateNodes.length > 3 && (
+          <div className="flex items-center mx-3 px-3 py-1 bg-gray-100 rounded-lg text-gray-700 font-medium animate-fadeIn" style={{animationDelay: `${baseElementNodes.length * 100 + 400}ms`}}>
+            <span className="animate-bounce">•••</span>
           </div>
-        </>
-      )}
-    </>
-  );
+        )}
+        
+        {/* Target element */}
+        {tree && (
+          <>
+            <div className="flex items-center mx-3 animate-fadeIn" style={{animationDelay: `${baseElementNodes.length * 100 + 500}ms`}}>
+              <svg className="w-6 h-6 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="bg-green-50 border border-green-200 px-3 py-2 rounded-lg flex items-center shadow-sm hover:bg-green-100 transition duration-300 animate-fadeIn animate-pulse" style={{animationDelay: `${baseElementNodes.length * 100 + 600}ms`}}>
+              {getElementImage(tree)}
+              <span className="font-medium">{tree.name}</span>
+            </div>
+          </>
+        )}
+      </>
+    );
+  }
 };
 
 // Helper function to calculate and render recipe statistics

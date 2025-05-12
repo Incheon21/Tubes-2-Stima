@@ -80,7 +80,7 @@ const VisualizationPanel: React.FC<VisualizationPanelProps> = ({
   const renderedLinksRef = useRef<Set<string>>(new Set());
   
   // Keep track of all animation timers so we can clear them if needed
-  const animationTimers = useRef<number[]>([]);
+  const animationTimers = useRef<(number | ReturnType<typeof setTimeout>)[]>([]);
 
   useEffect(() => {
     // Clear any existing timers when component updates or unmounts
@@ -739,7 +739,7 @@ const visualizeTree = (treeData: TreeData, animate = false): void => {
 const startAnimation = (animationSequence: D3Node[], g: d3.Selection<SVGGElement, unknown, null, undefined>): void => {
   if (!rootRef.current) return;
   
-  const localTimers: number[] = [];
+  const localTimers: (number | ReturnType<typeof setTimeout>)[] = [];
   const totalSteps = animationSequence.length; 
   let currentStep = 0;
   
