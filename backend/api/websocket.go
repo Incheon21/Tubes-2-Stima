@@ -13,14 +13,6 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool {
-		return true // Allow all origins in development
-	},
-}
-
 // AnimationStep represents a single step in the tree formation animation
 type AnimationStep struct {
 	StepIndex   int             `json:"stepIndex"`
@@ -455,59 +447,6 @@ func (h *Handler) convertBidirectionalToAnimationSteps(paths [][]model.Node) []m
 	// Then add links (mostly the same as before)
 	for i := 0; i < len(path)-1; i++ {
 		for j := i + 1; j < len(path); j++ {
-			if j == i+1 || (path[j].Ingredients != nil && containsElement(path[j].Ingredients, path[i].Element)) {
-				steps = append(steps, map[string]interface{}{
-					"type": "link",
-					"link": map[string]interface{}{
-						"source": path[i].Element,
-						"target": path[j].Element,
-					},
-					"isBaseNode":  false,
-					"isCompleted": false,
-				})
-			}
-		}
-	}
-
-	return steps
-}
-
-// Keep the original function for backward compatibility or simpler cases
-func (h *Handler) convertPathsToAnimationSteps(paths [][]model.Node) []map[string]interface{} {
-	if len(paths) == 0 {
-		return []map[string]interface{}{}
-	}
-
-	// Create animation steps from the first path
-	path := paths[0]
-	steps := []map[string]interface{}{}
-
-	// First add all nodes
-	baseElements := []string{"Water", "Fire", "Earth", "Air"}
-	for _, node := range path {
-		isBase := false
-		for _, base := range baseElements {
-			if node.Element == base {
-				isBase = true
-				break
-			}
-		}
-
-		steps = append(steps, map[string]interface{}{
-			"type": "node",
-			"node": map[string]interface{}{
-				"name":      node.Element,
-				"imagePath": node.ImagePath,
-			},
-			"isBaseNode":  isBase,
-			"isCompleted": false,
-		})
-	}
-
-	// Then add links between nodes
-	for i := 0; i < len(path)-1; i++ {
-		for j := i + 1; j < len(path); j++ {
-			// Check if these nodes should be connected based on recipe
 			if j == i+1 || (path[j].Ingredients != nil && containsElement(path[j].Ingredients, path[i].Element)) {
 				steps = append(steps, map[string]interface{}{
 					"type": "link",

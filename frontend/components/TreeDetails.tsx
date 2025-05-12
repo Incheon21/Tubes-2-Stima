@@ -182,19 +182,97 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
 
 const renderRecipeTree = (node: TreeData, depth: number) => {
   if (!node) return null;
+  
+  // Different colors based on node type
+  const getBgColor = () => {
+    if (node.isBaseElement) return "bg-yellow-50 border-yellow-200";
+    if (depth === 0) return "bg-green-50 border-green-200"; 
+    if (node.isCircularReference) return "bg-orange-50 border-orange-200";
+    return "bg-blue-50 border-blue-200";
+  };
+  
+  // Different icons based on node type
+  const getNodeIcon = () => {
+    if (node.isBaseElement) {
+      return (
+        <svg className="w-4 h-4 text-yellow-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M11 17a1 1 0 001.447.894l4-2A1 1 0 0017 15V9.236a1 1 0 00-1.447-.894l-4 2a1 1 0 00-.553.894V17zM15.211 6.276a1 1 0 000-1.788l-4.764-2.382a1 1 0 00-.894 0L4.789 4.488a1 1 0 000 1.788l4.764 2.382a1 1 0 00.894 0l4.764-2.382zM4.447 8.342A1 1 0 003 9.236V15a1 1 0 00.553.894l4 2A1 1 0 009 17v-5.764a1 1 0 00-.553-.894l-4-2z" />
+        </svg>
+      );
+    }
+    if (depth === 0) {
+      return (
+        <svg className="w-4 h-4 text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clipRule="evenodd" />
+        </svg>
+      );
+    }
+    if (node.isCircularReference) {
+      return (
+        <svg className="w-4 h-4 text-orange-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+        </svg>
+      );
+    }
+    return (
+      <svg className="w-4 h-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+        <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
+      </svg>
+    );
+  };
+
   return (
-    <div>
-      <div>{node.name}</div>
+    <div className="tree-node animate-fadeIn" style={{ animationDelay: `${depth * 1000}ms` }}>
+      <div className={`${getBgColor()} rounded-md p-2 border flex items-center mb-1 shadow-sm group hover:shadow-md transition-all duration-200`}>
+        <div className="mr-2">
+          {getNodeIcon()}
+        </div>
+        <div className="flex-grow flex items-center">
+          {node.imagePath ? (
+            <img 
+              src={node.imagePath} 
+              alt={node.name} 
+              className="w-5 h-5 mr-2 object-contain rounded-sm"
+              onError={(e) => {
+                // Fallback for image loading errors
+                const target = e.target as HTMLImageElement;
+                target.onerror = null; // Prevent infinite error loop
+                target.style.display = 'none';
+                
+                // Log error for debugging
+                console.warn(`Failed to load image for: ${node.name}`);
+              }}
+            />
+          ) : null}
+          <span className={depth === 0 ? "font-medium" : ""}>{node.name}</span>
+        </div>
+        {node.isBaseElement && (
+          <span className="bg-yellow-200 text-yellow-800 text-xs px-1.5 py-0.5 rounded ml-2 hidden group-hover:inline-block">
+            Base
+          </span>
+        )}
+        {node.isCircularReference && (
+          <span className="bg-orange-200 text-orange-800 text-xs px-1.5 py-0.5 rounded ml-2 hidden group-hover:inline-block">
+            Circular
+          </span>
+        )}
+      </div>
+
       {Array.isArray(node.ingredients) && node.ingredients.length > 0 && (
-        <div style={{ marginLeft: 16 }}>
+        <div className="ml-6 pl-4 border-l-2 border-dashed border-blue-200 space-y-1">
           {node.ingredients.map((child, idx) => (
-            <div key={idx}>{renderRecipeTree(child, depth + 1)}</div>
+            <div key={idx} className="relative">
+              <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 w-3 h-px bg-blue-200" />
+              {renderRecipeTree(child, depth + 1)}
+            </div>
           ))}
         </div>
       )}
     </div>
   );
 };
+
 
 // Helper function to render a short path with improved visuals
 const renderShortPath = (tree: TreeData, algorithm: Algorithm) => {

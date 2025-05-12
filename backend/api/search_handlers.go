@@ -341,7 +341,7 @@ func convertPathToTree(path []model.Node, targetElement string, elements map[str
 		}
 
 		ingredients := node.Ingredients
-		if ingredients == nil || len(ingredients) == 0 {
+		if len(ingredients) == 0 {
 			// Try to get from element data
 			if elemData, exists := elements[element]; exists && len(elemData.Recipes) > 0 {
 				ingredients = elemData.Recipes[0].Ingredients
@@ -363,31 +363,6 @@ func convertPathToTree(path []model.Node, targetElement string, elements map[str
 	return buildTree(targetElement, 0)
 }
 
-func generateTreeCombinations(baseTree map[string]interface{}, ingredientVariations [][]map[string]interface{}, currentIndex int) []map[string]interface{} {
-	if currentIndex >= len(ingredientVariations) {
-		return []map[string]interface{}{utils.DeepCopyTree(baseTree)}
-	}
-
-	currentIngredientVariations := ingredientVariations[currentIndex]
-
-	var results []map[string]interface{}
-	for _, ingTree := range currentIngredientVariations {
-		ingredientsList := baseTree["ingredients"].([]interface{})
-		baseTree["ingredients"] = append(ingredientsList, ingTree)
-
-		subCombinations := generateTreeCombinations(
-			baseTree,
-			ingredientVariations,
-			currentIndex+1,
-		)
-
-		results = append(results, subCombinations...)
-
-		baseTree["ingredients"] = ingredientsList
-	}
-
-	return results
-}
 func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
