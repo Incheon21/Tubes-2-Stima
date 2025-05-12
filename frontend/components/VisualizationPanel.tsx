@@ -441,12 +441,15 @@ const visualizeTree = (treeData: TreeData, animate = false): void => {
   .attr("d", (d) => {
     const source = d.source as D3Node;
     const target = d.target as D3Node;
-    // Use standard d3.linkVertical with correct typing
-    const linkGenerator = d3.linkVertical();
-    return linkGenerator({
-      source: [source.x, source.y],
-      target: [target.x, target.y]
-    });
+    
+    // Manually create the path using a smooth curve
+    const sourceX = source.x;
+    const sourceY = source.y;
+    const targetX = target.x;
+    const targetY = target.y;
+    
+    // Use a simple curved path
+    return `M${sourceX},${sourceY}C${sourceX},${sourceY + (targetY - sourceY) / 2} ${targetX},${sourceY + (targetY - sourceY) / 2} ${targetX},${targetY}`;
   })
   .style("fill", "none")
   .style("stroke", "url(#link-gradient)")
@@ -737,28 +740,21 @@ const startAnimation = (animationSequence: D3Node[], g: d3.Selection<SVGGElement
   if (!rootRef.current) return;
   
   const localTimers: number[] = [];
-  const totalSteps = animationSequence.length * 2; // Nodes + links
+  const totalSteps = animationSequence.length; 
   let currentStep = 0;
   
-  // Clear any existing tracked nodes
+  // Clear any existing tracked nodes and links
   renderedNodesRef.current.clear();
   renderedLinksRef.current.clear();
   
-  // TAMBAHAN: Update root node langsung untuk memastikan semua node terhubung
+  // First, properly validate the hierarchy and layout
   const enhancedValidation = () => {
-    // First, validate the hierarchy to ensure all connections are properly set
     validateHierarchy(rootRef.current!);
-    
-    // Second, force recomputation of tree layout
-    const treeLayout = d3.tree<HierarchyNode>()
-      .nodeSize([45, 90]);
-      
+    const treeLayout = d3.tree<HierarchyNode>().nodeSize([45, 90]);
     treeLayout(rootRef.current!);
-    
-    // Third, re-validate after layout
     validateHierarchy(rootRef.current!);
     
-    // Ensure all coordinates are valid
+    // Fix any invalid coordinates
     rootRef.current!.descendants().forEach(node => {
       if (isNaN(node.x) || isNaN(node.y)) {
         node.x = node.x || 0;
@@ -767,142 +763,226 @@ const startAnimation = (animationSequence: D3Node[], g: d3.Selection<SVGGElement
     });
   };
   
-  // Perform enhanced validation before starting
   enhancedValidation();
   
-  // Pre-compute all expected connections to avoid missing connections
-  const allExpectedConnections: {source: string, target: string}[] = [];
-  
-  // Get all connections from the root
-  rootRef.current.descendants().forEach(node => {
-    if (node.parent) {
-      allExpectedConnections.push({
-        source: node.parent.data.name,
-        target: node.data.name
-      });
-    }
-    
-    if (node.children) {
-      node.children.forEach(child => {
-        allExpectedConnections.push({
-          source: node.data.name,
-          target: (child as D3Node).data.name
-        });
-      });
-    }
-  });
-  
-  // TAMBAHAN: Buat kamus node untuk referensi cepat
+  // Build node lookup map
   const nodeMap = new Map<string, D3Node>();
   rootRef.current.descendants().forEach(node => {
     nodeMap.set(node.data.name, node as D3Node);
   });
   
-  // Function to create a node with a delay
-  const createNodeWithDelay = (node: D3Node, delay: number): void => {
-    const timer = setTimeout(() => {
-      // Create the node
-      createAnimatedNode(node, g);
+  // Determine base delay timing based on algorithm
+  let baseNodeDelay, baseLinkDelay;
+  
+  switch (algorithm) {
+    case 'dfs':
+      // DFS shows complete paths, so we need longer animation to follow the exploration
+      baseNodeDelay = 800 / playbackSpeed;
+      baseLinkDelay = 600 / playbackSpeed;
+      break;
       
-      // Update progress
+    case 'bidirectional':
+      // Bidirectional converges from both ends, slightly faster animations
+      baseNodeDelay = 600 / playbackSpeed;
+      baseLinkDelay = 400 / playbackSpeed;
+      break;
+      
+    case 'bfs':
+    default:
+      // BFS explores level by level, standard animation speed
+      baseNodeDelay = 700 / playbackSpeed;
+      baseLinkDelay = 500 / playbackSpeed;
+      break;
+  }
+  
+  // Process nodes in sequence
+  animationSequence.forEach((node, index) => {
+    const nodeDelay = baseNodeDelay * index;
+    
+    // Create the node with appropriate delay
+    const nodeTimer = setTimeout(() => {
+      createAnimatedNode(node, g);
       currentStep++;
       setAnimationProgress(Math.round((currentStep / totalSteps) * 100));
       
-      // Create connections after a short delay
-      setTimeout(() => {
-        // Find all possible connections for this node and create them
-        rootRef.current!.descendants().forEach(otherNode => {
-          // Skip self-connections
-          if (otherNode === node) return;
-          
-          // Try to create parent -> child connections
-          if (node.parent && node.parent === otherNode && 
-              renderedNodesRef.current.has(otherNode.data.name)) {
-            if (!renderedLinksRef.current.has(`${otherNode.data.name}_${node.data.name}`)) {
-              createAnimatedLink(otherNode as D3Node, node, g);
+      // Process links after node appears based on algorithm pattern
+      const linkTimer = setTimeout(() => {
+        switch (algorithm) {
+          case 'bfs':
+            // In BFS, connect each node to its parent (top-down approach)
+            if (node.parent && renderedNodesRef.current.has(node.parent.data.name)) {
+              createAnimatedLink(node.parent as D3Node, node, g);
             }
-          }
+            break;
+            
+          case 'dfs':
+            // In DFS, connect nodes in a path-wise manner
+            if (node.parent && renderedNodesRef.current.has(node.parent.data.name)) {
+              // Connect to parent
+              createAnimatedLink(node.parent as D3Node, node, g);
+            }
+            
+            // DFS also connects explored children
+            if (node.children) {
+              node.children.forEach(childNode => {
+                const child = childNode as D3Node;
+                // Only connect to children that are already in the animation sequence
+                // to better show the DFS path exploration
+                if (renderedNodesRef.current.has(child.data.name)) {
+                  createAnimatedLink(node, child, g);
+                }
+              });
+            }
+            break;
+            
+          case 'bidirectional':
+            // For bidirectional, connect in both directions
+            
+            // Connect base elements to their parents
+            if (node.data.isBaseElement && node.parent) {
+              if (renderedNodesRef.current.has(node.parent.data.name)) {
+                createAnimatedLink(node.parent as D3Node, node, g);
+              }
+            } 
+            // Connect target element to its children
+            else if (node.depth === 0) {
+              if (node.children) {
+                node.children.forEach(childNode => {
+                  const child = childNode as D3Node;
+                  if (renderedNodesRef.current.has(child.data.name)) {
+                    createAnimatedLink(node, child, g);
+                  }
+                });
+              }
+            }
+            // Connect intermediate nodes both ways
+            else {
+              if (node.parent && renderedNodesRef.current.has(node.parent.data.name)) {
+                createAnimatedLink(node.parent as D3Node, node, g);
+              }
+              
+              if (node.children) {
+                node.children.forEach(childNode => {
+                  const child = childNode as D3Node;
+                  if (renderedNodesRef.current.has(child.data.name)) {
+                    createAnimatedLink(node, child, g);
+                  }
+                });
+              }
+            }
+            break;
+        }
+      }, baseLinkDelay);
+      
+      localTimers.push(linkTimer);
+      
+    }, nodeDelay);
+    
+    localTimers.push(nodeTimer);
+  });
+  
+  // Add a final verification step to ensure all appropriate connections are made
+  const finalConnectionTimer = setTimeout(() => {
+    // First revalidate the hierarchy
+    enhancedValidation();
+    
+    // Get all links that should exist according to the tree structure
+    const allLinks = getAllLinks(rootRef.current!);
+    
+    // Special connection logic based on algorithm
+    switch (algorithm) {
+      case 'bfs':
+        // BFS should have parent-child connections for all rendered nodes
+        allLinks.forEach(link => {
+          const source = link.source as D3Node;
+          const target = link.target as D3Node;
           
-          // Try to create child -> parent connections
-          if (node.children && node.children.includes(otherNode) &&
-              renderedNodesRef.current.has(otherNode.data.name)) {
-            if (!renderedLinksRef.current.has(`${node.data.name}_${otherNode.data.name}`)) {
-              createAnimatedLink(node, otherNode as D3Node, g);
+          // BFS typically shows parent-to-child connections
+          if (source.depth < target.depth) {
+            const linkId = `${source.data.name}_${target.data.name}`;
+            
+            if (renderedNodesRef.current.has(source.data.name) && 
+                renderedNodesRef.current.has(target.data.name) &&
+                !renderedLinksRef.current.has(linkId)) {
+              createAnimatedLink(source, target, g);
             }
           }
         });
-      }, 300 / playbackSpeed);
-      
-    }, delay);
+        break;
+        
+      case 'dfs':
+        // DFS should show the exploration paths completely
+        allLinks.forEach(link => {
+          const source = link.source as D3Node;
+          const target = link.target as D3Node;
+          const linkId = `${source.data.name}_${target.data.name}`;
+          
+          // For DFS we create both parent-child and child-parent links
+          // to better show the backtracking behavior
+          if (renderedNodesRef.current.has(source.data.name) && 
+              renderedNodesRef.current.has(target.data.name) &&
+              !renderedLinksRef.current.has(linkId)) {
+            createAnimatedLink(source, target, g);
+          }
+        });
+        break;
+        
+      case 'bidirectional':
+        // Bidirectional should have connections from both directions
+        allLinks.forEach(link => {
+          const source = link.source as D3Node;
+          const target = link.target as D3Node;
+          const linkId = `${source.data.name}_${target.data.name}`;
+          
+          // For bidirectional, create links that reflect the convergence
+          // from both base elements and target element
+          if (renderedNodesRef.current.has(source.data.name) && 
+              renderedNodesRef.current.has(target.data.name) &&
+              !renderedLinksRef.current.has(linkId)) {
+                
+            // Prioritize connections between base elements or near the target
+            const isBaseToBase = source.data.isBaseElement && target.data.isBaseElement;
+            const isNearTarget = source.depth <= 1 || target.depth <= 1;
+            
+            if (isBaseToBase || isNearTarget) {
+              setTimeout(() => {
+                createAnimatedLink(source, target, g);
+              }, 200);
+            } else {
+              createAnimatedLink(source, target, g);
+            }
+          }
+        });
+        break;
+    }
     
-    localTimers.push(timer);
-  };
-  
-  // Set delay multiplier
-  const delayMultiplier = algorithm === 'bidirectional' ? 0.8 : 1.0;
-  
-  // Create nodes with timing
-  animationSequence.forEach((node, index) => {
-    createNodeWithDelay(node, 1000 * index * delayMultiplier / playbackSpeed);
-  });
-  
-  // Final connection check to catch any missing links - ENHANCED
-  const finalConnectionTimer = setTimeout(() => {
-    // Double-check that hierarchy is valid before final check
-    enhancedValidation();
-    
-    // Get all links that should exist
-    const allLinks = getAllLinks(rootRef.current!);
-    
-    // First pass: Create any missing links between rendered nodes
-    allLinks.forEach(link => {
-      const source = link.source as D3Node;
-      const target = link.target as D3Node;
-      const linkId = `${source.data.name}_${target.data.name}`;
-      
-      if (renderedNodesRef.current.has(source.data.name) && 
-          renderedNodesRef.current.has(target.data.name) &&
-          !renderedLinksRef.current.has(linkId)) {
-        console.log(`Creating missing link: ${source.data.name} -> ${target.data.name}`);
-        createAnimatedLink(source, target, g);
-      }
-    });
-    
-    // Second pass: Force connection of disconnected nodes
+    // Check for isolated nodes and connect them
     rootRef.current!.descendants().forEach(node => {
       if (!renderedNodesRef.current.has(node.data.name)) return;
       
       let isConnected = false;
-      
-      // Check if this node has any visible connections
       rootRef.current!.descendants().forEach(otherNode => {
         if (node === otherNode) return;
         
-        const sourceToTarget = `${node.data.name}_${otherNode.data.name}`;
-        const targetToSource = `${otherNode.data.name}_${node.data.name}`;
+        const linkFromSource = `${node.data.name}_${otherNode.data.name}`;
+        const linkToSource = `${otherNode.data.name}_${node.data.name}`;
         
-        if (renderedLinksRef.current.has(sourceToTarget) || 
-            renderedLinksRef.current.has(targetToSource)) {
+        if (renderedLinksRef.current.has(linkFromSource) || 
+            renderedLinksRef.current.has(linkToSource)) {
           isConnected = true;
         }
       });
       
-      // If node has no visible connections, connect to parent or root
+      // Connect isolated nodes
       if (!isConnected && node !== rootRef.current) {
-        console.log(`Forcing connection for disconnected node: ${node.data.name}`);
-        
-        // Try to connect to parent first
         if (node.parent && renderedNodesRef.current.has(node.parent.data.name)) {
           createAnimatedLink(node.parent as D3Node, node as D3Node, g);
-        } 
-        // Otherwise connect directly to root
-        else {
+        } else {
           createAnimatedLink(rootRef.current!, node as D3Node, g);
         }
       }
     });
-    
-  }, (animationSequence.length * 1000 * delayMultiplier + 800) / playbackSpeed);
+  }, (animationSequence.length * baseNodeDelay) + 800);
   
   localTimers.push(finalConnectionTimer);
   
@@ -910,11 +990,11 @@ const startAnimation = (animationSequence: D3Node[], g: d3.Selection<SVGGElement
   const finalTimer = setTimeout(() => {
     setIsAnimating(false);
     setAnimationProgress(100);
-  }, (animationSequence.length * 1000 * delayMultiplier + 2000) / playbackSpeed);
+  }, (animationSequence.length * baseNodeDelay) + 1500);
   
   localTimers.push(finalTimer);
   
-  // Register for cleanup
+  // Register all timers for cleanup
   animationTimers.current = [...animationTimers.current, ...localTimers];
 };
   // Improved animated node creation with better visual effects
@@ -1026,36 +1106,56 @@ const startAnimation = (animationSequence: D3Node[], g: d3.Selection<SVGGElement
   
   // Improved animated link creation with better visual effects
   const createAnimatedLink = (source: D3Node, target: D3Node, g: d3.Selection<SVGGElement, unknown, null, undefined>) => {
-  // Validasi koordinat terlebih dahulu
+  // Validate coordinates
   if (isNaN(source.x) || isNaN(source.y) || isNaN(target.x) || isNaN(target.y)) {
     console.error(`Invalid coordinates for link: ${source.data.name} -> ${target.data.name}`);
-    // Perbaiki koordinat yang tidak valid
     source.x = source.x || 0;
     source.y = source.y || 0;
     target.x = target.x || 0;
     target.y = target.y || 0;
   }
   
-  // Buat pengidentifikasi unik untuk link ini
+  // Create unique identifier for this link
   const linkId = `${source.data.name}_${target.data.name}`;
   
-  // Lewati jika kita sudah membuat link ini
+  // Skip if already rendered
   if (renderedLinksRef.current.has(linkId)) return;
   
-  // Catat bahwa kita telah merender link ini
+  // Track as rendered
   renderedLinksRef.current.add(linkId);
   
-  // Generate path data manually to avoid type errors with d3.linkVertical
-  const linkGenerator = d3.linkVertical();
-  const pathData = linkGenerator({
-    source: [source.x, source.y],
-    target: [target.x, target.y]
-  });
+  // Create an appropriate curved path based on algorithm
+  const createCurvedPath = () => {
+    const sourceX = source.x;
+    const sourceY = source.y;
+    const targetX = target.x;
+    const targetY = target.y;
+    
+    if (algorithm === 'dfs') {
+      // DFS uses more pronounced curves to show path exploration
+      const midX = (sourceX + targetX) / 2;
+      const midY = (sourceY + targetY) / 2;
+      const controlPointOffset = Math.abs(targetY - sourceY) > 100 ? 40 : 20;
+      
+      return `M${sourceX},${sourceY} Q${midX},${midY - controlPointOffset} ${targetX},${targetY}`;
+    } else if (algorithm === 'bidirectional') {
+      // Bidirectional uses symmetric curves
+      return `M${sourceX},${sourceY} C${sourceX},${(sourceY + targetY) / 2} ${targetX},${(sourceY + targetY) / 2} ${targetX},${targetY}`;
+    } else {
+      // BFS uses gentler curves
+      if (Math.abs(targetY - sourceY) > 100) {
+        const midY = (sourceY + targetY) / 2;
+        return `M${sourceX},${sourceY} C${sourceX},${midY} ${targetX},${midY} ${targetX},${targetY}`;
+      } else {
+        return `M${sourceX},${sourceY} Q${(sourceX + targetX)/2},${(sourceY + targetY)/2 - 15} ${targetX},${targetY}`;
+      }
+    }
+  };
   
-  // Buat link animasi yang menggambar dirinya sendiri
+  // Create the animated path
   const path = g.append("path")
     .attr("class", "link")
-    .attr("d", pathData)
+    .attr("d", createCurvedPath())
     .style("fill", "none")
     .style("stroke", "url(#link-gradient)")
     .style("stroke-width", "2px")
@@ -1067,36 +1167,42 @@ const startAnimation = (animationSequence: D3Node[], g: d3.Selection<SVGGElement
       return this.getTotalLength ? this.getTotalLength() : 0; 
     })
     .style("opacity", 0)
-    .attr("data-source", source.data.name)  // Tambahkan atribut data untuk debugging
+    .attr("data-source", source.data.name)
     .attr("data-target", target.data.name);
     
-  // Animasi menggambar link
+  // Draw the link with animation
   path.transition()
     .duration(600 / playbackSpeed)
     .style("opacity", 0.7)
     .style("stroke-dashoffset", 0);
   
-  // TAMBAHAN: Efek visual yang lebih baik
-  const midX = (source.x + target.x) / 2;
-  const midY = (source.y + target.y) / 2;
+  // Add algorithm-appropriate particle effect
+  const particleColor = algorithm === 'dfs' ? "#ffcc00" : 
+                        algorithm === 'bidirectional' ? "#ff88dd" : "#f3c677";
   
-  // Buat animasi partikel di sepanjang path
   const particle = g.append("circle")
     .attr("cx", source.x)
     .attr("cy", source.y)
-    .attr("r", 3)
-    .style("fill", "#f3c677")
-    .style("filter", "drop-shadow(0px 0px 2px rgba(243, 198, 119, 0.8))")
+    .attr("r", algorithm === 'dfs' ? 4 : 3)
+    .style("fill", particleColor)
+    .style("filter", `drop-shadow(0px 0px 3px ${particleColor})`)
     .style("opacity", 0);
     
-  // Gerakkan partikel sepanjang path
+  // Animate particle with algorithm-specific speed
+  const particleSpeed = algorithm === 'dfs' ? 600 / playbackSpeed : 
+                       algorithm === 'bidirectional' ? 400 / playbackSpeed : 
+                       500 / playbackSpeed;
+  
+  const midX = (source.x + target.x) / 2;
+  const midY = (source.y + target.y) / 2;
+  
   particle.transition()
-    .duration(400 / playbackSpeed)
+    .duration(particleSpeed / 2)
     .style("opacity", 1)
     .attr("cx", midX)
     .attr("cy", midY)
     .transition()
-    .duration(400 / playbackSpeed)
+    .duration(particleSpeed / 2)
     .attr("cx", target.x)
     .attr("cy", target.y)
     .style("opacity", 0)
@@ -1401,7 +1507,7 @@ const startAnimation = (animationSequence: D3Node[], g: d3.Selection<SVGGElement
                 className={`px-3 py-1.5 rounded text-sm font-medium flex items-center ${
                   isAnimating 
                     ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
-                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    : 'bg-blue-600 hover:bg-blue-700 text-black'
                 }`}
               >
                 <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

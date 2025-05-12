@@ -38,4 +38,5 @@ type Node struct {
 	Element     string   `json:"element"`
 	ImagePath   string   `json:"image,omitempty"`
 	Ingredients []string `json:"ingredients,omitempty"`
+	Position    int      `json:"position,omitempty"`
 }

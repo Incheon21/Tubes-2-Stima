@@ -2,9 +2,11 @@ package api
 
 import (
 	alg "backend/internal/algorithm"
+	"backend/internal/graph"
 	"backend/model"
 	"backend/utils"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"sort"
@@ -103,7 +105,22 @@ func (h *Handler) HandleBFSTree(w http.ResponseWriter, r *http.Request) {
 	trees := make([]map[string]interface{}, 0, len(paths))
 	uniqueSignatures := make(map[string]bool)
 
+	// First, collect only fully composable paths
+	fullyComposablePaths := make([][]model.Node, 0)
 	for _, path := range paths {
+		if alg.IsFullyComposablePath(path, baseElements, graph.NewElementGraph(h.elements)) {
+			fullyComposablePaths = append(fullyComposablePaths, path)
+		}
+	}
+
+	// If we have fully composable paths, only use those
+	pathsToProcess := fullyComposablePaths
+	if len(pathsToProcess) == 0 {
+		// Fall back to all paths if no fully composable paths found
+		pathsToProcess = paths
+	}
+
+	for _, path := range pathsToProcess {
 		tree := convertPathToTree(path, elementName, h.elements, baseElements)
 
 		ensureIngredientsExpanded(tree, h.elements, baseElements, make(map[string]bool))
@@ -120,6 +137,131 @@ func (h *Handler) HandleBFSTree(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("DEBUG: Generated %d unique trees from %d paths", len(trees), len(paths))
 
+	// Add the code here to filter for makeable trees
+	makeableTrees := make([]map[string]interface{}, 0)
+	for _, tree := range trees {
+		if isTreeFullyMakeable(tree) {
+			makeableTrees = append(makeableTrees, tree)
+		}
+	}
+
+	if len(makeableTrees) == 0 {
+		log.Printf("DEBUG: No makeable trees found, trying again with single path mode")
+
+		// Try with single path mode to get a fully composable path
+		var singlePath [][]model.Node
+		if useMultithreaded {
+			singlePath, visitedCount = alg.MultiThreadedBFS(h.elements, elementName, 1, true)
+		} else {
+			singlePath, visitedCount = alg.BFS(h.elements, elementName, 1, true)
+		}
+
+		if len(singlePath) > 0 {
+			log.Printf("DEBUG: Got a single path with single path mode, converting to tree")
+			tree := convertPathToTree(singlePath[0], elementName, h.elements, baseElements)
+			if tree != nil {
+				ensureIngredientsExpanded(tree, h.elements, baseElements, make(map[string]bool))
+				if isTreeFullyMakeable(tree) {
+					makeableTrees = append(makeableTrees, tree)
+					log.Printf("DEBUG: Successfully found a makeable tree with single path mode")
+				}
+			}
+		}
+
+		// If we still have no makeable trees, we need to try alternative recipes
+		if len(makeableTrees) == 0 {
+			log.Printf("DEBUG: Still no makeable trees, trying alternative recipes")
+
+			// Try creating a tree directly from recipes
+			element := h.elements[elementName]
+			for _, recipe := range element.Recipes {
+				if len(recipe.Ingredients) == 0 {
+					continue
+				}
+
+				// Check if this recipe only uses base elements or fully traceable elements
+				allIngredientsTraceable := true
+				for _, ingName := range recipe.Ingredients {
+					isBase := false
+					for _, base := range baseElements {
+						if ingName == base {
+							isBase = true
+							break
+						}
+					}
+
+					if !isBase {
+						ingElement, exists := h.elements[ingName]
+						if !exists || len(ingElement.Recipes) == 0 ||
+							!alg.IsElementTraceable(ingName, baseElements, graph.NewElementGraph(h.elements)) {
+							allIngredientsTraceable = false
+							break
+						}
+					}
+				}
+
+				if allIngredientsTraceable {
+					// Create a tree with this recipe
+					tree := map[string]interface{}{
+						"name":        elementName,
+						"imagePath":   element.ImagePath,
+						"ingredients": make([]interface{}, 0, len(recipe.Ingredients)),
+					}
+
+					for _, ingName := range recipe.Ingredients {
+						ingElement, exists := h.elements[ingName]
+						if !exists {
+							continue
+						}
+
+						isBase := false
+						for _, base := range baseElements {
+							if ingName == base {
+								isBase = true
+								break
+							}
+						}
+
+						ingTree := map[string]interface{}{
+							"name":          ingName,
+							"imagePath":     ingElement.ImagePath,
+							"isBaseElement": isBase,
+							"ingredients":   []interface{}{},
+						}
+
+						tree["ingredients"] = append(tree["ingredients"].([]interface{}), ingTree)
+					}
+
+					ensureIngredientsExpanded(tree, h.elements, baseElements, make(map[string]bool))
+					if isTreeFullyMakeable(tree) {
+						makeableTrees = append(makeableTrees, tree)
+						log.Printf("DEBUG: Found makeable tree from direct recipe")
+						break
+					}
+				}
+			}
+		}
+
+		// If we still have no makeable trees, we need to create a special case
+		if len(makeableTrees) == 0 {
+			log.Printf("DEBUG: Unable to find any makeable trees for %s", elementName)
+			// Create a tree with special "unmakeable" notice
+			trees = []map[string]interface{}{{
+				"name":        elementName,
+				"imagePath":   h.elements[elementName].ImagePath,
+				"unmakeable":  false, // Don't mark the top element as unmakeable
+				"ingredients": []interface{}{},
+				"notice":      "This element cannot be fully traced to base elements",
+			}}
+		} else {
+			trees = makeableTrees
+		}
+	} else {
+		trees = makeableTrees
+		log.Printf("DEBUG: Using %d makeable trees", len(trees))
+	}
+
+	// Continue with the existing code
 	if len(trees) > count {
 		trees = trees[:count]
 	}
@@ -173,14 +315,14 @@ func countNodesInTree(tree map[string]interface{}) int {
 	return count
 }
 
-func ensureIngredientsExpanded(tree map[string]interface{}, elements map[string]model.Element, baseElements []string, visited map[string]bool) {
+func ensureIngredientsExpanded(tree map[string]interface{}, elements map[string]model.Element, baseElements []string, visited map[string]bool) bool {
 	if tree == nil {
-		return
+		return false
 	}
 
 	elementName, ok := tree["name"].(string)
 	if !ok || visited[elementName] {
-		return
+		return false
 	}
 
 	visited[elementName] = true
@@ -196,53 +338,71 @@ func ensureIngredientsExpanded(tree map[string]interface{}, elements map[string]
 
 	if isBase {
 		tree["isBaseElement"] = true
-		return
+		return true
+	}
+
+	// Check if this element is makeable
+	elemData, exists := elements[elementName]
+	if !exists || len(elemData.Recipes) == 0 {
+		// Mark unmakeable elements appropriately
+		tree["unmakeable"] = true
+		return false
 	}
 
 	ingredients, ok := tree["ingredients"].([]interface{})
+	allIngredientsValid := true
 
-	if (!ok || len(ingredients) == 0) && !isBase {
-		if elemData, exists := elements[elementName]; exists && len(elemData.Recipes) > 0 {
-			recipe := elemData.Recipes[0]
-			newIngredients := make([]interface{}, 0, len(recipe.Ingredients))
+	if !ok || len(ingredients) == 0 {
+		// No ingredients provided, try to get from element data
+		recipe := elemData.Recipes[0]
+		newIngredients := make([]interface{}, 0, len(recipe.Ingredients))
 
-			for _, ingName := range recipe.Ingredients {
-				ingIsBase := false
-				for _, base := range baseElements {
-					if ingName == base {
-						ingIsBase = true
-						break
-					}
+		for _, ingName := range recipe.Ingredients {
+			ingIsBase := false
+			for _, base := range baseElements {
+				if ingName == base {
+					ingIsBase = true
+					break
 				}
-
-				ingData, ingExists := elements[ingName]
-				if !ingExists {
-					continue
-				}
-
-				ingTree := map[string]interface{}{
-					"name":          ingName,
-					"imagePath":     ingData.ImagePath,
-					"isBaseElement": ingIsBase,
-					"ingredients":   []interface{}{},
-				}
-
-				if !ingIsBase {
-					ensureIngredientsExpanded(ingTree, elements, baseElements, visited)
-				}
-
-				newIngredients = append(newIngredients, ingTree)
 			}
 
-			tree["ingredients"] = newIngredients
+			ingData, ingExists := elements[ingName]
+			if !ingExists {
+				allIngredientsValid = false
+				continue
+			}
+
+			ingTree := map[string]interface{}{
+				"name":          ingName,
+				"imagePath":     ingData.ImagePath,
+				"isBaseElement": ingIsBase,
+				"ingredients":   []interface{}{},
+			}
+
+			if !ingIsBase {
+				ingValid := ensureIngredientsExpanded(ingTree, elements, baseElements, visited)
+				if !ingValid {
+					allIngredientsValid = false
+				}
+			}
+
+			newIngredients = append(newIngredients, ingTree)
 		}
+
+		tree["ingredients"] = newIngredients
 	} else {
+		// Expand existing ingredients
 		for _, ing := range ingredients {
 			if ingTree, ok := ing.(map[string]interface{}); ok {
-				ensureIngredientsExpanded(ingTree, elements, baseElements, visited)
+				ingValid := ensureIngredientsExpanded(ingTree, elements, baseElements, visited)
+				if !ingValid {
+					allIngredientsValid = false
+				}
 			}
 		}
 	}
+
+	return allIngredientsValid
 }
 
 func convertPathToTree(path []model.Node, targetElement string, elements map[string]model.Element, baseElements []string) map[string]interface{} {
@@ -263,11 +423,55 @@ func convertPathToTree(path []model.Node, targetElement string, elements map[str
 	}
 
 	nodeMap := make(map[string]*model.Node)
+	positionNodeMap := make(map[string]map[int]*model.Node) // Track nodes by position
+
 	for i := range path {
 		nodeMap[path[i].Element] = &path[i]
+
+		// Also index by position if available
+		if path[i].Position != 0 {
+			elemKey := path[i].Element
+			if positionNodeMap[elemKey] == nil {
+				positionNodeMap[elemKey] = make(map[int]*model.Node)
+			}
+			positionNodeMap[elemKey][path[i].Position] = &path[i]
+		}
 	}
 
 	processedInBranch := make(map[string]bool)
+	// Create element validity cache
+	validityCache := make(map[string]bool)
+
+	// Check if an element is makeable (has valid recipes)
+	isElementMakeable := func(element string) bool {
+		// Base elements are always valid
+		for _, base := range baseElements {
+			if element == base {
+				return true
+			}
+		}
+
+		// Check cache
+		if result, ok := validityCache[element]; ok {
+			return result
+		}
+
+		// Check if this element has valid recipes
+		elemData, exists := elements[element]
+		if !exists {
+			validityCache[element] = false
+			return false
+		}
+
+		if len(elemData.Recipes) == 0 {
+			validityCache[element] = false
+			return false
+		}
+
+		// Element has recipes, considered valid for now
+		validityCache[element] = true
+		return true
+	}
 
 	var buildTree func(element string, depth int) map[string]interface{}
 	buildTree = func(element string, depth int) map[string]interface{} {
@@ -277,6 +481,26 @@ func convertPathToTree(path []model.Node, targetElement string, elements map[str
 				"isCircularReference": true,
 				"ingredients":         []interface{}{},
 			}
+		}
+
+		// Check if we have position-specific nodes for this element
+		if posMap, exists := positionNodeMap[element]; exists && len(posMap) > 0 {
+			// Log that we're using position-specific recipe variant
+			log.Printf("DEBUG: Using position-specific recipe for %s", element)
+		}
+
+		// Check if this element is makeable
+		if !isElementMakeable(element) && !processedInBranch[element] {
+			elemData, exists := elements[element]
+			if exists {
+				return map[string]interface{}{
+					"name":        element,
+					"imagePath":   elemData.ImagePath,
+					"unmakeable":  true,
+					"ingredients": []interface{}{},
+				}
+			}
+			return nil
 		}
 
 		processedInBranch[element] = true
@@ -352,6 +576,15 @@ func convertPathToTree(path []model.Node, targetElement string, elements map[str
 			for _, ingredient := range ingredients {
 				subtree := buildTree(ingredient, depth+1)
 				if subtree != nil {
+					// Add path index information for duplicate elements
+					for i := 0; i < len(ingredients); i++ {
+						if ingredients[i] == ingredient && i > 0 {
+							// Add a path index marker for elements that appear multiple times
+							subtree["pathIndex"] = i
+							subtree["ingredientIndex"] = i
+							break
+						}
+					}
 					treeNode["ingredients"] = append(treeNode["ingredients"].([]interface{}), subtree)
 				}
 			}
@@ -361,6 +594,45 @@ func convertPathToTree(path []model.Node, targetElement string, elements map[str
 	}
 
 	return buildTree(targetElement, 0)
+}
+
+func isTreeFullyMakeable(tree map[string]interface{}) bool {
+	// Check if this node is marked as unmakeable
+	if unmakeable, ok := tree["unmakeable"].(bool); ok && unmakeable {
+		elementName, _ := tree["name"].(string)
+		log.Printf("DEBUG: Tree node %s is unmakeable, rejecting tree", elementName)
+		return false
+	}
+
+	// Check if this is a non-base element with empty ingredients
+	elementName, _ := tree["name"].(string)
+	ingredients, hasIngredients := tree["ingredients"].([]interface{})
+	isBase, hasBase := tree["isBaseElement"].(bool)
+
+	// If it's not a base element and has no ingredients or empty ingredients list, it's unmakeable
+	if (!hasBase || !isBase) && (!hasIngredients || len(ingredients) == 0) {
+		log.Printf("DEBUG: Non-base element %s has no ingredients, marking as unmakeable", elementName)
+		tree["unmakeable"] = true
+		return false
+	}
+
+	// Check all ingredients
+	if hasIngredients {
+		for _, ing := range ingredients {
+			ingredient, ok := ing.(map[string]interface{})
+			if !ok {
+				continue
+			}
+
+			if !isTreeFullyMakeable(ingredient) {
+				// If any ingredient is unmakeable, the whole tree is unmakeable
+				log.Printf("DEBUG: Tree node %s has unmakeable ingredient, rejecting tree", elementName)
+				return false
+			}
+		}
+	}
+
+	return true
 }
 
 func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
@@ -838,10 +1110,28 @@ func getTreeComplexityScore(tree map[string]interface{}) int {
 	return (nonBaseCount * 10) - baseCount + ingredientComplexity
 }
 
+// Update the tree signature generation to capture more structure
+
 func generateDetailedTreeSignature(tree map[string]interface{}) string {
 	var sb strings.Builder
 
 	sb.WriteString(tree["name"].(string))
+
+	// Include position if available
+	if pos, ok := tree["position"].(int); ok && pos > 0 {
+		sb.WriteString(fmt.Sprintf("#%d", pos))
+	}
+
+	// Include path index if available
+	if idx, ok := tree["pathIndex"].(int); ok {
+		sb.WriteString(fmt.Sprintf("@%d", idx))
+	}
+
+	// Include ingredient index if available
+	if idx, ok := tree["ingredientIndex"].(int); ok {
+		sb.WriteString(fmt.Sprintf(":%d", idx))
+	}
+
 	sb.WriteString(":")
 
 	ingredients, ok := tree["ingredients"].([]interface{})
@@ -849,19 +1139,73 @@ func generateDetailedTreeSignature(tree map[string]interface{}) string {
 		return sb.String() + "[]"
 	}
 
+	// If this is Planet or any element that has duplicate ingredients (like Continent+Continent),
+	// preserve the exact order and paths
+	elementName, _ := tree["name"].(string)
+	hasDuplicateIngredients := false
+
+	if len(ingredients) >= 2 {
+		ingNames := make(map[string]int)
+		for _, ing := range ingredients {
+			if ingredient, ok := ing.(map[string]interface{}); ok {
+				ingName, _ := ingredient["name"].(string)
+				ingNames[ingName]++
+				if ingNames[ingName] > 1 {
+					hasDuplicateIngredients = true
+					break
+				}
+			}
+		}
+	}
+
+	preserveOrder := (elementName == "Planet" || elementName == "Continent") ||
+		hasDuplicateIngredients ||
+		tree["preserveOrder"] == true
+
+	// Generate detailed signatures including positions and path details
 	ingredientSignatures := make([]string, 0, len(ingredients))
 
-	for _, ing := range ingredients {
+	for i, ing := range ingredients {
 		ingredient, ok := ing.(map[string]interface{})
 		if !ok {
 			continue
 		}
 
+		// Always preserve order for all ingredients under this element
+		// This ensures Planet's Continents are preserved in their exact order
+		if preserveOrder {
+			ingredient["preserveOrder"] = true
+		}
+
+		// Include position and index in signature
 		ingredientSig := generateDetailedTreeSignature(ingredient)
+
+		// For elements with multiple copies of the same ingredient, include position
+		ingredientName, _ := ingredient["name"].(string)
+		isDuplicate := false
+
+		for j := 0; j < i; j++ {
+			if prevIng, ok := ingredients[j].(map[string]interface{}); ok {
+				prevName, _ := prevIng["name"].(string)
+				if ingredientName == prevName {
+					isDuplicate = true
+					break
+				}
+			}
+		}
+
+		// Include position for duplicates or if we're preserving order
+		if isDuplicate || preserveOrder {
+			ingredientSig = fmt.Sprintf("%d:%s", i, ingredientSig)
+		}
+
 		ingredientSignatures = append(ingredientSignatures, ingredientSig)
 	}
 
-	sort.Strings(ingredientSignatures)
+	// Only sort if they're not position-sensitive and don't contain duplicated elements
+	if !preserveOrder && len(ingredientSignatures) > 1 {
+		sort.Strings(ingredientSignatures)
+	}
 
 	sb.WriteString("[")
 	sb.WriteString(strings.Join(ingredientSignatures, ","))
