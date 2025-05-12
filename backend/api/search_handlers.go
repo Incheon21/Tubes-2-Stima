@@ -1405,8 +1405,8 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 					}
 				}
 
-				// If we have ingredients (from DB or path), create a tree
-				if len(recipe.Ingredients) > 0 {
+				// Check if all ingredients in this recipe are traceable before creating the tree
+				if len(recipe.Ingredients) > 0 && alg.IsRecipeTraceable(recipe.Ingredients, baseElements, graph.NewElementGraph(h.elements)) {
 					tree := map[string]interface{}{
 						"name":        elementName,
 						"imagePath":   element.ImagePath,
@@ -1469,6 +1469,8 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 						log.Printf("DEBUG: Added manual tree for recipe: %s (tree count: %d)", recipeKey, len(trees))
 						treeCreated = true
 					}
+				} else {
+					log.Printf("DEBUG: Skipping untraceable recipe: %s", recipeKey)
 				}
 			}
 
@@ -1479,7 +1481,6 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 			}
 		}
 
-		// If we still don't have enough trees, try to generate more variations
 		if len(trees) < count {
 			log.Printf("DEBUG: Only generated %d/%d trees, trying to create more variations", len(trees), count)
 
@@ -1491,6 +1492,12 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 
 				// Skip empty recipes
 				if len(recipe.Ingredients) == 0 {
+					continue
+				}
+
+				// Check if this recipe is traceable before creating a tree for it
+				if !alg.IsRecipeTraceable(recipe.Ingredients, baseElements, graph.NewElementGraph(h.elements)) {
+					log.Printf("DEBUG: Skipping untraceable recipe for variation: %v", recipe.Ingredients)
 					continue
 				}
 
@@ -1606,18 +1613,40 @@ func ensureIngredientsRandomlyExpanded(tree map[string]interface{}, elements map
 		return
 	}
 
+	// Check if this element is traceable before expanding
+	if !alg.IsElementTraceable(elementName, baseElements, graph.NewElementGraph(elements)) {
+		tree["unmakeable"] = true
+		return
+	}
+
 	ingredients, ok := tree["ingredients"].([]interface{})
 
 	if (!ok || len(ingredients) == 0) && !isBase {
 		elemData, exists := elements[elementName]
 		if exists && len(elemData.Recipes) > 0 {
-			// Use semi-random recipe selection for variety
-			recipeIdx := seed % len(elemData.Recipes)
-			recipe := elemData.Recipes[recipeIdx]
+			// Find a traceable recipe
+			var validRecipe model.ElementRecipe
+			foundValidRecipe := false
 
-			newIngredients := make([]interface{}, 0, len(recipe.Ingredients))
+			// Try up to 3 random recipes
+			for attempt := 0; attempt < 3 && !foundValidRecipe; attempt++ {
+				recipeIdx := (seed + attempt) % len(elemData.Recipes)
+				recipe := elemData.Recipes[recipeIdx]
 
-			for _, ingName := range recipe.Ingredients {
+				if alg.IsRecipeTraceable(recipe.Ingredients, baseElements, graph.NewElementGraph(elements)) {
+					validRecipe = recipe
+					foundValidRecipe = true
+				}
+			}
+
+			if !foundValidRecipe {
+				tree["unmakeable"] = true
+				return
+			}
+
+			newIngredients := make([]interface{}, 0, len(validRecipe.Ingredients))
+
+			for _, ingName := range validRecipe.Ingredients {
 				ingIsBase := false
 				for _, base := range baseElements {
 					if ingName == base {
@@ -1639,7 +1668,12 @@ func ensureIngredientsRandomlyExpanded(tree map[string]interface{}, elements map
 				}
 
 				if !ingIsBase {
-					ensureIngredientsRandomlyExpanded(ingTree, elements, baseElements, visited, seed+1)
+					// Only expand if the ingredient is traceable
+					if alg.IsElementTraceable(ingName, baseElements, graph.NewElementGraph(elements)) {
+						ensureIngredientsRandomlyExpanded(ingTree, elements, baseElements, visited, seed+1)
+					} else {
+						ingTree["unmakeable"] = true
+					}
 				}
 
 				newIngredients = append(newIngredients, ingTree)
@@ -1648,8 +1682,14 @@ func ensureIngredientsRandomlyExpanded(tree map[string]interface{}, elements map
 			tree["ingredients"] = newIngredients
 		}
 	} else {
+		// Expand existing ingredients
 		for i, ing := range ingredients {
 			if ingTree, ok := ing.(map[string]interface{}); ok {
+				ingName, hasName := ingTree["name"].(string)
+				if hasName && !alg.IsElementTraceable(ingName, baseElements, graph.NewElementGraph(elements)) {
+					ingTree["unmakeable"] = true
+					continue
+				}
 				ensureIngredientsRandomlyExpanded(ingTree, elements, baseElements, visited, seed+i)
 			}
 		}

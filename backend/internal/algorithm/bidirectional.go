@@ -750,17 +750,42 @@ func MultiThreadedBidirectionalBFS(elements map[string]model.Element, target str
 	var validRecipes []*graph.Recipe
 	for _, recipe := range recipes {
 		if len(recipe.Ingredients) == 2 {
-			validRecipes = append(validRecipes, recipe)
+			// Check if both ingredients are traceable to base elements
+			allIngredientsTraceable := true
+			for _, ing := range recipe.Ingredients {
+				// Skip checking base elements
+				isBaseElement := false
+				for _, base := range baseElements {
+					if ing == base {
+						isBaseElement = true
+						break
+					}
+				}
+
+				// If not base element, check traceability
+				if !isBaseElement && !IsElementTraceable(ing, baseElements, g) {
+					log.Printf("DEBUG: Recipe ingredient '%s' for target '%s' is not traceable to base elements", ing, target)
+					allIngredientsTraceable = false
+					break
+				}
+			}
+
+			if allIngredientsTraceable {
+				validRecipes = append(validRecipes, recipe)
+			} else {
+				log.Printf("DEBUG: Skipping recipe for '%s' with untraceable ingredients: %v", target, recipe.Ingredients)
+			}
 		}
 	}
 
 	if len(validRecipes) == 0 {
-		log.Printf("DEBUG: No valid recipes with 2 ingredients found for '%s'", target)
+		log.Printf("DEBUG: No valid traceable recipes found for '%s'", target)
 		return [][]model.Node{}, 0
 	}
 
-	log.Printf("DEBUG: Processing %d valid recipes with 2 ingredients", len(validRecipes))
+	log.Printf("DEBUG: Processing %d valid traceable recipes", len(validRecipes))
 
+	// Rest of the function remains the same
 	var totalVisits int
 	var mu sync.Mutex
 	pathChan := make(chan []model.Node, maxResults*len(validRecipes)*2)
@@ -1438,9 +1463,10 @@ func validateIngredientsInPath(path []model.Node) bool {
 	}
 
 	seenElements := make(map[string]bool)
+	baseElements := []string{"Water", "Fire", "Earth", "Air"}
 
 	// Add all base elements to the seen set initially
-	for _, baseElem := range []string{"Water", "Fire", "Earth", "Air"} {
+	for _, baseElem := range baseElements {
 		seenElements[baseElem] = true
 	}
 
@@ -1454,10 +1480,7 @@ func validateIngredientsInPath(path []model.Node) bool {
 		currentNode := path[i]
 
 		// Skip validation for base elements
-		if currentNode.Element == "Water" ||
-			currentNode.Element == "Fire" ||
-			currentNode.Element == "Earth" ||
-			currentNode.Element == "Air" {
+		if utils.IsBaseElementName(currentNode.Element, baseElements) {
 			continue
 		}
 
@@ -1477,9 +1500,15 @@ func validateIngredientsInPath(path []model.Node) bool {
 				return false
 			}
 		} else {
-			// Check all ingredients are available
+			// Check all ingredients are available and traceable
 			for _, ingredient := range currentNode.Ingredients {
 				ingredientAvailable := false
+
+				// Skip base elements - they're always available
+				if utils.IsBaseElementName(ingredient, baseElements) {
+					continue
+				}
+
 				// Check if this ingredient appears earlier in path
 				for j := 0; j < i; j++ {
 					if path[j].Element == ingredient {
@@ -1487,6 +1516,7 @@ func validateIngredientsInPath(path []model.Node) bool {
 						break
 					}
 				}
+
 				if !ingredientAvailable && !seenElements[ingredient] {
 					return false
 				}
@@ -1494,5 +1524,26 @@ func validateIngredientsInPath(path []model.Node) bool {
 		}
 	}
 
+	return true
+}
+
+// Add this function to fix the problem in HandleBidirectionalSearch
+func IsRecipeTraceable(ingredients []string, baseElements []string, g *graph.ElementGraph) bool {
+	// Check if both ingredients are traceable to base elements
+	for _, ing := range ingredients {
+		// Skip checking base elements
+		isBaseElement := false
+		for _, base := range baseElements {
+			if ing == base {
+				isBaseElement = true
+				break
+			}
+		}
+
+		// If not base element, check traceability
+		if !isBaseElement && !IsElementTraceable(ing, baseElements, g) {
+			return false
+		}
+	}
 	return true
 }
