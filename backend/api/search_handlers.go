@@ -752,13 +752,37 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 
 		// Create trees directly from element recipes
 		for recipeIdx, recipe := range element.Recipes {
-			// Skip limiting check if unlimited trees requested
 			if count != -1 && (len(trees) >= count*2 || len(recipeSignatures) >= count*2) {
 				break
 			}
 
 			// Skip recipes with no ingredients
 			if len(recipe.Ingredients) == 0 {
+				continue
+			}
+
+			// Check if all ingredients in this recipe are traceable before creating a tree
+			allIngredientsTraceable := true
+			for _, ingredient := range recipe.Ingredients {
+				// Skip checking base elements
+				isBaseElement := false
+				for _, base := range baseElements {
+					if ingredient == base {
+						isBaseElement = true
+						break
+					}
+				}
+
+				// If not base element, check if it's traceable
+				if !isBaseElement && !alg.IsElementTraceable(ingredient, baseElements, graph.NewElementGraph(h.elements)) {
+					log.Printf("DEBUG: Recipe ingredient '%s' is not traceable to base elements in direct tree generation", ingredient)
+					allIngredientsTraceable = false
+					break
+				}
+			}
+
+			if !allIngredientsTraceable {
+				log.Printf("DEBUG: Skipping untraceable recipe in direct tree generation: %v", recipe.Ingredients)
 				continue
 			}
 
@@ -896,6 +920,31 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 					continue
 				}
 
+				// Check if all ingredients in this recipe are traceable before creating a tree
+				allIngredientsTraceable := true
+				for _, ingredient := range recipe.Ingredients {
+					// Skip checking base elements
+					isBaseElement := false
+					for _, base := range baseElements {
+						if ingredient == base {
+							isBaseElement = true
+							break
+						}
+					}
+
+					// If not base element, check if it's traceable
+					if !isBaseElement && !alg.IsElementTraceable(ingredient, baseElements, graph.NewElementGraph(h.elements)) {
+						log.Printf("DEBUG: Recipe ingredient '%s' is not traceable in variation generation", ingredient)
+						allIngredientsTraceable = false
+						break
+					}
+				}
+
+				if !allIngredientsTraceable {
+					log.Printf("DEBUG: Skipping untraceable recipe in variation generation: %v", recipe.Ingredients)
+					continue
+				}
+
 				// Create base tree
 				tree := map[string]interface{}{
 					"name":        elementName,
@@ -1005,6 +1054,16 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 		trees = selectedTrees
 	}
 
+	traceableTrees := make([]map[string]interface{}, 0)
+	for _, tree := range trees {
+		if isTreeFullyTraceable(tree, baseElements, h.elements) {
+			traceableTrees = append(traceableTrees, tree)
+		} else {
+			log.Printf("DEBUG: Filtering out untraceable tree in final check")
+		}
+	}
+	trees = traceableTrees
+
 	// Calculate total node count
 	totalNodeCount := 0
 	for _, tree := range trees {
@@ -1039,7 +1098,59 @@ func min(a, b int) int {
 	return b
 }
 
-// Helper function to get a signature of just the top-level recipe ingredients
+// Add this function after the isTreeFullyMakeable function
+
+func isTreeFullyTraceable(tree map[string]interface{}, baseElements []string, elements map[string]model.Element) bool {
+	// Check if this node is marked as unmakeable
+	if unmakeable, ok := tree["unmakeable"].(bool); ok && unmakeable {
+		return false
+	}
+
+	// Get element name
+	elementName, ok := tree["name"].(string)
+	if !ok {
+		return false
+	}
+
+	// Base elements are always traceable
+	for _, base := range baseElements {
+		if elementName == base {
+			return true
+		}
+	}
+
+	// Check if the element is explicitly marked untraceable
+	if elementName == "Tree" {
+		return false // Tree is explicitly not traceable to base elements
+	}
+
+	// Check traceability
+	g := graph.NewElementGraph(elements)
+	if !alg.IsElementTraceable(elementName, baseElements, g) {
+		return false
+	}
+
+	// Check all ingredients
+	ingredients, ok := tree["ingredients"].([]interface{})
+	if !ok {
+		// Non-base element without ingredients is not traceable
+		return false
+	}
+
+	for _, ing := range ingredients {
+		ingredient, ok := ing.(map[string]interface{})
+		if !ok {
+			continue
+		}
+
+		if !isTreeFullyTraceable(ingredient, baseElements, elements) {
+			return false
+		}
+	}
+
+	return true
+}
+
 func getTopLevelRecipeSignature(tree map[string]interface{}) string {
 	var sb strings.Builder
 	sb.WriteString(tree["name"].(string))
