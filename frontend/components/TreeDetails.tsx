@@ -3,7 +3,7 @@ import type { TreeData, Algorithm } from '../types/types';
 
 interface TreeDetailsProps {
   tree: TreeData;
-  targetElement?: string; // Make it optional since it's not currently used
+  targetElement?: string; 
   algorithm: Algorithm;
 }
 
@@ -12,7 +12,6 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
   const [loadingImages, setLoadingImages] = useState<boolean>(false);
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   
-  // Calculate recipe complexity
   const calculateComplexity = (node: TreeData): number => {
     if (!node.ingredients?.length) return 0;
     return 1 + Math.max(...node.ingredients.map(calculateComplexity));
@@ -22,25 +21,19 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
   const complexityLabel = complexity <= 1 ? 'Simple' : complexity <= 3 ? 'Moderate' : 'Complex';
   const complexityColor = complexity <= 1 ? 'green' : complexity <= 3 ? 'blue' : 'purple';
 
-  // Use localImage from elements JSON directly
   const resolveImagePath = (node: TreeData): string => {
     if (!node) return '';
     
-    // If it has imagePath, process it
     if (node.imagePath) {
-      // If it's already a path starting with "/images/" or "images/", keep it as is
       if (node.imagePath.startsWith('/images/') || node.imagePath.startsWith('images/')) {
         return node.imagePath;
       }
       
-      // Handle Windows-style paths from elements.json (like "images\\Water_916c0384.png")
       if (node.imagePath.includes('\\images\\')) {
-        // Extract just the filename
         const filename = node.imagePath.split('\\').pop();
         return filename ? `/images/${filename}` : '';
       }
       
-      // If it's just a filename, prepend the images path
       if (!node.imagePath.includes('/') && !node.imagePath.includes('\\')) {
         return `/images/${node.imagePath}`;
       }
@@ -51,14 +44,11 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
     return '';
   };
 
-  // Load images once on component mount
   useEffect(() => {
-    // Reset errors on new tree
     setImageErrors(new Set());
     setLoadingImages(false);
   }, [tree]);
 
-  // Get element color based on name (for fallbacks)
   const getElementColor = (name: string) => {
     const colors = [
       'from-blue-400 to-indigo-500',
@@ -69,17 +59,14 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
       'from-cyan-400 to-sky-500'
     ];
     
-    // Simple hash to consistently pick a color based on element name
     const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return colors[hash % colors.length];
   };
   
-  // Get element initials for fallback display
   const getElementInitials = (name: string) => {
     if (!name) return '??';
     
     if (name.includes(' ')) {
-      // For multi-word names, take first letter of each word (up to 2)
       return name.split(' ')
         .filter(word => word.length > 0)
         .slice(0, 2)
@@ -87,13 +74,10 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
         .join('');
     }
     
-    // For single words, take first 2 letters
     return name.substring(0, 2).toUpperCase();
   };
 
-  // Helper function to get image from cache or create fallback
   const getElementImage = (node: TreeData) => {
-    // If we already know this image failed, show fallback immediately
     if (imageErrors.has(node.name)) {
       return (
         <div className={`w-5 h-5 mr-2 rounded-sm bg-gradient-to-br ${getElementColor(node.name)} flex items-center justify-center text-white text-xs font-medium`}>
@@ -102,7 +86,6 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
       );
     }
     
-    // Try to get image path from either localImage or imagePath
     const imagePath = resolveImagePath(node);
     
     if (imagePath) {
@@ -112,15 +95,12 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
           alt={node.name} 
           className="w-5 h-5 mr-2 object-contain rounded-sm"
           onError={(e) => {
-            // Handle error gracefully with fallback
             const target = e.target as HTMLImageElement;
             target.onerror = null;
             target.style.display = 'none';
             
-            // Add to known errors
             setImageErrors(prev => new Set(prev).add(node.name));
             
-            // Insert fallback directly
             const parent = target.parentElement;
             if (parent) {
               const fallback = document.createElement('div');
@@ -132,7 +112,6 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
         />
       );
     } else {
-      // No image path at all, use fallback directly
       return (
         <div className={`w-5 h-5 mr-2 rounded-sm bg-gradient-to-br ${getElementColor(node.name)} flex items-center justify-center text-white text-xs font-medium`}>
           {getElementInitials(node.name)}
@@ -141,7 +120,6 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
     }
   };
 
-  // Special function for larger element icon in header
   const getLargeElementImage = (node: TreeData) => {
     if (imageErrors.has(node.name)) {
       return (
@@ -151,7 +129,6 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
       );
     }
     
-    // Try to get image path from either localImage or imagePath
     const imagePath = resolveImagePath(node);
     
     if (imagePath) {
@@ -165,7 +142,6 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
             target.onerror = null;
             setImageErrors(prev => new Set(prev).add(node.name));
             
-            // Replace with fallback
             const parent = target.parentElement;
             if (parent) {
               target.style.display = 'none';
@@ -243,7 +219,6 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
       </div>
       
       <div className="bg-gradient-to-br from-gray-50 to-blue-50 p-5 rounded-xl border border-blue-100 shadow-sm">
-        {/* Element Header with enhanced image display */}
         <div className="flex items-center space-x-4 mb-6 pb-4 border-b border-blue-100">
           <div className="bg-white p-3 rounded-full shadow-sm flex items-center justify-center">
             {getLargeElementImage(tree)}
@@ -267,8 +242,6 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
             </p>
           </div>
         </div>
-        
-        {/* Recipe Visualization with enhanced image handling */}
         {showFullTree ? (
           tree.ingredients?.length > 0 ? (
             <div className="space-y-4">
@@ -306,8 +279,6 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
           </div>
         )}
       </div>
-      
-      {/* Algorithm-specific Path Summary */}
       {(algorithm === 'bfs' || algorithm === 'dfs') && tree.ingredients?.length > 0 && showFullTree && (
         <div className="mt-6 animate-fadeIn">
           <h4 className="text-gray-800 font-semibold mb-3 flex items-center">
@@ -330,7 +301,6 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
         </div>
       )}
 
-      {/* Ingredient Statistics Section */}
       {tree.ingredients?.length > 0 && showFullTree && (
         <div className="mt-6 bg-gray-50 rounded-xl border border-gray-200 p-5 animate-fadeIn">
           <h4 className="text-gray-800 font-semibold mb-3 flex items-center">
@@ -364,11 +334,9 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
     </div>
   );
   
-  // Helper function to render a recipe tree with enhanced image handling
   function renderRecipeTree(node: TreeData, depth: number) {
     if (!node) return null;
     
-    // Different colors based on node type
     const getBgColor = () => {
       if (node.isBaseElement) return "bg-yellow-50 border-yellow-200";
       if (depth === 0) return "bg-green-50 border-green-200"; 
@@ -376,7 +344,6 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
       return "bg-blue-50 border-blue-200";
     };
     
-    // Different icons based on node type
     const getNodeIcon = () => {
       if (node.isBaseElement) {
         return (
@@ -443,29 +410,23 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
     );
   }
   
-  // Helper function to render a short path with improved visuals and image handling
   function renderShortPath(tree: TreeData, algorithm: Algorithm) {
     const baseElements = ['Water', 'Fire', 'Earth', 'Air'];
     const findBaseElements = (node: TreeData): TreeData[] => {
-      // Guard against null/undefined nodes
       if (!node) return [];
       
-      // Check base element or no ingredients
       if (baseElements.includes(node.name) || !node.ingredients || node.ingredients.length === 0) {
         return [node];
       }
       
-      // Apply different traversal strategies based on algorithm
       let bases: TreeData[] = [];
       if (algorithm === 'dfs') {
-        // Depth-first approach
         if (Array.isArray(node.ingredients)) {
           for (const ingredient of node.ingredients) {
             bases = [...bases, ...findBaseElements(ingredient)];
           }
         }
       } else {
-        // BFS or other algorithms
         if (Array.isArray(node.ingredients)) {
           for (const ingredient of [...node.ingredients].reverse()) {
             bases = [...bases, ...findBaseElements(ingredient)];
@@ -476,7 +437,6 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
     };
     
     const findKeyIntermediates = (node: TreeData): TreeData[] => {
-      // Guard against null/undefined nodes
       if (!node || !node.ingredients) return [];
       
       if (node.ingredients.length === 0) {
@@ -488,7 +448,6 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
         intermediates.push(node);
       }
       
-      // Safely iterate with null checks
       if (Array.isArray(node.ingredients)) {
         for (const ingredient of node.ingredients) {
           intermediates = [...intermediates, ...findKeyIntermediates(ingredient)];
@@ -500,10 +459,8 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
     const baseElementNodes = findBaseElements(tree);
     const intermediateNodes = findKeyIntermediates(tree);
     
-    // Create path visualization with animations and better image handling
     return (
       <>
-        {/* Base elements */}
         {baseElementNodes.map((node, i) => (
           <React.Fragment key={`base-${i}`}>
             <div className="bg-yellow-50 border border-yellow-200 px-3 py-2 rounded-lg flex items-center shadow-sm hover:bg-yellow-100 transition duration-300 animate-fadeIn" style={{animationDelay: `${i * 100}ms`}}>
@@ -516,7 +473,6 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
           </React.Fragment>
         ))}
         
-        {/* Arrow */}
         {baseElementNodes.length > 0 && (intermediateNodes.length > 0 || tree) && (
           <div className="flex items-center mx-3 animate-fadeIn" style={{animationDelay: `${baseElementNodes.length * 100}ms`}}>
             <svg className="w-6 h-6 text-blue-500 animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -525,7 +481,6 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
           </div>
         )}
         
-        {/* Intermediates */}
         {intermediateNodes.slice(0, 3).map((node, i) => (
           <React.Fragment key={`inter-${i}`}>
             <div className="bg-blue-50 border border-blue-200 px-3 py-2 rounded-lg flex items-center shadow-sm hover:bg-blue-100 transition duration-300 animate-fadeIn" style={{animationDelay: `${baseElementNodes.length * 100 + 100 + i * 100}ms`}}>
@@ -542,14 +497,12 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
           </React.Fragment>
         ))}
         
-        {/* Ellipsis for long paths */}
         {intermediateNodes.length > 3 && (
           <div className="flex items-center mx-3 px-3 py-1 bg-gray-100 rounded-lg text-gray-700 font-medium animate-fadeIn" style={{animationDelay: `${baseElementNodes.length * 100 + 400}ms`}}>
             <span className="animate-bounce">•••</span>
           </div>
         )}
         
-        {/* Target element */}
         {tree && (
           <>
             <div className="flex items-center mx-3 animate-fadeIn" style={{animationDelay: `${baseElementNodes.length * 100 + 500}ms`}}>
@@ -568,9 +521,7 @@ const TreeDetails: React.FC<TreeDetailsProps> = ({ tree, algorithm }) => {
   }
 };
 
-// Helper function to calculate and render recipe statistics
 const renderRecipeStats = (tree: TreeData) => {
-  // Count total ingredients used
   const countUniqueIngredients = (node: TreeData, uniqueIngredients = new Set<string>()): Set<string> => {
     if (node.ingredients?.length > 0) {
       node.ingredients.forEach(ingredient => {
@@ -585,7 +536,6 @@ const renderRecipeStats = (tree: TreeData) => {
   const baseElements = ['Water', 'Fire', 'Earth', 'Air'];
   const baseElementsUsed = new Set([...uniqueIngredients].filter(name => baseElements.includes(name)));
   
-  // Count steps
   const countSteps = (node: TreeData): number => {
     if (!node.ingredients?.length) return 0;
     return 1 + node.ingredients.reduce((sum, ingredient) => sum + countSteps(ingredient), 0);
@@ -593,7 +543,6 @@ const renderRecipeStats = (tree: TreeData) => {
   
   const steps = countSteps(tree);
   
-  // Count recipe depth/complexity
   const countDepth = (node: TreeData): number => {
     if (!node.ingredients?.length) return 0;
     return 1 + Math.max(...node.ingredients.map(countDepth));

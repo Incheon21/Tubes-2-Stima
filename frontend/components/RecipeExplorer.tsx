@@ -5,7 +5,6 @@ import ControlPanel from './ControlPanel';
 import VisualizationPanel from './VisualizationPanel';
 import type { Algorithm, TreeType, ElementData, TreeData, PathNode } from '../types/types';
 
-// Define a more specific type for API responses
 interface RecipeResult {
   paths?: PathNode[][];
   trees?: TreeData[];
@@ -102,11 +101,8 @@ const RecipeExplorer = () => {
     }
   };
 
-  // Handle visualization results
   const handleResults = (result: RecipeResult) => {
-    // Paths format (BFS or DFS)
     if (result.paths && Array.isArray(result.paths)) {
-      // Convert paths to trees for visualization
       const trees = result.paths.map((path: PathNode[]) => convertPathToTree(path, target));
       setCurrentTrees(trees);
       setStats(prev => ({ ...prev, treesFound: trees.length }));
@@ -117,7 +113,6 @@ const RecipeExplorer = () => {
         toast.error(`No paths found for ${target}`);
       }
     } 
-    // Trees format
     else if (result.trees && Array.isArray(result.trees)) {
       setCurrentTrees(result.trees);
       setStats(prev => ({ ...prev, treesFound: result.trees?.length || 0 }));
@@ -128,13 +123,11 @@ const RecipeExplorer = () => {
         toast.error('No recipe trees found');
       }
     }
-    // Single tree format
     else if (result.name || (result.Element || result.element)) {
       setCurrentTrees([result as unknown as TreeData]);
       setStats(prev => ({ ...prev, treesFound: 1 }));
       setCurrentTreeIndex(0);
     }
-    // Empty or invalid results
     else {
       toast.error(`No recipe data found for ${target}`);
       setCurrentTrees([]);
@@ -142,9 +135,7 @@ const RecipeExplorer = () => {
     }
   };
 
-  // Convert path to tree
   const convertPathToTree = (path: PathNode[], targetElement: string): TreeData => {
-    // Normalize property names for consistency
     const normalizedPath = path.map(node => ({
       Element: node.element || node.Element || '',
       ImagePath: node.imagePath || node.ImagePath,
@@ -155,17 +146,14 @@ const RecipeExplorer = () => {
       return { name: targetElement, ingredients: [] };
     }
     
-    // Helper to track visited elements to detect circular references
     const visitedInPath = new Set<string>();
     
     function buildTree(currentElement: string, remainingPath: {Element: string, ImagePath?: string, Ingredients: string[]}[]): TreeData {
-      // Find the node for current element
       const currentNode = remainingPath.find(node => node.Element === currentElement);
       if (!currentNode) {
         return { name: currentElement, ingredients: [] };
       }
       
-      // Check for circular reference
       if (visitedInPath.has(currentElement)) {
         return { 
           name: currentElement,
@@ -175,10 +163,8 @@ const RecipeExplorer = () => {
         };
       }
       
-      // Add to visited set for circular reference detection
       visitedInPath.add(currentElement);
       
-      // Create the node for this element
       const node: TreeData = {
         name: currentElement,
         imagePath: currentNode.ImagePath,
@@ -186,7 +172,6 @@ const RecipeExplorer = () => {
         ingredients: []
       };
       
-      // Process ingredients if any
       if (currentNode.Ingredients && currentNode.Ingredients.length > 0) {
         currentNode.Ingredients.forEach((ingredient: string) => {
           const ingredientTree = buildTree(ingredient, remainingPath);
@@ -194,21 +179,17 @@ const RecipeExplorer = () => {
         });
       }
       
-      // Remove from visited set when backtracking
       visitedInPath.delete(currentElement);
       
       return node;
     }
     
-    // Find the target element in the path
     const targetNode = normalizedPath.find(node => node.Element === targetElement) || 
                      normalizedPath[normalizedPath.length - 1];
     
-    // Build tree starting from target element
     return buildTree(targetNode.Element || targetElement, normalizedPath);
   };
 
-  // Clear visualization
   const clearVisualization = () => {
     setCurrentTrees([]);
     setCurrentTreeIndex(0);
@@ -220,7 +201,6 @@ const RecipeExplorer = () => {
     });
   };
 
-  // Load elements on mount
   useEffect(() => {
     loadElements();
   }, []);

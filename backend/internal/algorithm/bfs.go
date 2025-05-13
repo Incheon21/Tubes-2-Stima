@@ -33,8 +33,8 @@ func BFS(elements map[string]model.Element, target string, maxResults int, singl
 	}
 
 	visitedCount := 0
-	var completePaths [][]model.Node   // Paths where all elements can be traced to base elements
-	var incompletePaths [][]model.Node // Paths with unmakeable elements
+	var completePaths [][]model.Node
+	var incompletePaths [][]model.Node
 
 	log.Printf("DEBUG: Target %s has %d recipes to explore", target, len(targetNode.RecipesToMakeThisElement))
 
@@ -45,10 +45,9 @@ func BFS(elements map[string]model.Element, target string, maxResults int, singl
 
 	uniquePaths := make(map[string]bool)
 
-	// Try all recipes for the target element
 	for _, recipe := range targetNode.RecipesToMakeThisElement {
 		if len(recipe.Ingredients) == 0 {
-			continue // Skip recipes with no ingredients
+			continue
 		}
 
 		startPath := []*model.Node{
@@ -75,11 +74,9 @@ func BFS(elements map[string]model.Element, target string, maxResults int, singl
 			hasUnmakeableElement := false
 			ingredientNodes := make([]*model.Node, 0, len(currentRecipe.Ingredients))
 
-			// Check if all ingredients are either base elements or have recipes
 			for _, ingredient := range currentRecipe.Ingredients {
 				ingredientNode := g.Nodes[ingredient]
 				if ingredientNode == nil {
-					// Ingredient not found in database
 					hasUnmakeableElement = true
 					continue
 				}
@@ -98,18 +95,15 @@ func BFS(elements map[string]model.Element, target string, maxResults int, singl
 					}
 				}
 
-				// If not a base element and has no recipes, it's unmakeable
 				if !isBase && len(ingredientNode.RecipesToMakeThisElement) == 0 {
 					hasUnmakeableElement = true
 				}
 
-				// If not a base element and has recipes, not all ingredients are base elements
 				if !isBase && len(ingredientNode.RecipesToMakeThisElement) > 0 {
 					allIngredientsAreBaseElements = false
 				}
 			}
 
-			// Skip if we're looking for a single path and found unmakeable elements
 			if singlePath && hasUnmakeableElement {
 				continue
 			}
@@ -118,7 +112,6 @@ func BFS(elements map[string]model.Element, target string, maxResults int, singl
 			copy(newPath, currentPath)
 			newPath = append(newPath, ingredientNodes...)
 
-			// All ingredients are base elements or we've reached a complete branch
 			if allIngredientsAreBaseElements {
 				finalPath := make([]model.Node, len(newPath))
 				for i, node := range newPath {
@@ -134,16 +127,13 @@ func BFS(elements map[string]model.Element, target string, maxResults int, singl
 					uniquePaths[pathSignature] = true
 
 					if !hasUnmakeableElement {
-						// This is a complete path where all elements can be traced to base elements
 						completePaths = append(completePaths, finalPath)
 						log.Printf("DEBUG: Found complete path with %d steps", len(finalPath))
 
 						if singlePath {
-							// If we only need one complete path, return it immediately
 							return [][]model.Node{finalPath}, visitedCount
 						}
 					} else if !singlePath {
-						// Add to incomplete paths if we're collecting multiple paths
 						incompletePaths = append(incompletePaths, finalPath)
 						log.Printf("DEBUG: Found incomplete path with %d steps (has unmakeable elements)", len(finalPath))
 					}
@@ -152,7 +142,6 @@ func BFS(elements map[string]model.Element, target string, maxResults int, singl
 				continue
 			}
 
-			// Continue exploring non-base ingredients
 			for _, ingredient := range currentRecipe.Ingredients {
 				isBase := false
 				for _, base := range baseElements {
@@ -168,7 +157,6 @@ func BFS(elements map[string]model.Element, target string, maxResults int, singl
 
 				ingredientNode := g.Nodes[ingredient]
 				if ingredientNode == nil || len(ingredientNode.RecipesToMakeThisElement) == 0 {
-					// Skip unmakeable elements
 					continue
 				}
 
@@ -179,11 +167,9 @@ func BFS(elements map[string]model.Element, target string, maxResults int, singl
 						continue
 					}
 
-					// Create new path for this recipe branch
 					ingredientPath := make([]*model.Node, len(newPath))
 					copy(ingredientPath, newPath)
 
-					// Add to queue
 					queue = append(queue, queueItem{
 						recipe: subRecipe,
 						path:   ingredientPath,
@@ -195,11 +181,9 @@ func BFS(elements map[string]model.Element, target string, maxResults int, singl
 		}
 	}
 
-	// Prefer complete paths over incomplete ones
 	var results [][]model.Node
 
 	if len(completePaths) > 0 {
-		// Add this new block right here, before assigning completePaths to results
 
 		if singlePath && len(completePaths) > 0 {
 			var bestPath []model.Node
@@ -238,23 +222,21 @@ func BFS(elements map[string]model.Element, target string, maxResults int, singl
 	return results, visitedCount
 }
 
-// Sekarang fungsi MultiThreadedBFS yang perlu diganti
 func MultiThreadedBFS(elements map[string]model.Element, target string, maxResults int, singlePath bool) ([][]model.Node, int) {
 	g := graph.NewElementGraph(elements)
 	targetNode, ok := g.Nodes[target]
 	if !ok {
 		log.Printf("DEBUG: Target element %s not found in database", target)
-		return nil, 0
+		return nil, 1
 	}
 
-	// Check if it's a base element
 	baseElements := []string{"Water", "Fire", "Earth", "Air"}
 	for _, base := range baseElements {
 		if target == base {
 			log.Printf("DEBUG: Target %s is a base element, returning simple result", target)
 			return [][]model.Node{{
 				{Element: target, ImagePath: targetNode.ImagePath},
-			}}, 0
+			}}, 1
 		}
 	}
 
@@ -272,20 +254,18 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 
 	log.Printf("DEBUG: Starting MultiThreaded BFS for target: %s with %d recipes", target, len(validRecipes))
 
-	// Log target's recipes untuk debug
 	for i, recipe := range validRecipes {
 		log.Printf("DEBUG: Target %s Recipe %d: %v", target, i, recipe.Ingredients)
 	}
 
 	resultChan := make(chan []model.Node, maxResults*10)
-	completePathChan := make(chan []model.Node, maxResults*5) // Channel for complete paths
-	stopChan := make(chan struct{})                           // Channel to signal early termination
+	completePathChan := make(chan []model.Node, maxResults*5)
+	stopChan := make(chan struct{})
 
 	var mu sync.Mutex
 	var wg sync.WaitGroup
 	visitedCount := 0
 
-	// Process each recipe in a separate goroutine
 	for i, recipe := range validRecipes {
 		wg.Add(1)
 		go func(rcp *graph.Recipe, recipeIdx int) {
@@ -295,7 +275,7 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 			type queueItem struct {
 				path       []model.Node
 				recipe     *graph.Recipe
-				deadEndIng map[string]bool // Track ingredients that lead to dead ends
+				deadEndIng map[string]bool
 			}
 
 			localVisited := 0
@@ -309,36 +289,29 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 				deadEndIng: make(map[string]bool),
 			}}
 
-			// Track visited paths to avoid cycles
 			visited := make(map[string]bool)
 
 			for len(queue) > 0 {
-				// Check if we should stop processing
 				select {
 				case <-stopChan:
 					return
 				default:
-					// Continue processing
 				}
 
 				item := queue[0]
 				queue = queue[1:]
 				localVisited++
 
-				// Check if all ingredients in this recipe are base elements or traceable
 				allBase := true
 				hasDeadEnd := false
 				newPath := item.path
 				pathSignature := GeneratePathSignature(newPath)
 
-				// Build nodes for the ingredients
 				nextNodes := make([]model.Node, 0, len(item.recipe.Ingredients))
 
-				// Check ingredients
 				for _, ing := range item.recipe.Ingredients {
 					ingNode := g.Nodes[ing]
 					if ingNode == nil {
-						// Ingredient not found in database
 						hasDeadEnd = true
 						item.deadEndIng[ing] = true
 						continue
@@ -352,67 +325,50 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 						}
 					}
 
-					// Create a node for this ingredient
 					nextNodes = append(nextNodes, model.Node{
 						Element:   ing,
 						ImagePath: ingNode.ImagePath,
-						// We'll populate ingredients later if needed
 					})
 
-					// If not a base element and cannot be traced further, it's a dead end
 					if !isBase && len(ingNode.RecipesToMakeThisElement) == 0 {
 						hasDeadEnd = true
 						item.deadEndIng[ing] = true
 					}
 
-					// If not a base element and can be traced, not all ingredients are base elements
 					if !isBase && len(ingNode.RecipesToMakeThisElement) > 0 {
 						allBase = false
 					}
 				}
 
-				// Skip paths that have dead ends when looking for a single complete path
 				if singlePath && hasDeadEnd {
 					continue
 				}
 
-				// Create a new path with the current ingredients
-				for i := range nextNodes {
-					newPath = append(newPath, nextNodes[i])
-				}
+				newPath = append(newPath, nextNodes[i])
 
 				if allBase || (hasDeadEnd && !singlePath) {
-					// This is a complete path (all ingredients are base elements)
-					// or an acceptable incomplete path when not in single path mode
 
-					// Reverse the path to start from base elements
 					reversedPath := make([]model.Node, len(newPath))
 					for i, j := 0, len(newPath)-1; i < len(newPath); i, j = i+1, j-1 {
 						reversedPath[i] = newPath[j]
 					}
 
 					mu.Lock()
-					// Skip path signature since we're checking for duplicates in the collecting phase
 					log.Printf("DEBUG: Found complete path in goroutine %d: %s", recipeIdx, pathToString(reversedPath))
 
 					if allBase && !hasDeadEnd {
-						// Prioritize complete paths
 						completePathChan <- reversedPath
 						if singlePath {
-							// Early termination for single path mode with a complete path
-							close(stopChan) // Signal to stop processing
+							close(stopChan)
 						}
 					} else if !singlePath {
-						// Send incomplete paths to regular channel if not in single path mode
 						resultChan <- reversedPath
 					}
 					mu.Unlock()
 					continue
 				}
 
-				// Continue exploration - process ingredients that need further tracing
 				for idx, ing := range item.recipe.Ingredients {
-					// Skip base elements and ingredients already known to be dead ends
 					isBase := false
 					for _, base := range baseElements {
 						if ing == base {
@@ -430,18 +386,14 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 						continue
 					}
 
-					// Try different recipes for this ingredient with varied selection strategy
 					ingRecipes := ingNode.RecipesToMakeThisElement
 
-					// No recipes to explore
 					if len(ingRecipes) == 0 {
 						continue
 					}
 
 					log.Printf("DEBUG: Exploring ingredient %s with %d possible recipes", ing, len(ingRecipes))
 
-					// Khusus untuk elemen yang muncul beberapa kali dalam resep
-					// Hitung berapa kali elemen ini muncul dalam resep saat ini
 					ingCount := 0
 					for _, recipeIng := range item.recipe.Ingredients {
 						if recipeIng == ing {
@@ -449,15 +401,12 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 						}
 					}
 
-					// Jika elemen muncul beberapa kali dan punya beberapa cara pembuatan
-					// kita perlu mencoba lebih banyak variasi resep
 					if ingCount > 1 && len(ingNode.RecipesToMakeThisElement) > 1 {
 						log.Printf("DEBUG: Special case: %s appears %d times in recipe and has %d ways to make it",
 							ing, ingCount, len(ingNode.RecipesToMakeThisElement))
 
-						// Coba semua kombinasi resep untuk setiap kemunculan
 						for i := 0; i < len(ingRecipes); i++ {
-							recipeIdx := i // Gunakan semua resep langsung
+							recipeIdx := i
 							ingRecipe := ingRecipes[recipeIdx]
 
 							if len(ingRecipe.Ingredients) == 0 {
@@ -467,31 +416,26 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 							log.Printf("DEBUG: Trying ingredient %s recipe permutation %d: %v",
 								ing, recipeIdx, ingRecipe.Ingredients)
 
-							// Create a copy of the path up to the current node
 							basePath := make([]model.Node, len(item.path))
 							copy(basePath, item.path)
 
-							// Add this specific ingredient node with its recipe
 							nextNode := model.Node{
 								Element:     ing,
 								ImagePath:   ingNode.ImagePath,
 								Ingredients: ingRecipe.Ingredients,
 							}
 
-							// Create new path for this recipe branch
 							newItem := queueItem{
 								path:       append(basePath, nextNode),
 								recipe:     ingRecipe,
 								deadEndIng: make(map[string]bool),
 							}
 
-							// Copy over known dead ends
 							for k, v := range item.deadEndIng {
 								newItem.deadEndIng[k] = v
 							}
 
-							// Use a unique signature for each position to explore all options
-							positionSig := strconv.Itoa(idx) // Include position in signature
+							positionSig := strconv.Itoa(idx)
 							newPathSig := ing + ":" + pathSignature + ":" + strconv.Itoa(i) + ":" + positionSig
 
 							if !visited[newPathSig] {
@@ -502,10 +446,8 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 							}
 						}
 					} else {
-						// Kasus normal - gunakan permutation seed
 						permutationSeed := (recipeIdx*31 + localVisited*17 + idx*7) % max(1, len(ingRecipes))
 
-						// Explore recipes with a permuted order
 						for i := 0; i < len(ingRecipes); i++ {
 							recipeIdx := (permutationSeed + i) % len(ingRecipes)
 							ingRecipe := ingRecipes[recipeIdx]
@@ -514,30 +456,25 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 								continue
 							}
 
-							// Create a copy of the path up to the current node
 							basePath := make([]model.Node, len(item.path))
 							copy(basePath, item.path)
 
-							// Add this specific ingredient node with its recipe
 							nextNode := model.Node{
 								Element:     ing,
 								ImagePath:   ingNode.ImagePath,
 								Ingredients: ingRecipe.Ingredients,
 							}
 
-							// Create new path for this recipe branch
 							newItem := queueItem{
 								path:       append(basePath, nextNode),
 								recipe:     ingRecipe,
 								deadEndIng: make(map[string]bool),
 							}
 
-							// Copy over known dead ends
 							for k, v := range item.deadEndIng {
 								newItem.deadEndIng[k] = v
 							}
 
-							// Check for cycles to avoid infinite recursion
 							newPathSig := ing + ":" + pathSignature + ":" + strconv.Itoa(recipeIdx)
 							if !visited[newPathSig] {
 								visited[newPathSig] = true
@@ -554,7 +491,6 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 		}(recipe, i)
 	}
 
-	// Wait for all goroutines to finish or until we get early termination signal
 	done := make(chan struct{})
 	go func() {
 		wg.Wait()
@@ -563,11 +499,9 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 		close(resultChan)
 	}()
 
-	// Collect results, prioritizing complete paths
 	results := [][]model.Node{}
 	seenSignatures := map[string]bool{}
 
-	// First, collect all complete paths
 	completePaths := [][]model.Node{}
 collectLoop:
 	for {
@@ -581,7 +515,6 @@ collectLoop:
 				seenSignatures[sig] = true
 				completePaths = append(completePaths, path)
 
-				// If we have enough results and not in single path mode, break
 				if !singlePath && maxResults > 0 && len(completePaths) >= maxResults {
 					break collectLoop
 				}
@@ -593,10 +526,8 @@ collectLoop:
 		}
 	}
 
-	// Log info untuk debugging
 	log.Printf("DEBUG: Initial collection found %d paths for %s", len(completePaths), target)
 
-	// Extract more diverse paths by comparing recipe signatures
 	uniqueRecipeSignatures := make(map[string]bool)
 	diversePaths := make([][]model.Node, 0)
 
@@ -612,14 +543,11 @@ collectLoop:
 
 	log.Printf("DEBUG: Found %d unique recipe combinations after filtering", len(diversePaths))
 
-	// If we have diverse paths, use them
 	if len(diversePaths) > 0 {
 		completePaths = diversePaths
 	}
 
-	// For single path mode, find the best fully composable path
 	if singlePath && len(completePaths) > 0 {
-		// Filter for fully composable paths first
 		var composablePaths [][]model.Node
 		log.Printf("DEBUG: Checking %d complete paths for full composability", len(completePaths))
 
@@ -633,12 +561,10 @@ collectLoop:
 		}
 
 		if len(composablePaths) > 0 {
-			// Sort by length for consistency
 			sort.Slice(composablePaths, func(i, j int) bool {
 				return len(composablePaths[i]) < len(composablePaths[j])
 			})
 
-			// Get the middle path for more interesting trees
 			middleIndex := len(composablePaths) / 2
 			selectedPath := composablePaths[middleIndex]
 
@@ -648,12 +574,10 @@ collectLoop:
 			return [][]model.Node{selectedPath}, visitedCount
 		}
 
-		// If no fully composable paths, try to find a best effort path
 		log.Printf("DEBUG: No fully composable paths found, trying to find a best effort path")
 		var bestPath []model.Node
 		var bestScore int = -1
 
-		// Score each path based on how many ingredients can be traced back to base elements
 		for _, path := range completePaths {
 			score := scorePathTraceability(path, baseElements, g)
 			if score > bestScore {
@@ -671,18 +595,15 @@ collectLoop:
 		return [][]model.Node{completePaths[0]}, visitedCount
 	}
 
-	// For multiple results, prioritize fully composable paths
 	if !singlePath {
-		// Sort paths: fully composable first, then by length
 		sort.Slice(completePaths, func(i, j int) bool {
 			iComposable := IsFullyComposablePath(completePaths[i], baseElements, g)
 			jComposable := IsFullyComposablePath(completePaths[j], baseElements, g)
 
 			if iComposable != jComposable {
-				return iComposable // True if i is composable and j is not
+				return iComposable
 			}
 
-			// If both have same composability, shorter path wins
 			return len(completePaths[i]) < len(completePaths[j])
 		})
 
@@ -692,7 +613,6 @@ collectLoop:
 		}
 	}
 
-	// If we need more results and aren't in single path mode, collect from regular channel
 	if !singlePath && (maxResults == 0 || len(results) < maxResults) {
 		remainingLimit := 0
 		if maxResults > 0 {
@@ -717,7 +637,6 @@ collectLoop:
 			case <-done:
 				break incompleteLoop
 			default:
-				// If there are no more immediate paths but goroutines are still running
 				if len(results) > 0 {
 					break incompleteLoop
 				}
@@ -725,22 +644,39 @@ collectLoop:
 		}
 	}
 
-	// Clean up channels if needed
 	select {
 	case <-done:
-		// All goroutines finished normally
 	default:
-		// Signal all goroutines to stop if they haven't already
 		select {
 		case <-stopChan:
-			// Already closed
 		default:
 			close(stopChan)
 		}
-		<-done // Wait for all goroutines to actually finish
+		<-done
 	}
 
-	log.Printf("DEBUG: MultiThreaded BFS completed - found %d paths after visiting %d nodes", len(results), visitedCount)
+	if visitedCount == 0 && len(results) > 0 {
+		visitCount := 0
+		for _, path := range results {
+			visitCount += len(path)
+
+			baseElements := []string{"Water", "Fire", "Earth", "Air"}
+			for _, node := range path {
+				isBase := false
+				for _, base := range baseElements {
+					if node.Element == base {
+						isBase = true
+						break
+					}
+				}
+				if !isBase && len(node.Ingredients) > 0 {
+					visitCount += len(node.Ingredients)
+				}
+			}
+		}
+		visitedCount = visitCount
+		log.Printf("DEBUG: Corrected visitedCount from 0 to %d based on found paths", visitedCount)
+	}
 	return results, visitedCount
 }
 
@@ -757,31 +693,10 @@ func pathToString(path []model.Node) string {
 	return strings.Join(elements, " -> ")
 }
 
-// Tambahkan fungsi baru untuk debug yang lebih detail
-func detailedPathToString(path []model.Node) string {
-	var sb strings.Builder
-	sb.WriteString("Path details:\n")
-
-	for i, node := range path {
-		sb.WriteString(fmt.Sprintf("  [%d] %s", i, node.Element))
-
-		if len(node.Ingredients) > 0 {
-			sb.WriteString(" made from: ")
-			sb.WriteString(strings.Join(node.Ingredients, " + "))
-		}
-
-		sb.WriteString("\n")
-	}
-
-	return sb.String()
-}
-
-// Tambahkan fungsi untuk menghasilkan recipe signature
 func generateRecipeSignature(path []model.Node) string {
 	var sig strings.Builder
 
 	for _, node := range path {
-		// Sort ingredients untuk normalisasi urutan
 		if len(node.Ingredients) > 0 {
 			sortedIngs := make([]string, len(node.Ingredients))
 			copy(sortedIngs, node.Ingredients)
@@ -797,7 +712,6 @@ func generateRecipeSignature(path []model.Node) string {
 	return sig.String()
 }
 
-// Helper function to find maximum of two integers
 func max(a, b int) int {
 	if a > b {
 		return a
@@ -806,40 +720,32 @@ func max(a, b int) int {
 }
 
 func IsFullyComposablePath(path []model.Node, baseElements []string, g *graph.ElementGraph) bool {
-	// Create a map for quick base element lookup
 	baseMap := make(map[string]bool)
 	for _, base := range baseElements {
 		baseMap[base] = true
 	}
 
-	// Track elements we're currently processing to detect circular dependencies
 	processingStack := make(map[string]bool)
 
-	// Cache results to avoid repeated checks
 	validityCache := make(map[string]bool)
 
-	// Define a recursive helper function to check if an element can be traced to base elements
 	var isElementTraceable func(element string) bool
 
 	isElementTraceable = func(element string) bool {
-		// Base elements are always traceable
 		if baseMap[element] {
 			return true
 		}
 
-		// Check cache
 		if result, exists := validityCache[element]; exists {
 			return result
 		}
 
-		// Detect circular references
 		if processingStack[element] {
 			log.Printf("DEBUG: Circular reference detected for element %s", element)
 			validityCache[element] = false
 			return false
 		}
 
-		// Get node from graph
 		elementNode := g.Nodes[element]
 		if elementNode == nil {
 			log.Printf("DEBUG: Element %s not found in graph", element)
@@ -847,18 +753,15 @@ func IsFullyComposablePath(path []model.Node, baseElements []string, g *graph.El
 			return false
 		}
 
-		// If no recipes to make this element, it's not traceable
 		if len(elementNode.RecipesToMakeThisElement) == 0 {
 			log.Printf("DEBUG: Element %s has no recipes, not traceable", element)
 			validityCache[element] = false
 			return false
 		}
 
-		// Mark as being processed
 		processingStack[element] = true
 		defer delete(processingStack, element)
 
-		// Check if at least one recipe has all traceable ingredients
 		recipeValid := false
 		for _, recipe := range elementNode.RecipesToMakeThisElement {
 			if len(recipe.Ingredients) == 0 {
@@ -889,14 +792,11 @@ func IsFullyComposablePath(path []model.Node, baseElements []string, g *graph.El
 		return true
 	}
 
-	// For each node in the path, verify it can be traced to base elements
 	for _, node := range path {
-		// Skip base elements
 		if baseMap[node.Element] {
 			continue
 		}
 
-		// If not a base element, it must be traceable
 		if !isElementTraceable(node.Element) {
 			log.Printf("DEBUG: Path element %s cannot be traced to base elements", node.Element)
 			return false
@@ -904,17 +804,6 @@ func IsFullyComposablePath(path []model.Node, baseElements []string, g *graph.El
 	}
 
 	return true
-}
-
-func appendPath(path []model.Node, element, imgPath string, ingredients []string) []model.Node {
-	newp := make([]model.Node, len(path), len(path)+1)
-	copy(newp, path)
-	newp = append(newp, model.Node{
-		Element:     element,
-		ImagePath:   imgPath,
-		Ingredients: ingredients,
-	})
-	return newp
 }
 
 func deduplicatePath(path []model.Node) []model.Node {
@@ -962,59 +851,48 @@ func GeneratePathSignature(path []model.Node) string {
 	return signature.String()
 }
 
-// Add this function to expose the element traceability check
 func IsElementTraceable(element string, baseElements []string, g *graph.ElementGraph) bool {
-	// Create a map for quick base element lookup
 	baseMap := make(map[string]bool)
 	for _, base := range baseElements {
 		baseMap[base] = true
 	}
 
-	// Base elements are always traceable
 	if baseMap[element] {
 		return true
 	}
 
-	// Use a cache to avoid repeated checks
 	validityCache := make(map[string]bool)
 	processingStack := make(map[string]bool)
 
 	var isTraceable func(string) bool
 	isTraceable = func(elem string) bool {
-		// Base elements are always traceable
 		if baseMap[elem] {
 			return true
 		}
 
-		// Check cache
 		if result, exists := validityCache[elem]; exists {
 			return result
 		}
 
-		// Detect circular references
 		if processingStack[elem] {
 			validityCache[elem] = false
 			return false
 		}
 
-		// Get node from graph
 		elementNode := g.Nodes[elem]
 		if elementNode == nil {
 			validityCache[elem] = false
 			return false
 		}
 
-		// If no recipes to make this element, it's not traceable
 		if len(elementNode.RecipesToMakeThisElement) == 0 {
 			validityCache[elem] = false
 			return false
 		}
 
-		// Mark as being processed
 		processingStack[elem] = true
 		defer delete(processingStack, elem)
 
-		// Check if at least one recipe has all traceable ingredients
 		recipeValid := false
 		for _, recipe := range elementNode.RecipesToMakeThisElement {
 			if len(recipe.Ingredients) == 0 {
@@ -1042,14 +920,12 @@ func IsElementTraceable(element string, baseElements []string, g *graph.ElementG
 	return isTraceable(element)
 }
 
-// Add this helper function to score paths based on traceability
 func scorePathTraceability(path []model.Node, baseElements []string, g *graph.ElementGraph) int {
 	baseMap := make(map[string]bool)
 	for _, base := range baseElements {
 		baseMap[base] = true
 	}
 
-	// Count how many elements are base or traceable
 	traceableCount := 0
 	unmakeableCount := 0
 
@@ -1063,11 +939,9 @@ func scorePathTraceability(path []model.Node, baseElements []string, g *graph.El
 		}
 	}
 
-	// Prefer paths with no unmakeable elements
 	if unmakeableCount == 0 {
 		return 1000 + traceableCount
 	}
 
-	// Otherwise score based on ratio of traceable to unmakeable
 	return traceableCount - (unmakeableCount * 10)
 }

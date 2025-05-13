@@ -4,7 +4,7 @@ interface TreeSelectorProps {
   count: number;
   currentIndex: number;
   setCurrentIndex: (index: number) => void;
-  treeNames?: string[]; // Optional array of custom names for trees
+  treeNames?: string[];
 }
 
 const TreeSelector: React.FC<TreeSelectorProps> = ({ 
@@ -15,7 +15,6 @@ const TreeSelector: React.FC<TreeSelectorProps> = ({
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   
-  // Scroll selected button into view when currentIndex changes
   useEffect(() => {
     if (scrollRef.current) {
       const selectedButton = scrollRef.current.querySelector(`[data-index="${currentIndex}"]`);
@@ -25,7 +24,6 @@ const TreeSelector: React.FC<TreeSelectorProps> = ({
     }
   }, [currentIndex]);
   
-  // Create pagination dots for mobile
   const renderPaginationDots = () => {
     return (
       <div className="flex justify-center gap-1.5 mt-2 md:hidden">

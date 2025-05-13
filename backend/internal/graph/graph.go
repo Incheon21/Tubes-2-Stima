@@ -28,7 +28,6 @@ func NewElementGraph(elements map[string]model.Element) *ElementGraph {
 		BaseElements: make([]string, 0),
 	}
 
-	// First pass: Create nodes
 	for name, element := range elements {
 		g.Nodes[name] = &ElementGraphNode{
 			Name:                       name,
@@ -38,7 +37,6 @@ func NewElementGraph(elements map[string]model.Element) *ElementGraph {
 		}
 	}
 
-	// Second pass: Connect recipes
 	for name, element := range elements {
 		for _, recipe := range element.Recipes {
 			g.Nodes[name].RecipesToMakeThisElement = append(

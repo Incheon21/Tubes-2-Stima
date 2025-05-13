@@ -13,7 +13,6 @@ interface VisualizationPanelProps {
 }
 
 
-// Define node data type
 interface NodeData {
   name: string;
   isBaseElement?: boolean;
@@ -42,15 +41,12 @@ const VisualizationPanel: React.FC<VisualizationPanelProps> = ({
   const visualizeTree = (treeData: TreeData) => {
     if (!treeData || !visualizationRef.current) return;
     
-    // Clear previous visualization
     d3.select(visualizationRef.current).selectAll("*").remove();
     
-    // Set up dimensions
     const margin = {top: 40, right: 90, bottom: 50, left: 90};
     const width = visualizationRef.current.offsetWidth - margin.left - margin.right;
     const height = 500 - margin.top - margin.bottom;
     
-    // Create SVG with zoom capability
     const svg = d3.select(visualizationRef.current)
       .append("svg")
       .attr("width", width + margin.left + margin.right)
@@ -61,8 +57,6 @@ const VisualizationPanel: React.FC<VisualizationPanelProps> = ({
       
     const g = svg.append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
-    
-    // Process the tree data with a depth limit
     const hierarchyData: NodeData = {
       name: treeData.name,
       isBaseElement: treeData.isBaseElement,
@@ -83,15 +77,12 @@ const VisualizationPanel: React.FC<VisualizationPanelProps> = ({
       };
     }
     
-    // Create the tree layout
     const treeLayout = d3.tree<NodeData>()
       .size([width, height])
       .separation(() => 1);
     
-    // Create root node and calculate positions
     const root = d3.hierarchy(hierarchyData);
     
-    // Limit depth if tree is too deep
     const MAX_VISIBLE_DEPTH = 15;
     const limitDepth = (node: d3.HierarchyNode<NodeData>, currentDepth: number): void => {
       if (currentDepth >= MAX_VISIBLE_DEPTH && node.children) {
@@ -104,8 +95,6 @@ const VisualizationPanel: React.FC<VisualizationPanelProps> = ({
     
     limitDepth(root, 0);
     treeLayout(root);
-    
-    // Draw links between nodes
     g.selectAll(".link")
       .data(root.links())
       .enter()
@@ -118,7 +107,6 @@ const VisualizationPanel: React.FC<VisualizationPanelProps> = ({
       .style("stroke", "#ccc")
       .style("stroke-width", "2px");
     
-    // Create node groups
     const nodes = g.selectAll(".node")
       .data(root.descendants())
       .enter()
@@ -126,24 +114,21 @@ const VisualizationPanel: React.FC<VisualizationPanelProps> = ({
       .attr("class", "node")
       .attr("transform", d => `translate(${d.x},${d.y})`);
     
-    // Add circles to nodes
     nodes.append("circle")
       .attr("r", 6)
       .style("fill", (d: d3.HierarchyNode<NodeData>) => {
-        if (d.data.isBaseElement) return "#FFEB3B"; // Yellow for base elements
-        if (d.data.isCircularReference) return "#FF9800"; // Orange for circular references
-        if (d.data.noRecipe) return "#E0E0E0"; // Gray for no recipe
-        if (d.depth === 0) return "#4CAF50"; // Green for target element
-        if (d.data._collapsed) return "#9C27B0"; // Purple for collapsed nodes
-        return "#2196F3"; // Blue for regular elements
+        if (d.data.isBaseElement) return "#FFEB3B";
+        if (d.data.isCircularReference) return "#FF9800"; 
+        if (d.data.noRecipe) return "#E0E0E0"; 
+        if (d.depth === 0) return "#4CAF50"; 
+        if (d.data._collapsed) return "#9C27B0"; 
+        return "#2196F3";  
       })
       .style("stroke", "#fff")
       .style("stroke-width", "1.5px")
-      // Add tooltips on hover
       .append("title")
       .text(d => d.data.name);
     
-    // Add text labels
     nodes.append("text")
       .attr("dy", ".35em")
       .attr("x", (d: d3.HierarchyNode<NodeData>) => d.children ? -13 : 13)
@@ -152,7 +137,6 @@ const VisualizationPanel: React.FC<VisualizationPanelProps> = ({
       .style("font-size", "12px")
       .style("font-family", "sans-serif");
       
-    // Add info text about zoom
     svg.append("text")
       .attr("x", 10)
       .attr("y", 20)
