@@ -35,12 +35,8 @@ const RecipeExplorer = () => {
     treesFound: 0,
   });
 
-<<<<<<< HEAD
-  const serverUrl = 'http://localhost:8080/api';
-=======
   console.log("tes:");
   const serverUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/api';
->>>>>>> abfa1816d6ae336fea0e74012fe130789a4cab99
 
   const loadElements = async () => {
     try {
