@@ -12,6 +12,18 @@ interface VisualizationPanelProps {
   algorithm: Algorithm;
 }
 
+
+// Define node data type
+interface NodeData {
+  name: string;
+  isBaseElement?: boolean;
+  isCircularReference?: boolean;
+  noRecipe?: boolean;
+  imagePath?: string;
+  children: NodeData[];
+  _collapsed?: boolean;
+}
+
 const VisualizationPanel: React.FC<VisualizationPanelProps> = ({
   currentTrees,
   currentTreeIndex,
@@ -38,25 +50,29 @@ const VisualizationPanel: React.FC<VisualizationPanelProps> = ({
     const width = visualizationRef.current.offsetWidth - margin.left - margin.right;
     const height = 500 - margin.top - margin.bottom;
     
-    // Create SVG
+    // Create SVG with zoom capability
     const svg = d3.select(visualizationRef.current)
       .append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
-      .append("g")
+      .call(d3.zoom<SVGSVGElement, unknown>().on("zoom", (event) => {
+        g.attr("transform", event.transform);
+      }));
+      
+    const g = svg.append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
     
-    // Process the tree data
-    const hierarchyData = {
+    // Process the tree data with a depth limit
+    const hierarchyData: NodeData = {
       name: treeData.name,
       isBaseElement: treeData.isBaseElement,
       isCircularReference: treeData.isCircularReference,
       noRecipe: treeData.noRecipe,
       imagePath: treeData.imagePath,
-      children: treeData.ingredients.map(ing => processNode(ing))
+      children: treeData.ingredients ? treeData.ingredients.map(ing => processNode(ing)) : []
     };
     
-    function processNode(node: TreeData) {
+    function processNode(node: TreeData): NodeData {
       return {
         name: node.name,
         isBaseElement: node.isBaseElement,
@@ -68,27 +84,42 @@ const VisualizationPanel: React.FC<VisualizationPanelProps> = ({
     }
     
     // Create the tree layout
-    const treeLayout = d3.tree().size([width, height]);
+    const treeLayout = d3.tree<NodeData>()
+      .size([width, height])
+      .separation(() => 1);
     
     // Create root node and calculate positions
     const root = d3.hierarchy(hierarchyData);
+    
+    // Limit depth if tree is too deep
+    const MAX_VISIBLE_DEPTH = 15;
+    const limitDepth = (node: d3.HierarchyNode<NodeData>, currentDepth: number): void => {
+      if (currentDepth >= MAX_VISIBLE_DEPTH && node.children) {
+        node.data._collapsed = true;
+        node.children = undefined;
+      } else if (node.children) {
+        node.children.forEach(child => limitDepth(child, currentDepth + 1));
+      }
+    };
+    
+    limitDepth(root, 0);
     treeLayout(root);
     
     // Draw links between nodes
-    svg.selectAll(".link")
+    g.selectAll(".link")
       .data(root.links())
       .enter()
       .append("path")
       .attr("class", "link")
-      .attr("d", d3.linkVertical<any, any>()
-        .x(d => d.x)
-        .y(d => d.y))
+      .attr("d", d3.linkVertical<d3.HierarchyLink<NodeData>, d3.HierarchyNode<NodeData>>()
+        .x(d => d.x || 0)
+        .y(d => d.y || 0))
       .style("fill", "none")
       .style("stroke", "#ccc")
       .style("stroke-width", "2px");
     
     // Create node groups
-    const nodes = svg.selectAll(".node")
+    const nodes = g.selectAll(".node")
       .data(root.descendants())
       .enter()
       .append("g")
@@ -98,24 +129,45 @@ const VisualizationPanel: React.FC<VisualizationPanelProps> = ({
     // Add circles to nodes
     nodes.append("circle")
       .attr("r", 6)
-      .style("fill", (d: any) => {
+      .style("fill", (d: d3.HierarchyNode<NodeData>) => {
         if (d.data.isBaseElement) return "#FFEB3B"; // Yellow for base elements
         if (d.data.isCircularReference) return "#FF9800"; // Orange for circular references
         if (d.data.noRecipe) return "#E0E0E0"; // Gray for no recipe
         if (d.depth === 0) return "#4CAF50"; // Green for target element
+        if (d.data._collapsed) return "#9C27B0"; // Purple for collapsed nodes
         return "#2196F3"; // Blue for regular elements
       })
       .style("stroke", "#fff")
-      .style("stroke-width", "1.5px");
+      .style("stroke-width", "1.5px")
+      // Add tooltips on hover
+      .append("title")
+      .text(d => d.data.name);
     
     // Add text labels
     nodes.append("text")
       .attr("dy", ".35em")
-      .attr("x", (d: any) => d.children ? -13 : 13)
-      .attr("text-anchor", (d: any) => d.children ? "end" : "start")
-      .text((d: any) => d.data.name)
+      .attr("x", (d: d3.HierarchyNode<NodeData>) => d.children ? -13 : 13)
+      .attr("text-anchor", (d: d3.HierarchyNode<NodeData>) => d.children ? "end" : "start")
+      .text((d: d3.HierarchyNode<NodeData>) => d.data.name)
       .style("font-size", "12px")
       .style("font-family", "sans-serif");
+      
+    // Add info text about zoom
+    svg.append("text")
+      .attr("x", 10)
+      .attr("y", 20)
+      .text("Scroll to zoom, drag to pan")
+      .style("font-size", "12px")
+      .style("fill", "#666");
+      
+    if (root.descendants().length > 50) {
+      svg.append("text")
+        .attr("x", 10)
+        .attr("y", 40)
+        .text(`Showing ${MAX_VISIBLE_DEPTH} levels (tree is deep)`)
+        .style("font-size", "12px")
+        .style("fill", "#f44336");
+    }
   };
 
   return (
