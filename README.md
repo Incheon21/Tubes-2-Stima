@@ -55,6 +55,12 @@ docker compose up
 go run .
 ```
 
+**Menjalankan Frontend**
+Menjalankan Frontend
+Buka terminal baru.
+Pindah ke direktori frontend.
+Jalankan perintah:
+
 👨‍💻 Author
 Nama	NIM
 Alvin Christopher Santausa	13523033
