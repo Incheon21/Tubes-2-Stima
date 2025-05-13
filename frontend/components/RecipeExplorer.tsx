@@ -5,14 +5,24 @@ import ControlPanel from './ControlPanel';
 import VisualizationPanel from './VisualizationPanel';
 import type { Algorithm, TreeType, ElementData, TreeData, PathNode } from '../types/types';
 
+// Define a more specific type for API responses
+interface RecipeResult {
+  paths?: PathNode[][];
+  trees?: TreeData[];
+  name?: string;
+  Element?: string;
+  element?: string;
+  timeElapsed?: number;
+  nodesVisited?: number;
+  [key: string]: unknown;
+}
+
 const RecipeExplorer = () => {
-  const [serverUrl, setServerUrl] = useState<string>('http://localhost:8080');
   const [target, setTarget] = useState<string>('');
   const [treeType, setTreeType] = useState<TreeType>('best-recipes-tree');
   const [algorithm, setAlgorithm] = useState<Algorithm>('bfs');
   const [treeCount, setTreeCount] = useState<number>(3);
   
-  const [logs, setLogs] = useState<{message: string, type: string}[]>([]);
   const [allElements, setAllElements] = useState<ElementData[]>([]);
   const [currentTrees, setCurrentTrees] = useState<TreeData[]>([]);
   const [currentTreeIndex, setCurrentTreeIndex] = useState<number>(0);
@@ -25,95 +35,52 @@ const RecipeExplorer = () => {
     treesFound: 0
   });
 
-  // Add a log message
-  const addLog = (message: string, type: 'debug' | 'error' | 'success' = 'debug') => {
-    setLogs(prev => [...prev, { message, type }]);
-  };
+  const serverUrl = 'http://localhost:8080';
 
   const loadElements = async () => {
     try {
-      addLog('Fetching all elements...');
       setIsLoading(true);
-      
       const response = await axios.get<ElementData[]>(`${serverUrl}/api/elements/`);      
+      console.log("API response:", response.data);
       setAllElements(response.data);
-      addLog(`Successfully loaded ${response.data.length} elements`, 'success');
       setIsLoading(false);
       return true;
     } catch (error) {
       setIsLoading(false);
       if (axios.isAxiosError(error)) {
-        addLog(`Failed to fetch elements: ${error.message}`, 'error');
         toast.error(`Failed to load elements: ${error.message}`);
       } else {
-        addLog(`Failed to fetch elements: Unknown error`, 'error');
         toast.error('Failed to load elements');
       }
       return false;
     }
   };
 
-  // Test server connection
-  const testConnection = async () => {
-    try {
-      addLog(`Testing connection to ${serverUrl}...`);
-      setIsLoading(true);
-      
-      const response = await axios.get(`${serverUrl}/api/elements/`);
-      
-      addLog(`Connection successful! Server is running at ${serverUrl}`, 'success');
-      toast.success('Connection successful!');
-      
-      await loadElements();
-      setIsLoading(false);
-    } catch (error) {
-      setIsLoading(false);
-      if (axios.isAxiosError(error)) {
-        addLog(`Connection failed: ${error.message}`, 'error');
-        toast.error(`Connection failed: ${error.message}`);
-      } else {
-        addLog(`Connection failed: Unknown error`, 'error');
-        toast.error('Connection failed');
-      }
-      
-      addLog('Please check that:', 'error');
-      addLog('1. The server is running', 'error');
-      addLog('2. The URL is correct', 'error');
-      addLog('3. CORS is enabled on the server', 'error');
-    }
-  };
-
   const visualizeRecipes = async () => {
     if (!target) {
-      addLog('Please enter a target element', 'error');
       toast.error('Please enter a target element');
       return;
     }
     
     try {
-      addLog(`Fetching ${treeType} for ${target} using ${algorithm} algorithm...`);
       setIsLoading(true);
       
       let url: string;
       
       if (algorithm === 'bfs') {
         url = `${serverUrl}/api/bfs-tree/${encodeURIComponent(target)}?count=${treeCount}&singlePath=false`;
-        addLog(`Using BFS endpoint: ${url}`);
       } else if (algorithm === 'dfs') {
         url = `${serverUrl}/api/dfs-tree/${encodeURIComponent(target)}?count=${treeCount}`;
-        addLog(`Using DFS endpoint: ${url}`);
       } else if (algorithm === 'bidirectional') {
         url = `${serverUrl}/api/bidirectional/${encodeURIComponent(target)}?count=${treeCount}&multithreaded=true&tree=true`;
-        addLog(`Using bidirectional: ${url}`);
       } else {
         url = `${serverUrl}/api/${treeType}/${encodeURIComponent(target)}?count=${treeCount}&algorithm=${algorithm}`;
-        addLog(`Using default endpoint: ${url}`);
       }
       
-      const response = await axios.get(url);
+      const response = await axios.get<RecipeResult>(url);
+      console.log("API response:", response.data);
       const result = response.data;
       
-      addLog('Data received successfully');
       setIsLoading(false);
       
       setStats({
@@ -127,21 +94,17 @@ const RecipeExplorer = () => {
     } catch (error) {
       setIsLoading(false);
       if (axios.isAxiosError(error)) {
-        addLog(`Visualization failed: ${error.message}`, 'error');
         toast.error(`Failed to get recipes: ${error.message}`);
       } else {
-        addLog(`Visualization failed: Unknown error`, 'error');
         toast.error('Failed to get recipes');
       }
     }
   };
 
   // Handle visualization results
-  const handleResults = (result: any) => {
+  const handleResults = (result: RecipeResult) => {
     // Paths format (BFS or DFS)
     if (result.paths && Array.isArray(result.paths)) {
-      addLog(`Received ${result.paths.length} paths from ${algorithm}`);
-      
       // Convert paths to trees for visualization
       const trees = result.paths.map((path: PathNode[]) => convertPathToTree(path, target));
       setCurrentTrees(trees);
@@ -149,37 +112,29 @@ const RecipeExplorer = () => {
       
       if (trees.length > 0) {
         setCurrentTreeIndex(0);
-        addLog(`Visualizing ${algorithm} path ${1} of ${trees.length} for ${target}`, 'success');
       } else {
-        addLog(`No paths found for ${target}`, 'error');
         toast.error(`No paths found for ${target}`);
       }
     } 
     // Trees format
     else if (result.trees && Array.isArray(result.trees)) {
-      addLog(`Received ${result.trees.length} recipe trees`);
       setCurrentTrees(result.trees);
-      setStats(prev => ({ ...prev, treesFound: result.trees.length }));
+      setStats(prev => ({ ...prev, treesFound: result.trees?.length || 0 }));
       
       if (result.trees.length > 0) {
         setCurrentTreeIndex(0);
-        addLog(`Visualizing recipe tree 1 of ${result.trees.length} for ${target}`, 'success');
       } else {
-        addLog('No recipe trees found', 'error');
         toast.error('No recipe trees found');
       }
     }
     // Single tree format
     else if (result.name || (result.Element || result.element)) {
-      addLog(`Received single recipe tree for ${target}`);
-      setCurrentTrees([result]);
+      setCurrentTrees([result as unknown as TreeData]);
       setStats(prev => ({ ...prev, treesFound: 1 }));
       setCurrentTreeIndex(0);
-      addLog(`Visualizing single recipe tree for ${target}`, 'success');
     }
     // Empty or invalid results
     else {
-      addLog(`No recipe data found for ${target}`, 'error');
       toast.error(`No recipe data found for ${target}`);
       setCurrentTrees([]);
       setStats(prev => ({ ...prev, treesFound: 0 }));
@@ -190,7 +145,7 @@ const RecipeExplorer = () => {
   const convertPathToTree = (path: PathNode[], targetElement: string): TreeData => {
     // Normalize property names for consistency
     const normalizedPath = path.map(node => ({
-      Element: node.element || node.Element,
+      Element: node.element || node.Element || '',
       ImagePath: node.imagePath || node.ImagePath,
       Ingredients: node.ingredients || node.Ingredients || []
     }));
@@ -202,7 +157,7 @@ const RecipeExplorer = () => {
     // Helper to track visited elements to detect circular references
     const visitedInPath = new Set<string>();
     
-    function buildTree(currentElement: string, remainingPath: any[]): TreeData {
+    function buildTree(currentElement: string, remainingPath: {Element: string, ImagePath?: string, Ingredients: string[]}[]): TreeData {
       // Find the node for current element
       const currentNode = remainingPath.find(node => node.Element === currentElement);
       if (!currentNode) {
@@ -262,48 +217,40 @@ const RecipeExplorer = () => {
       nodesVisited: 0,
       treesFound: 0
     });
-    addLog('Visualization cleared');
   };
 
   // Load elements on mount
   useEffect(() => {
-    loadElements().catch(err => {
-      addLog('Could not automatically load elements on page load.');
-      addLog('Use the "Test Connection" button to connect to the server.');
-    });
+    loadElements();
   }, []);
 
   return (
-  <div className="flex flex-col lg:flex-row gap-8">
-    <ControlPanel 
-      serverUrl={serverUrl}
-      setServerUrl={setServerUrl}
-      target={target}
-      setTarget={setTarget}
-      treeType={treeType}
-      setTreeType={setTreeType}
-      algorithm={algorithm}
-      setAlgorithm={setAlgorithm}
-      treeCount={treeCount}
-      setTreeCount={setTreeCount}
-      logs={logs}
-      stats={stats}
-      testConnection={testConnection}
-      visualizeRecipes={visualizeRecipes}
-      clearVisualization={clearVisualization}
-      elements={allElements}
-      isLoading={isLoading}
-    />
-    
-    <VisualizationPanel 
-      currentTrees={currentTrees}
-      currentTreeIndex={currentTreeIndex}
-      setCurrentTreeIndex={setCurrentTreeIndex}
-      targetElement={target}
-      algorithm={algorithm}
-    />
-  </div>
-);
+    <div className="flex flex-col lg:flex-row gap-8">
+      <ControlPanel 
+        target={target}
+        setTarget={setTarget}
+        treeType={treeType}
+        setTreeType={setTreeType}
+        algorithm={algorithm}
+        setAlgorithm={setAlgorithm}
+        treeCount={treeCount}
+        setTreeCount={setTreeCount}
+        stats={stats}
+        visualizeRecipes={visualizeRecipes}
+        clearVisualization={clearVisualization}
+        elements={allElements}
+        isLoading={isLoading}
+      />
+      
+      <VisualizationPanel 
+        currentTrees={currentTrees}
+        currentTreeIndex={currentTreeIndex}
+        setCurrentTreeIndex={setCurrentTreeIndex}
+        targetElement={target}
+        algorithm={algorithm}
+      />
+    </div>
+  );
 };
 
 export default RecipeExplorer;

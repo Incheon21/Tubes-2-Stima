@@ -34,12 +34,31 @@ func BidirectionalBFS(elements map[string]model.Element, target string, maxResul
 		}
 	}
 
+	// Track all recipes for the target element to ensure we find paths for each
+	targetRecipes := make(map[string][]string)
+	if targetNode := g.Nodes[target]; targetNode != nil {
+		for _, recipe := range targetNode.RecipesToMakeThisElement {
+			if len(recipe.Ingredients) == 2 {
+				// Create recipe key for tracking
+				sortedIngs := make([]string, len(recipe.Ingredients))
+				copy(sortedIngs, recipe.Ingredients)
+				sort.Strings(sortedIngs)
+				recipeKey := strings.Join(sortedIngs, "+")
+				targetRecipes[recipeKey] = recipe.Ingredients
+			}
+		}
+	}
+	log.Printf("DEBUG: Found %d valid recipes for target '%s'", len(targetRecipes), target)
+
 	forwardFrontier := make([]PathSegment, 0)
 	backwardFrontier := make([]PathSegment, 0)
 	forwardVisited := make(map[string][]model.Node)
 	backwardVisited := make(map[string][]model.Node)
 	visitedCount := 0
 	var results [][]model.Node
+
+	// Recipe-indexed results to track unique recipe paths
+	recipeResults := make(map[string][][]model.Node)
 
 	for _, baseElem := range baseElements {
 		imgPath := ""
@@ -63,39 +82,70 @@ func BidirectionalBFS(elements map[string]model.Element, target string, maxResul
 		visitedCount++
 	}
 
-	imgPath := ""
-	var targetIngredients []string
-	if elemData, exists := elements[target]; exists {
-		imgPath = elemData.ImagePath
-		if targetNode := g.Nodes[target]; targetNode != nil && len(targetNode.RecipesToMakeThisElement) > 0 {
-			targetIngredients = targetNode.RecipesToMakeThisElement[0].Ingredients
+	// Initialize backward frontier for each recipe
+	for _, recipe := range targetRecipes {
+		imgPath := ""
+		if elemData, exists := elements[target]; exists {
+			imgPath = elemData.ImagePath
 		}
+
+		targetNode := model.Node{
+			Element:     target,
+			ImagePath:   imgPath,
+			Ingredients: recipe,
+		}
+
+		backwardPath := []model.Node{targetNode}
+		backwardFrontier = append(backwardFrontier, PathSegment{
+			Path:     backwardPath,
+			LastElem: target,
+		})
 	}
 
-	targetNode := model.Node{
-		Element:     target,
-		ImagePath:   imgPath,
-		Ingredients: targetIngredients,
+	if len(backwardFrontier) == 0 {
+		// Fallback if no recipes were found
+		imgPath := ""
+		var targetIngredients []string
+		if elemData, exists := elements[target]; exists {
+			imgPath = elemData.ImagePath
+			if targetNode := g.Nodes[target]; targetNode != nil && len(targetNode.RecipesToMakeThisElement) > 0 {
+				targetIngredients = targetNode.RecipesToMakeThisElement[0].Ingredients
+			}
+		}
+
+		targetNode := model.Node{
+			Element:     target,
+			ImagePath:   imgPath,
+			Ingredients: targetIngredients,
+		}
+
+		backwardPath := []model.Node{targetNode}
+		backwardFrontier = append(backwardFrontier, PathSegment{
+			Path:     backwardPath,
+			LastElem: target,
+		})
 	}
 
-	backwardPath := []model.Node{targetNode}
-	backwardFrontier = append(backwardFrontier, PathSegment{
-		Path:     backwardPath,
-		LastElem: target,
-	})
-
-	backwardVisited[target] = backwardPath
+	backwardVisited[target] = backwardFrontier[0].Path
 	visitedCount++
 
+	// Configure search to continue longer when recipe diversity is needed
 	maxIterations := 50
+	maxIterationsWithoutProgress := 10
+	iterationsWithoutProgress := 0
+	lastResultCount := 0
+
 	for i := 0; i < maxIterations; i++ {
-		log.Printf("DEBUG: Bidirectional search iteration %d: Forward frontier: %d, Backward frontier: %d",
-			i, len(forwardFrontier), len(backwardFrontier))
+		log.Printf("DEBUG: Bidirectional search iteration %d: Forward frontier: %d, Backward frontier: %d, Recipes found: %d",
+			i, len(forwardFrontier), len(backwardFrontier), len(recipeResults))
 
 		if len(forwardFrontier) == 0 && len(backwardFrontier) == 0 {
 			log.Printf("DEBUG: Both frontiers empty, stopping search")
 			break
 		}
+
+		// Track starting recipe count for this iteration
+		startingRecipeCount := len(recipeResults)
 
 		if len(forwardFrontier) > 0 {
 			newConnections := expandForwardFrontier(
@@ -108,15 +158,57 @@ func BidirectionalBFS(elements map[string]model.Element, target string, maxResul
 				&visitedCount,
 			)
 
+			// Process newly found paths to group by recipe
+			for _, path := range results[lastResultCount:] {
+				if len(path) > 0 {
+					// Extract recipe from the path
+					var targetNode *model.Node
+					for i := range path {
+						if path[i].Element == target {
+							targetNode = &path[i]
+							break
+						}
+					}
+
+					if targetNode != nil && targetNode.Ingredients != nil && len(targetNode.Ingredients) >= 2 {
+						// Create recipe key
+						sortedIngs := make([]string, len(targetNode.Ingredients))
+						copy(sortedIngs, targetNode.Ingredients)
+						sort.Strings(sortedIngs)
+						recipeKey := strings.Join(sortedIngs, "+")
+
+						recipeResults[recipeKey] = append(recipeResults[recipeKey], path)
+					}
+				}
+			}
+			lastResultCount = len(results)
+
+			// In single path mode, stop after finding any path
 			if newConnections > 0 && singlePath {
 				log.Printf("DEBUG: Found a path in single path mode, stopping search")
 				break
 			}
 		}
 
-		if len(results) >= maxResults && !singlePath {
-			log.Printf("DEBUG: Found %d paths, stopping bidirectional search", len(results))
-			break
+		// For multi-recipe searches, check if we have enough recipes
+		if !singlePath && len(targetRecipes) > 1 && len(recipeResults) >= len(targetRecipes) &&
+			len(recipeResults) >= maxResults/2 {
+			log.Printf("DEBUG: Found paths for most recipes (%d/%d), may stop search early",
+				len(recipeResults), len(targetRecipes))
+
+			allRecipesHavePaths := true
+			for recipeKey := range targetRecipes {
+				if len(recipeResults[recipeKey]) == 0 {
+					allRecipesHavePaths = false
+					break
+				}
+			}
+
+			// If we have at least one path for each recipe, consider stopping
+			if allRecipesHavePaths && len(results) >= maxResults {
+				log.Printf("DEBUG: Found at least one path for every recipe and %d total paths, stopping search", len(results))
+				break
+			}
 		}
 
 		if len(backwardFrontier) > 0 {
@@ -131,16 +223,61 @@ func BidirectionalBFS(elements map[string]model.Element, target string, maxResul
 				baseElements,
 			)
 
+			// Process newly found paths to group by recipe
+			for _, path := range results[lastResultCount:] {
+				if len(path) > 0 {
+					// Extract recipe from the path
+					var targetNode *model.Node
+					for i := range path {
+						if path[i].Element == target {
+							targetNode = &path[i]
+							break
+						}
+					}
+
+					if targetNode != nil && targetNode.Ingredients != nil && len(targetNode.Ingredients) >= 2 {
+						// Create recipe key
+						sortedIngs := make([]string, len(targetNode.Ingredients))
+						copy(sortedIngs, targetNode.Ingredients)
+						sort.Strings(sortedIngs)
+						recipeKey := strings.Join(sortedIngs, "+")
+
+						recipeResults[recipeKey] = append(recipeResults[recipeKey], path)
+					}
+				}
+			}
+			lastResultCount = len(results)
+
 			if newConnections > 0 && singlePath {
 				log.Printf("DEBUG: Found a path in single path mode, stopping search")
 				break
 			}
 		}
 
-		if len(results) >= maxResults && !singlePath {
+		// Check if we made progress finding new recipes in this iteration
+		if len(recipeResults) > startingRecipeCount {
+			iterationsWithoutProgress = 0
+		} else {
+			iterationsWithoutProgress++
+		}
+
+		// Stop if we've explored enough without finding new recipes
+		if iterationsWithoutProgress > maxIterationsWithoutProgress && len(recipeResults) > 0 {
+			log.Printf("DEBUG: No new recipes found in %d iterations, stopping search",
+				maxIterationsWithoutProgress)
+			break
+		}
+
+		// Exit if we've found enough paths overall
+		if len(results) >= maxResults*2 && !singlePath {
 			log.Printf("DEBUG: Found %d paths, stopping bidirectional search", len(results))
 			break
 		}
+	}
+
+	log.Printf("DEBUG: Found paths for %d different recipes", len(recipeResults))
+	for recipeKey, paths := range recipeResults {
+		log.Printf("DEBUG: Recipe '%s': %d paths", recipeKey, len(paths))
 	}
 
 	var validResults [][]model.Node
@@ -151,39 +288,109 @@ func BidirectionalBFS(elements map[string]model.Element, target string, maxResul
 		}
 	}
 
-	if len(validResults) == 0 {
-		log.Printf("DEBUG: Standard bidirectional search found no valid paths, trying custom approach")
-		if targetNode := g.Nodes[target]; targetNode != nil && len(targetNode.RecipesToMakeThisElement) > 0 {
-			for _, recipe := range targetNode.RecipesToMakeThisElement {
-				if len(recipe.Ingredients) == 2 {
-					customResults, customVisited := customBidirectionalSearch(
-						elements,
-						g,
-						target,
-						recipe.Ingredients,
-						maxResults,
-						singlePath,
-					)
+	// If we didn't find enough paths, try custom bidirectional search for each recipe
+	if len(validResults) < maxResults && len(targetRecipes) > 0 {
+		log.Printf("DEBUG: Standard bidirectional search found only %d valid paths, trying targeted approach", len(validResults))
 
-					for _, path := range customResults {
-						if validateIngredientsInPath(path) {
-							validResults = append(validResults, path)
-						}
-					}
+		// Try each recipe using custom bidirectional search
+		for _, ingredients := range targetRecipes {
+			recipeKey := getRecipeKey(ingredients)
+			// Skip if we already have paths for this recipe
+			if len(recipeResults[recipeKey]) >= 2 {
+				continue
+			}
 
-					visitedCount += customVisited
+			log.Printf("DEBUG: Trying custom bidirectional search for recipe: %v", ingredients)
+			customResults, customVisited := customBidirectionalSearch(
+				elements,
+				g,
+				target,
+				ingredients,
+				maxResults/2,
+				false,
+			)
 
-					if len(validResults) > 0 && singlePath {
-						break
-					}
+			for _, path := range customResults {
+				if validateIngredientsInPath(path) {
+					validResults = append(validResults, path)
 				}
+			}
+
+			visitedCount += customVisited
+
+			if len(validResults) >= maxResults && !singlePath {
+				break
 			}
 		}
 	}
 
-	sort.Slice(validResults, func(i, j int) bool {
-		return len(validResults[i]) < len(validResults[j])
-	})
+	// Ensure recipe diversity by selecting some paths from each recipe
+	if !singlePath && len(recipeResults) > 1 {
+		var diverseResults [][]model.Node
+
+		// First, get at least one path from each recipe
+		for _, paths := range recipeResults {
+			if len(paths) > 0 {
+				// Find the shortest valid path for this recipe
+				var bestPath []model.Node
+				for _, path := range paths {
+					if validateIngredientsInPath(path) {
+						if bestPath == nil || len(path) < len(bestPath) {
+							bestPath = path
+						}
+					}
+				}
+
+				if bestPath != nil {
+					diverseResults = append(diverseResults, bestPath)
+				}
+			}
+		}
+
+		// Then add more paths until we reach maxResults
+		remainingSlots := maxResults - len(diverseResults)
+		if remainingSlots > 0 {
+			// Merge all remaining valid paths and sort by length
+			var remainingPaths [][]model.Node
+			for _, paths := range recipeResults {
+				for _, path := range paths {
+					// Skip paths we already included
+					alreadyIncluded := false
+					for _, included := range diverseResults {
+						if pathsEqual(path, included) {
+							alreadyIncluded = true
+							break
+						}
+					}
+
+					if !alreadyIncluded && validateIngredientsInPath(path) {
+						remainingPaths = append(remainingPaths, path)
+					}
+				}
+			}
+
+			// Sort remaining paths by length
+			sort.Slice(remainingPaths, func(i, j int) bool {
+				return len(remainingPaths[i]) < len(remainingPaths[j])
+			})
+
+			// Add shortest remaining paths
+			for i := 0; i < len(remainingPaths) && i < remainingSlots; i++ {
+				diverseResults = append(diverseResults, remainingPaths[i])
+			}
+		}
+
+		if len(diverseResults) > 0 {
+			log.Printf("DEBUG: Created diverse result set with %d paths from %d recipes",
+				len(diverseResults), len(recipeResults))
+			validResults = diverseResults
+		}
+	} else {
+		// Sort by path length for single recipe results
+		sort.Slice(validResults, func(i, j int) bool {
+			return len(validResults[i]) < len(validResults[j])
+		})
+	}
 
 	// Limit results to maxResults
 	if len(validResults) > maxResults {
@@ -194,6 +401,17 @@ func BidirectionalBFS(elements map[string]model.Element, target string, maxResul
 		len(validResults), visitedCount)
 
 	return validResults, visitedCount
+}
+
+// Helper function to create a standardized recipe key
+func getRecipeKey(ingredients []string) string {
+	if len(ingredients) == 0 {
+		return ""
+	}
+	sortedIngs := make([]string, len(ingredients))
+	copy(sortedIngs, ingredients)
+	sort.Strings(sortedIngs)
+	return strings.Join(sortedIngs, "+")
 }
 
 func postProcessPath(path []model.Node, elements map[string]model.Element, g *graph.ElementGraph) []model.Node {
@@ -259,6 +477,17 @@ func expandForwardFrontier(frontier *[]PathSegment, visited map[string][]model.N
 	connectionsFound := 0
 	currentLevel := *frontier
 	*frontier = nil
+
+	// Sort frontier by path length to prioritize shorter paths
+	sort.Slice(currentLevel, func(i, j int) bool {
+		return len(currentLevel[i].Path) < len(currentLevel[j].Path)
+	})
+
+	// Take the top N paths to avoid explosion
+	maxPaths := 100
+	if len(currentLevel) > maxPaths {
+		currentLevel = currentLevel[:maxPaths]
+	}
 
 	for _, segment := range currentLevel {
 		currentElem := segment.LastElem
@@ -445,16 +674,21 @@ func mergePaths(forwardPath, backwardPath []model.Node) []model.Node {
 	}
 
 	if meetingIdx == -1 {
+		// If meeting point not found in backward path, return forward path
 		return forwardPath
 	}
 
+	// Create result with forward path elements
 	result := make([]model.Node, len(forwardPath))
 	copy(result, forwardPath)
 
-	if len(backwardPath[meetingIdx].Ingredients) > 0 && result[len(result)-1].Ingredients == nil {
+	// Preserve ingredients from the meeting point in backward path if available
+	if len(backwardPath[meetingIdx].Ingredients) > 0 &&
+		(result[len(result)-1].Ingredients == nil || len(result[len(result)-1].Ingredients) == 0) {
 		result[len(result)-1].Ingredients = backwardPath[meetingIdx].Ingredients
 	}
 
+	// Append remaining elements from backward path after the meeting point
 	if len(backwardPath) > meetingIdx+1 {
 		result = append(result, backwardPath[meetingIdx+1:]...)
 	}
@@ -512,122 +746,197 @@ func MultiThreadedBidirectionalBFS(elements map[string]model.Element, target str
 
 	log.Printf("DEBUG: Found %d recipes to make target '%s'", len(recipes), target)
 
+	// Filter to valid recipes with exactly 2 ingredients
+	var validRecipes []*graph.Recipe
+	for _, recipe := range recipes {
+		if len(recipe.Ingredients) == 2 {
+			// Check if both ingredients are traceable to base elements
+			allIngredientsTraceable := true
+			for _, ing := range recipe.Ingredients {
+				// Skip checking base elements
+				isBaseElement := false
+				for _, base := range baseElements {
+					if ing == base {
+						isBaseElement = true
+						break
+					}
+				}
+
+				// If not base element, check traceability
+				if !isBaseElement && !IsElementTraceable(ing, baseElements, g) {
+					log.Printf("DEBUG: Recipe ingredient '%s' for target '%s' is not traceable to base elements", ing, target)
+					allIngredientsTraceable = false
+					break
+				}
+			}
+
+			if allIngredientsTraceable {
+				validRecipes = append(validRecipes, recipe)
+			} else {
+				log.Printf("DEBUG: Skipping recipe for '%s' with untraceable ingredients: %v", target, recipe.Ingredients)
+			}
+		}
+	}
+
+	if len(validRecipes) == 0 {
+		log.Printf("DEBUG: No valid traceable recipes found for '%s'", target)
+		return [][]model.Node{}, 0
+	}
+
+	log.Printf("DEBUG: Processing %d valid traceable recipes", len(validRecipes))
+
+	// Rest of the function remains the same
 	var totalVisits int
 	var mu sync.Mutex
-	pathChan := make(chan []model.Node, maxResults*10)
-	maxConcurrency := 4
-	if len(recipes) < maxConcurrency {
-		maxConcurrency = len(recipes)
+	pathChan := make(chan []model.Node, maxResults*len(validRecipes)*2)
+	maxConcurrency := 8
+	if len(validRecipes) < maxConcurrency {
+		maxConcurrency = len(validRecipes)
 	}
-	sem := make(chan struct{}, maxConcurrency)
+
+	// Use worker pool pattern for better resource management
+	recipeChan := make(chan *graph.Recipe, len(validRecipes))
+
+	// Feed recipes to channel
+	for _, recipe := range validRecipes {
+		recipeChan <- recipe
+	}
+	close(recipeChan)
+
 	var wg sync.WaitGroup
 
-	for _, recipe := range recipes {
-		if len(recipe.Ingredients) != 2 {
-			continue
-		}
-
+	for i := 0; i < maxConcurrency; i++ {
 		wg.Add(1)
-		sem <- struct{}{}
-
-		go func(r *graph.Recipe) {
+		go func() {
 			defer wg.Done()
-			defer func() { <-sem }() // Release semaphore
 
-			imgPathTarget := ""
-			if elemData, exists := elements[target]; exists {
-				imgPathTarget = elemData.ImagePath
-			}
-
-			targetNode := model.Node{
-				Element:     target,
-				ImagePath:   imgPathTarget,
-				Ingredients: r.Ingredients,
-			}
-
-			ingredient1 := r.Ingredients[0]
-			ingredient2 := r.Ingredients[1]
-
-			ingredient1IsBase := utils.IsBaseElementName(ingredient1, baseElements)
-			ingredient2IsBase := utils.IsBaseElementName(ingredient2, baseElements)
-
-			var paths1, paths2 [][]model.Node
-			var visited1, visited2 int
-
-			if ingredient1IsBase {
-				imgPath1 := ""
-				if elemData, exists := elements[ingredient1]; exists {
-					imgPath1 = elemData.ImagePath
+			for recipe := range recipeChan {
+				imgPathTarget := ""
+				if elemData, exists := elements[target]; exists {
+					imgPathTarget = elemData.ImagePath
 				}
 
-				paths1 = [][]model.Node{{
-					{Element: ingredient1, ImagePath: imgPath1, Ingredients: nil},
-				}}
-			} else {
-				paths1, visited1 = customBidirectionalSearch(
-					elements,
-					g,
-					ingredient1,
-					nil,
-					2,
-					false,
-				)
-				mu.Lock()
-				totalVisits += visited1
-				mu.Unlock()
-			}
-
-			if ingredient2IsBase {
-				imgPath2 := ""
-				if elemData, exists := elements[ingredient2]; exists {
-					imgPath2 = elemData.ImagePath
+				targetNode := model.Node{
+					Element:     target,
+					ImagePath:   imgPathTarget,
+					Ingredients: recipe.Ingredients,
 				}
 
-				paths2 = [][]model.Node{{
-					{Element: ingredient2, ImagePath: imgPath2, Ingredients: nil},
-				}}
-			} else {
-				paths2, visited2 = customBidirectionalSearch(
-					elements,
-					g,
-					ingredient2,
-					nil,
-					2,
-					false,
-				)
-				mu.Lock()
-				totalVisits += visited2
-				mu.Unlock()
-			}
+				ingredient1 := recipe.Ingredients[0]
+				ingredient2 := recipe.Ingredients[1]
 
-			if len(paths1) > 0 && len(paths2) > 0 {
-				for _, path1 := range paths1 {
-					for _, path2 := range paths2 {
-						combinedPath := make([]model.Node, len(path1))
-						copy(combinedPath, path1)
+				ingredient1IsBase := utils.IsBaseElementName(ingredient1, baseElements)
+				ingredient2IsBase := utils.IsBaseElementName(ingredient2, baseElements)
 
-						for _, node := range path2 {
-							exists := false
-							for _, existingNode := range combinedPath {
-								if existingNode.Element == node.Element {
-									exists = true
-									break
+				var paths1, paths2 [][]model.Node
+				var visited1, visited2 int
+
+				if ingredient1IsBase {
+					imgPath1 := ""
+					if elemData, exists := elements[ingredient1]; exists {
+						imgPath1 = elemData.ImagePath
+					}
+
+					paths1 = [][]model.Node{{
+						{Element: ingredient1, ImagePath: imgPath1, Ingredients: nil},
+					}}
+				} else {
+					// Try harder to find paths for non-base ingredients
+					pathsPerIngredient := 3
+					paths1, visited1 = customBidirectionalSearch(
+						elements,
+						g,
+						ingredient1,
+						nil,
+						pathsPerIngredient,
+						false,
+					)
+
+					// If that fails, try fallback approach
+					if len(paths1) == 0 {
+						log.Printf("DEBUG: Trying harder to find paths for ingredient: %s", ingredient1)
+						paths1, visited1 = BidirectionalBFS(elements, ingredient1, pathsPerIngredient, false)
+					}
+
+					mu.Lock()
+					totalVisits += visited1
+					mu.Unlock()
+				}
+
+				if ingredient2IsBase {
+					imgPath2 := ""
+					if elemData, exists := elements[ingredient2]; exists {
+						imgPath2 = elemData.ImagePath
+					}
+
+					paths2 = [][]model.Node{{
+						{Element: ingredient2, ImagePath: imgPath2, Ingredients: nil},
+					}}
+				} else {
+					// Try harder to find paths for non-base ingredients
+					pathsPerIngredient := 3
+					paths2, visited2 = customBidirectionalSearch(
+						elements,
+						g,
+						ingredient2,
+						nil,
+						pathsPerIngredient,
+						false,
+					)
+
+					// If that fails, try fallback approach
+					if len(paths2) == 0 {
+						log.Printf("DEBUG: Trying harder to find paths for ingredient: %s", ingredient2)
+						paths2, visited2 = BidirectionalBFS(elements, ingredient2, pathsPerIngredient, false)
+					}
+
+					mu.Lock()
+					totalVisits += visited2
+					mu.Unlock()
+				}
+
+				log.Printf("DEBUG: For recipe [%s + %s], found %d and %d paths for ingredients",
+					ingredient1, ingredient2, len(paths1), len(paths2))
+
+				if len(paths1) > 0 && len(paths2) > 0 {
+					// Limit path combinations to avoid explosion
+					maxPathsPerIngredient := 5
+					if len(paths1) > maxPathsPerIngredient {
+						paths1 = paths1[:maxPathsPerIngredient]
+					}
+					if len(paths2) > maxPathsPerIngredient {
+						paths2 = paths2[:maxPathsPerIngredient]
+					}
+
+					for _, path1 := range paths1 {
+						for _, path2 := range paths2 {
+							combinedPath := make([]model.Node, len(path1))
+							copy(combinedPath, path1)
+
+							// Add nodes from path2 that aren't already in the combined path
+							for _, node := range path2 {
+								exists := false
+								for _, existingNode := range combinedPath {
+									if existingNode.Element == node.Element {
+										exists = true
+										break
+									}
+								}
+								if !exists {
+									combinedPath = append(combinedPath, node)
 								}
 							}
-							if !exists {
-								combinedPath = append(combinedPath, node)
+
+							finalPath := append(combinedPath, targetNode)
+
+							if validateIngredientsInPath(finalPath) {
+								pathChan <- finalPath
 							}
-						}
-
-						finalPath := append(combinedPath, targetNode)
-
-						if validateIngredientsInPath(finalPath) {
-							pathChan <- finalPath
 						}
 					}
 				}
 			}
-		}(recipe)
+		}()
 	}
 
 	go func() {
@@ -636,59 +945,85 @@ func MultiThreadedBidirectionalBFS(elements map[string]model.Element, target str
 	}()
 
 	var allPaths [][]model.Node
-	distinctRecipes := make(map[string]bool)
+	distinctRecipes := make(map[string][]model.Node)
 
 	for path := range pathChan {
 		if len(path) > 0 {
 			targetNode := path[len(path)-1]
 			if targetNode.Element == target && targetNode.Ingredients != nil && len(targetNode.Ingredients) == 2 {
+				// Create recipe key
 				ingredients := make([]string, len(targetNode.Ingredients))
 				copy(ingredients, targetNode.Ingredients)
 				sort.Strings(ingredients)
 				recipeKey := strings.Join(ingredients, "+")
 
-				if !distinctRecipes[recipeKey] {
-					distinctRecipes[recipeKey] = true
-					allPaths = append(allPaths, path)
+				// For each recipe, keep the shortest path found
+				existingPath, hasPath := distinctRecipes[recipeKey]
+				if !hasPath || len(path) < len(existingPath) {
+					distinctRecipes[recipeKey] = path
 				}
 			}
 		}
 	}
 
-	if len(allPaths) == 0 {
-		log.Printf("DEBUG: No paths found in multi-threaded search, trying pure bidirectional approach")
-		for _, recipe := range recipes {
-			if len(recipe.Ingredients) == 2 {
+	// Collect all paths, prioritizing recipe diversity
+	for _, path := range distinctRecipes {
+		allPaths = append(allPaths, path)
+	}
+
+	// If we didn't get enough diverse recipes, try standard approach for any missing ones
+	if len(allPaths) < len(validRecipes) {
+		log.Printf("DEBUG: Multi-threaded approach found paths for only %d/%d recipes, trying standard approach",
+			len(allPaths), len(validRecipes))
+
+		// Find which recipes we're missing
+		foundRecipes := make(map[string]bool)
+		for _, path := range allPaths {
+			if targetNode := path[len(path)-1]; targetNode.Ingredients != nil {
+				foundRecipes[getRecipeKey(targetNode.Ingredients)] = true
+			}
+		}
+
+		// Try standard bidirectional search for each missing recipe
+		for _, recipe := range validRecipes {
+			recipeKey := getRecipeKey(recipe.Ingredients)
+			if !foundRecipes[recipeKey] {
+				log.Printf("DEBUG: Trying standard approach for missing recipe: %v", recipe.Ingredients)
 				customResults, customVisited := customBidirectionalSearch(
 					elements,
 					g,
 					target,
 					recipe.Ingredients,
-					maxResults,
-					singlePath,
+					2,
+					false,
 				)
 
 				totalVisits += customVisited
 
-				for _, path := range customResults {
-					if validateIngredientsInPath(path) {
-						ingredients := make([]string, len(recipe.Ingredients))
-						copy(ingredients, recipe.Ingredients)
-						sort.Strings(ingredients)
-						recipeKey := strings.Join(ingredients, "+")
+				if len(customResults) > 0 {
+					// Add the shortest valid path
+					sort.Slice(customResults, func(i, j int) bool {
+						return len(customResults[i]) < len(customResults[j])
+					})
 
-						if !distinctRecipes[recipeKey] {
-							distinctRecipes[recipeKey] = true
+					for _, path := range customResults {
+						if validateIngredientsInPath(path) {
 							allPaths = append(allPaths, path)
+							foundRecipes[recipeKey] = true
+							break
 						}
 					}
 				}
 			}
 		}
 	}
+
+	// Sort paths by length
 	sort.Slice(allPaths, func(i, j int) bool {
 		return len(allPaths[i]) < len(allPaths[j])
 	})
+
+	// Limit results to maxResults
 	if len(allPaths) > maxResults {
 		allPaths = allPaths[:maxResults]
 	}
@@ -1128,25 +1463,87 @@ func validateIngredientsInPath(path []model.Node) bool {
 	}
 
 	seenElements := make(map[string]bool)
-	seenElements[path[0].Element] = true
+	baseElements := []string{"Water", "Fire", "Earth", "Air"}
 
+	// Add all base elements to the seen set initially
+	for _, baseElem := range baseElements {
+		seenElements[baseElem] = true
+	}
+
+	// Also mark all elements in path as seen
+	for _, node := range path {
+		seenElements[node.Element] = true
+	}
+
+	// Then verify that each non-base element has its ingredients earlier in the path
 	for i := 1; i < len(path); i++ {
 		currentNode := path[i]
 
-		if i > 0 && (currentNode.Ingredients == nil || len(currentNode.Ingredients) == 0) {
-			return false
+		// Skip validation for base elements
+		if utils.IsBaseElementName(currentNode.Element, baseElements) {
+			continue
 		}
 
-		if currentNode.Ingredients != nil && len(currentNode.Ingredients) > 0 {
+		// For non-base elements, they must have ingredients defined
+		if currentNode.Ingredients == nil || len(currentNode.Ingredients) == 0 {
+			// Try to find ingredients among previous elements
+			found := false
+			for j := 0; j < i && !found; j++ {
+				// If any previous element can be used as ingredient
+				prevElem := path[j].Element
+				// This is a simplified check - you might need more complex recipe validation
+				if prevElem != currentNode.Element {
+					found = true
+				}
+			}
+			if !found {
+				return false
+			}
+		} else {
+			// Check all ingredients are available and traceable
 			for _, ingredient := range currentNode.Ingredients {
-				if !seenElements[ingredient] {
+				ingredientAvailable := false
+
+				// Skip base elements - they're always available
+				if utils.IsBaseElementName(ingredient, baseElements) {
+					continue
+				}
+
+				// Check if this ingredient appears earlier in path
+				for j := 0; j < i; j++ {
+					if path[j].Element == ingredient {
+						ingredientAvailable = true
+						break
+					}
+				}
+
+				if !ingredientAvailable && !seenElements[ingredient] {
 					return false
 				}
 			}
 		}
-
-		seenElements[currentNode.Element] = true
 	}
 
+	return true
+}
+
+// Add this function to fix the problem in HandleBidirectionalSearch
+func IsRecipeTraceable(ingredients []string, baseElements []string, g *graph.ElementGraph) bool {
+	// Check if both ingredients are traceable to base elements
+	for _, ing := range ingredients {
+		// Skip checking base elements
+		isBaseElement := false
+		for _, base := range baseElements {
+			if ing == base {
+				isBaseElement = true
+				break
+			}
+		}
+
+		// If not base element, check traceability
+		if !isBaseElement && !IsElementTraceable(ing, baseElements, g) {
+			return false
+		}
+	}
 	return true
 }
