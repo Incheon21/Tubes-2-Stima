@@ -32,10 +32,11 @@ const RecipeExplorer = () => {
     algorithm: '-',
     timeElapsed: 0,
     nodesVisited: 0,
-    treesFound: 0
+    treesFound: 0,
   });
 
-  const serverUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api';
+  console.log("tes:");
+  const serverUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/api';
 
   const loadElements = async () => {
     try {
