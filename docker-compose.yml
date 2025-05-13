@@ -15,13 +15,12 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
-    env_file:
-      - ./frontend/.env.production
     depends_on:
       - backend
     environment:
-      - VITE_API_URL=http://backend:8080
+      - VITE_API_URL=http://localhost:8080
     volumes:
       - ./frontend:/app/src
       - /app/node_modules
     restart: unless-stopped
+  
