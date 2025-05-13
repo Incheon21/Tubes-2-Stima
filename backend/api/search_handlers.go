@@ -168,18 +168,15 @@ func (h *Handler) HandleBFSTree(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		// If we still have no makeable trees, we need to try alternative recipes
 		if len(makeableTrees) == 0 {
 			log.Printf("DEBUG: Still no makeable trees, trying alternative recipes")
 
-			// Try creating a tree directly from recipes
 			element := h.elements[elementName]
 			for _, recipe := range element.Recipes {
 				if len(recipe.Ingredients) == 0 {
 					continue
 				}
 
-				// Check if this recipe only uses base elements or fully traceable elements
 				allIngredientsTraceable := true
 				for _, ingName := range recipe.Ingredients {
 					isBase := false
@@ -201,7 +198,6 @@ func (h *Handler) HandleBFSTree(w http.ResponseWriter, r *http.Request) {
 				}
 
 				if allIngredientsTraceable {
-					// Create a tree with this recipe
 					tree := map[string]interface{}{
 						"name":        elementName,
 						"imagePath":   element.ImagePath,
@@ -242,10 +238,8 @@ func (h *Handler) HandleBFSTree(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		// If we still have no makeable trees, we need to create a special case
 		if len(makeableTrees) == 0 {
 			log.Printf("DEBUG: Unable to find any makeable trees for %s", elementName)
-			// Create a tree with special "unmakeable" notice
 			trees = []map[string]interface{}{{
 				"name":        elementName,
 				"imagePath":   h.elements[elementName].ImagePath,
@@ -261,7 +255,6 @@ func (h *Handler) HandleBFSTree(w http.ResponseWriter, r *http.Request) {
 		log.Printf("DEBUG: Using %d makeable trees", len(trees))
 	}
 
-	// Continue with the existing code
 	if len(trees) > count {
 		trees = trees[:count]
 	}
@@ -297,9 +290,8 @@ func countNodesInTree(tree map[string]interface{}) int {
 		return 0
 	}
 
-	count := 1 // Count the current node
+	count := 1
 
-	// Count nodes in ingredient subtrees
 	ingredients, ok := tree["ingredients"].([]interface{})
 	if !ok {
 		return count
@@ -344,7 +336,6 @@ func ensureIngredientsExpanded(tree map[string]interface{}, elements map[string]
 	// Check if this element is makeable
 	elemData, exists := elements[elementName]
 	if !exists || len(elemData.Recipes) == 0 {
-		// Mark unmakeable elements appropriately
 		tree["unmakeable"] = true
 		return false
 	}
@@ -353,7 +344,6 @@ func ensureIngredientsExpanded(tree map[string]interface{}, elements map[string]
 	allIngredientsValid := true
 
 	if !ok || len(ingredients) == 0 {
-		// No ingredients provided, try to get from element data
 		recipe := elemData.Recipes[0]
 		newIngredients := make([]interface{}, 0, len(recipe.Ingredients))
 
@@ -391,7 +381,6 @@ func ensureIngredientsExpanded(tree map[string]interface{}, elements map[string]
 
 		tree["ingredients"] = newIngredients
 	} else {
-		// Expand existing ingredients
 		for _, ing := range ingredients {
 			if ingTree, ok := ing.(map[string]interface{}); ok {
 				ingValid := ensureIngredientsExpanded(ingTree, elements, baseElements, visited)
@@ -428,7 +417,6 @@ func convertPathToTree(path []model.Node, targetElement string, elements map[str
 	for i := range path {
 		nodeMap[path[i].Element] = &path[i]
 
-		// Also index by position if available
 		if path[i].Position != 0 {
 			elemKey := path[i].Element
 			if positionNodeMap[elemKey] == nil {
@@ -439,24 +427,19 @@ func convertPathToTree(path []model.Node, targetElement string, elements map[str
 	}
 
 	processedInBranch := make(map[string]bool)
-	// Create element validity cache
 	validityCache := make(map[string]bool)
 
-	// Check if an element is makeable (has valid recipes)
 	isElementMakeable := func(element string) bool {
-		// Base elements are always valid
 		for _, base := range baseElements {
 			if element == base {
 				return true
 			}
 		}
 
-		// Check cache
 		if result, ok := validityCache[element]; ok {
 			return result
 		}
 
-		// Check if this element has valid recipes
 		elemData, exists := elements[element]
 		if !exists {
 			validityCache[element] = false
@@ -468,7 +451,6 @@ func convertPathToTree(path []model.Node, targetElement string, elements map[str
 			return false
 		}
 
-		// Element has recipes, considered valid for now
 		validityCache[element] = true
 		return true
 	}
@@ -483,13 +465,10 @@ func convertPathToTree(path []model.Node, targetElement string, elements map[str
 			}
 		}
 
-		// Check if we have position-specific nodes for this element
 		if posMap, exists := positionNodeMap[element]; exists && len(posMap) > 0 {
-			// Log that we're using position-specific recipe variant
 			log.Printf("DEBUG: Using position-specific recipe for %s", element)
 		}
 
-		// Check if this element is makeable
 		if !isElementMakeable(element) && !processedInBranch[element] {
 			elemData, exists := elements[element]
 			if exists {
@@ -530,11 +509,9 @@ func convertPathToTree(path []model.Node, targetElement string, elements map[str
 				"ingredients":   []interface{}{},
 			}
 
-			// If it's not a base element, try to expand its ingredients
 			if !isBase && depth < 10 && len(elemData.Recipes) > 0 {
 				recipe := elemData.Recipes[0]
 				for _, ingredient := range recipe.Ingredients {
-					// Recursively build subtree for this ingredient
 					subtree := buildTree(ingredient, depth+1)
 					if subtree != nil {
 						treeNode["ingredients"] = append(treeNode["ingredients"].([]interface{}), subtree)
@@ -566,7 +543,6 @@ func convertPathToTree(path []model.Node, targetElement string, elements map[str
 
 		ingredients := node.Ingredients
 		if len(ingredients) == 0 {
-			// Try to get from element data
 			if elemData, exists := elements[element]; exists && len(elemData.Recipes) > 0 {
 				ingredients = elemData.Recipes[0].Ingredients
 			}
@@ -576,10 +552,8 @@ func convertPathToTree(path []model.Node, targetElement string, elements map[str
 			for _, ingredient := range ingredients {
 				subtree := buildTree(ingredient, depth+1)
 				if subtree != nil {
-					// Add path index information for duplicate elements
 					for i := 0; i < len(ingredients); i++ {
 						if ingredients[i] == ingredient && i > 0 {
-							// Add a path index marker for elements that appear multiple times
 							subtree["pathIndex"] = i
 							subtree["ingredientIndex"] = i
 							break
@@ -597,26 +571,22 @@ func convertPathToTree(path []model.Node, targetElement string, elements map[str
 }
 
 func isTreeFullyMakeable(tree map[string]interface{}) bool {
-	// Check if this node is marked as unmakeable
 	if unmakeable, ok := tree["unmakeable"].(bool); ok && unmakeable {
 		elementName, _ := tree["name"].(string)
 		log.Printf("DEBUG: Tree node %s is unmakeable, rejecting tree", elementName)
 		return false
 	}
 
-	// Check if this is a non-base element with empty ingredients
 	elementName, _ := tree["name"].(string)
 	ingredients, hasIngredients := tree["ingredients"].([]interface{})
 	isBase, hasBase := tree["isBaseElement"].(bool)
 
-	// If it's not a base element and has no ingredients or empty ingredients list, it's unmakeable
 	if (!hasBase || !isBase) && (!hasIngredients || len(ingredients) == 0) {
 		log.Printf("DEBUG: Non-base element %s has no ingredients, marking as unmakeable", elementName)
 		tree["unmakeable"] = true
 		return false
 	}
 
-	// Check all ingredients
 	if hasIngredients {
 		for _, ing := range ingredients {
 			ingredient, ok := ing.(map[string]interface{})
@@ -625,7 +595,6 @@ func isTreeFullyMakeable(tree map[string]interface{}) bool {
 			}
 
 			if !isTreeFullyMakeable(ingredient) {
-				// If any ingredient is unmakeable, the whole tree is unmakeable
 				log.Printf("DEBUG: Tree node %s has unmakeable ingredient, rejecting tree", elementName)
 				return false
 			}
@@ -645,17 +614,15 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 	}
 	elementName := strings.Join(pathParts, "/")
 
-	// Get count parameter or set to unlimited (-1) if "all" is specified
-	count := -1 // Default to unlimited
+	count := -1
 	if countParam := r.URL.Query().Get("count"); countParam != "" {
 		if countParam == "all" {
-			count = -1 // Explicitly set to unlimited
+			count = -1 
 		} else if parsedCount, err := strconv.Atoi(countParam); err == nil && parsedCount > 0 {
 			count = parsedCount
 		}
 	}
 
-	// Validate element exists
 	element, exists := h.elements[elementName]
 	if !exists {
 		http.Error(w, "Element not found", http.StatusNotFound)
@@ -663,7 +630,6 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Handle base elements quickly
 	baseElements := []string{"Water", "Fire", "Earth", "Air"}
 	isBaseElement := false
 	for _, base := range baseElements {
@@ -702,35 +668,27 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 		elementName, countStr)
 	startTime := time.Now()
 
-	// Use a higher search path count for diversity
-	// If unlimited count requested, use a very high number but not unlimited to avoid exhausting resources
-	searchPathCount := 1000 // Set very high to ensure all recipes are found
+	searchPathCount := 1000 
 	if count > 0 {
-		searchPathCount = count * 20 // Increased multiplier for better coverage
+		searchPathCount = count * 20 
 	}
 
 	paths, visitedCount := alg.MultiThreadedDFS(h.elements, elementName, searchPathCount, false)
 
 	log.Printf("DEBUG: DFS found %d paths after visiting %d nodes", len(paths), visitedCount)
 
-	// Convert paths to trees
 	trees := make([]map[string]interface{}, 0, len(paths))
 	uniqueSignatures := make(map[string]bool)
 	recipeSignatures := make(map[string]bool)
 
-	// First pass: Convert paths to trees and track unique recipes
 	for _, path := range paths {
-		// Convert path to tree
 		tree := convertPathToTree(path, elementName, h.elements, baseElements)
 
-		// Ensure all ingredients are fully expanded
 		if tree != nil {
 			ensureIngredientsExpanded(tree, h.elements, baseElements, make(map[string]bool))
 
-			// Get recipe signature (just top-level ingredients)
 			recipeSig := getTopLevelRecipeSignature(tree)
 
-			// Deduplicate by detailed signature
 			signature := generateDetailedTreeSignature(tree)
 			if !uniqueSignatures[signature] {
 				uniqueSignatures[signature] = true
@@ -742,29 +700,23 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("DEBUG: Generated %d unique trees from %d paths", len(trees), len(paths))
 
-	// Generate additional trees from direct DB recipes
-	// If unlimited, get all recipes; otherwise check if we have enough
 	shouldGenerateMore := count == -1 ||
 		(len(trees) < count || len(recipeSignatures) < min(count, len(element.Recipes)))
 
 	if shouldGenerateMore {
 		log.Printf("DEBUG: Generating more trees from element recipes")
 
-		// Create trees directly from element recipes
 		for recipeIdx, recipe := range element.Recipes {
 			if count != -1 && (len(trees) >= count*2 || len(recipeSignatures) >= count*2) {
 				break
 			}
 
-			// Skip recipes with no ingredients
 			if len(recipe.Ingredients) == 0 {
 				continue
 			}
 
-			// Check if all ingredients in this recipe are traceable before creating a tree
 			allIngredientsTraceable := true
 			for _, ingredient := range recipe.Ingredients {
-				// Skip checking base elements
 				isBaseElement := false
 				for _, base := range baseElements {
 					if ingredient == base {
@@ -773,7 +725,6 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 
-				// If not base element, check if it's traceable
 				if !isBaseElement && !alg.IsElementTraceable(ingredient, baseElements, graph.NewElementGraph(h.elements)) {
 					log.Printf("DEBUG: Recipe ingredient '%s' is not traceable to base elements in direct tree generation", ingredient)
 					allIngredientsTraceable = false
@@ -786,14 +737,12 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			// Create base tree for this recipe
 			tree := map[string]interface{}{
 				"name":        elementName,
 				"imagePath":   element.ImagePath,
 				"ingredients": make([]interface{}, 0, len(recipe.Ingredients)),
 			}
 
-			// Build ingredients for this recipe
 			for _, ingredient := range recipe.Ingredients {
 				isBase := false
 				for _, base := range baseElements {
@@ -808,7 +757,6 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 					continue
 				}
 
-				// Create ingredient subtree
 				ingTree := map[string]interface{}{
 					"name":          ingredient,
 					"imagePath":     ingredientData.ImagePath,
@@ -816,9 +764,7 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 					"ingredients":   []interface{}{},
 				}
 
-				// For non-base ingredients, try to find an existing path or expand recipes
 				if !isBase {
-					// Try existing paths first
 					found := false
 					for _, path := range paths {
 						subPath := extractSubPath(path, ingredient)
@@ -832,14 +778,11 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 						}
 					}
 
-					// If no path found, just expand the ingredient by selecting a recipe
 					if !found && len(ingredientData.Recipes) > 0 {
-						// Pick a different recipe for variety
 						recipeIndex := (recipeIdx + len(tree["ingredients"].([]interface{}))) % len(ingredientData.Recipes)
 						ingRecipe := ingredientData.Recipes[recipeIndex]
 
 						if len(ingRecipe.Ingredients) > 0 {
-							// Create subtrees for this recipe's ingredients
 							for _, subIngName := range ingRecipe.Ingredients {
 								isSubIngBase := false
 								for _, base := range baseElements {
@@ -871,14 +814,10 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 
-				// Add to tree ingredients
 				tree["ingredients"] = append(tree["ingredients"].([]interface{}), ingTree)
 			}
 
-			// Ensure all ingredients are fully expanded
 			ensureIngredientsExpanded(tree, h.elements, baseElements, make(map[string]bool))
-
-			// Add tree if unique
 			recipeSig := getTopLevelRecipeSignature(tree)
 			signature := generateDetailedTreeSignature(tree)
 
@@ -890,25 +829,20 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		// If we still need more trees and not unlimited, use randomness for variety
 		shouldAddRandomVariations := count == -1 || len(trees) < count
 		if shouldAddRandomVariations {
 			log.Printf("DEBUG: Adding more tree variations with randomness")
 
-			// Determine max variations to try
 			maxVariations := 50
 			if count > 0 {
 				maxVariations = count * 2
 			}
 
-			// Use ensureIngredientsRandomlyExpanded for more variety
 			for i := 0; i < maxVariations; i++ {
-				// Stop if we have enough trees when count is limited
 				if count > 0 && len(trees) >= count {
 					break
 				}
 
-				// Start with any recipe
 				if len(element.Recipes) == 0 {
 					continue
 				}
@@ -920,10 +854,8 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 					continue
 				}
 
-				// Check if all ingredients in this recipe are traceable before creating a tree
 				allIngredientsTraceable := true
 				for _, ingredient := range recipe.Ingredients {
-					// Skip checking base elements
 					isBaseElement := false
 					for _, base := range baseElements {
 						if ingredient == base {
@@ -932,7 +864,6 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 						}
 					}
 
-					// If not base element, check if it's traceable
 					if !isBaseElement && !alg.IsElementTraceable(ingredient, baseElements, graph.NewElementGraph(h.elements)) {
 						log.Printf("DEBUG: Recipe ingredient '%s' is not traceable in variation generation", ingredient)
 						allIngredientsTraceable = false
@@ -945,14 +876,12 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 					continue
 				}
 
-				// Create base tree
 				tree := map[string]interface{}{
 					"name":        elementName,
 					"imagePath":   element.ImagePath,
 					"ingredients": make([]interface{}, 0, len(recipe.Ingredients)),
 				}
 
-				// Add ingredients
 				for _, ingredient := range recipe.Ingredients {
 					isBase := false
 					for _, base := range baseElements {
@@ -977,11 +906,9 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 					tree["ingredients"] = append(tree["ingredients"].([]interface{}), ingTree)
 				}
 
-				// Use random expansion
 				visited := make(map[string]bool)
 				ensureIngredientsRandomlyExpanded(tree, h.elements, baseElements, visited, i)
 
-				// Add if unique
 				signature := generateDetailedTreeSignature(tree)
 				recipeSig := getTopLevelRecipeSignature(tree)
 
@@ -994,7 +921,6 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// If we still have no trees, use a fallback approach
 	if len(trees) == 0 {
 		log.Printf("DEBUG: No trees generated at all, using fallback DFS tree builder")
 		g := utils.CreateElementGraph(h.elements)
@@ -1005,17 +931,14 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 		visitedCount += visitCount
 	}
 
-	// Sort trees by complexity (base elements count)
 	sort.Slice(trees, func(i, j int) bool {
 		return getTreeComplexityScore(trees[i]) < getTreeComplexityScore(trees[j])
 	})
 
-	// If count is specified and we have more trees than requested, apply recipe diversity selection
 	if count > 0 && len(trees) > count {
 		selectedTrees := make([]map[string]interface{}, 0, count)
 		selectedRecipes := make(map[string]bool)
 
-		// First, select trees with different top-level recipe signatures
 		for _, tree := range trees {
 			if len(selectedTrees) >= count {
 				break
@@ -1028,16 +951,13 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		// If we still need more trees, add the most diverse remaining trees
 		if len(selectedTrees) < count {
-			// Create a map of existing tree signatures
 			existingSigs := make(map[string]bool)
 			for _, tree := range selectedTrees {
 				sig := generateDetailedTreeSignature(tree)
 				existingSigs[sig] = true
 			}
 
-			// Add more trees prioritizing diversity
 			for _, tree := range trees {
 				if len(selectedTrees) >= count {
 					break
@@ -1064,7 +984,6 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 	}
 	trees = traceableTrees
 
-	// Calculate total node count
 	totalNodeCount := 0
 	for _, tree := range trees {
 		totalNodeCount += countNodesInTree(tree)
@@ -1090,7 +1009,6 @@ func (h *Handler) HandleDFSTree(w http.ResponseWriter, r *http.Request) {
 		len(trees), timeElapsed)
 }
 
-// Helper function for min of two integers
 func min(a, b int) int {
 	if a < b {
 		return a
@@ -1098,42 +1016,34 @@ func min(a, b int) int {
 	return b
 }
 
-// Add this function after the isTreeFullyMakeable function
 
 func isTreeFullyTraceable(tree map[string]interface{}, baseElements []string, elements map[string]model.Element) bool {
-	// Check if this node is marked as unmakeable
 	if unmakeable, ok := tree["unmakeable"].(bool); ok && unmakeable {
 		return false
 	}
 
-	// Get element name
 	elementName, ok := tree["name"].(string)
 	if !ok {
 		return false
 	}
 
-	// Base elements are always traceable
 	for _, base := range baseElements {
 		if elementName == base {
 			return true
 		}
 	}
 
-	// Check if the element is explicitly marked untraceable
 	if elementName == "Tree" {
-		return false // Tree is explicitly not traceable to base elements
+		return false
 	}
 
-	// Check traceability
 	g := graph.NewElementGraph(elements)
 	if !alg.IsElementTraceable(elementName, baseElements, g) {
 		return false
 	}
 
-	// Check all ingredients
 	ingredients, ok := tree["ingredients"].([]interface{})
 	if !ok {
-		// Non-base element without ingredients is not traceable
 		return false
 	}
 
@@ -1180,24 +1090,20 @@ func getTopLevelRecipeSignature(tree map[string]interface{}) string {
 	return sb.String()
 }
 
-// Helper function to score tree complexity for sorting
-// Lower score = simpler tree (more base elements, fewer steps)
 func getTreeComplexityScore(tree map[string]interface{}) int {
 	if tree == nil {
 		return 0
 	}
 
-	// Base elements have low complexity
 	if isBase, ok := tree["isBaseElement"].(bool); ok && isBase {
 		return 0
 	}
 
 	ingredients, ok := tree["ingredients"].([]interface{})
 	if !ok || len(ingredients) == 0 {
-		return 1 // Just a node with no ingredients
+		return 1 
 	}
 
-	// Count base elements in direct ingredients
 	baseCount := 0
 	nonBaseCount := 0
 	ingredientComplexity := 0
@@ -1216,19 +1122,13 @@ func getTreeComplexityScore(tree map[string]interface{}) int {
 		}
 	}
 
-	// Trees with more base elements directly are simpler
-	// Trees with more non-base elements are more complex
 	return (nonBaseCount * 10) - baseCount + ingredientComplexity
 }
 
-// Update the tree signature generation to capture more structure
 
 func generateDetailedTreeSignature(tree map[string]interface{}) string {
 	var sb strings.Builder
-
 	sb.WriteString(tree["name"].(string))
-
-	// Include position if available
 	if pos, ok := tree["position"].(int); ok && pos > 0 {
 		sb.WriteString(fmt.Sprintf("#%d", pos))
 	}
@@ -1240,13 +1140,10 @@ func generateDetailedTreeSignature(tree map[string]interface{}) string {
 		return sb.String() + "[]"
 	}
 
-	// For combinations like Planet(Continent+Continent), preserve the original order
-	// and include more details about each ingredient's path
 	elementName, _ := tree["name"].(string)
 	preserveOrder := (elementName == "Planet" || elementName == "Continent") ||
 		(len(ingredients) >= 2 && ingredients[0].(map[string]interface{})["name"] == ingredients[1].(map[string]interface{})["name"])
 
-	// Generate detailed signatures including positions and path details
 	ingredientSignatures := make([]string, 0, len(ingredients))
 
 	for i, ing := range ingredients {
@@ -1255,21 +1152,17 @@ func generateDetailedTreeSignature(tree map[string]interface{}) string {
 			continue
 		}
 
-		// Include position and index in signature
 		ingredientSig := generateDetailedTreeSignature(ingredient)
 
-		// Always include position index for duplicated elements to preserve uniqueness
 		if i > 0 && ingredient["name"] == ingredients[i-1].(map[string]interface{})["name"] {
 			ingredientSig = fmt.Sprintf("%d:%s", i, ingredientSig)
 		} else if preserveOrder {
-			// For elements where order matters, include the position always
 			ingredientSig = fmt.Sprintf("%d:%s", i, ingredientSig)
 		}
 
 		ingredientSignatures = append(ingredientSignatures, ingredientSig)
 	}
 
-	// Only sort if they're not position-sensitive and don't contain duplicated elements
 	if !preserveOrder && len(ingredientSignatures) > 1 {
 		sort.Strings(ingredientSignatures)
 	}
@@ -1373,7 +1266,6 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 	log.Printf("DEBUG: Starting bidirectional search for element '%s'", elementName)
 	startTime := time.Now()
 
-	// Increase search count to ensure we get enough diversity
 	searchCount := count * 20
 
 	var paths [][]model.Node
@@ -1390,11 +1282,8 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 
 	timeElapsed := time.Since(startTime).Milliseconds()
 
-	// Group by recipe for analytics
 	recipeGroups := make(map[string][][]model.Node)
 
-	// First, try to extract all recipes directly from the element data
-	// This ensures we consider all possible recipes from the database
 	elementRecipes := element.Recipes
 	for _, recipe := range elementRecipes {
 		if len(recipe.Ingredients) >= 2 {
@@ -1402,15 +1291,12 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 			copy(sortedIngs, recipe.Ingredients)
 			sort.Strings(sortedIngs)
 			recipeKey := strings.Join(sortedIngs, "+")
-
-			// Initialize with empty path list if this recipe doesn't have paths yet
 			if _, exists := recipeGroups[recipeKey]; !exists {
 				recipeGroups[recipeKey] = [][]model.Node{}
 			}
 		}
 	}
 
-	// Then add paths to their respective recipe groups
 	for _, path := range paths {
 		if len(path) == 0 {
 			continue
@@ -1442,7 +1328,6 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 		trees := make([]map[string]interface{}, 0)
 		uniqueSignatures := make(map[string]bool)
 
-		// Group recipes by their keys for better matching
 		dbRecipesByKey := make(map[string]model.ElementRecipe)
 		for _, recipe := range element.Recipes {
 			if len(recipe.Ingredients) >= 2 {
@@ -1454,14 +1339,11 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 			}
 		}
 
-		// Process each recipe group to create trees
-		// Sort recipe keys to ensure consistent processing order
 		recipeKeys := make([]string, 0, len(recipeGroups))
 		for key := range recipeGroups {
 			recipeKeys = append(recipeKeys, key)
 		}
 
-		// Sort by recipe complexity (number of ingredients)
 		sort.Slice(recipeKeys, func(i, j int) bool {
 			return len(strings.Split(recipeKeys[i], "+")) < len(strings.Split(recipeKeys[j], "+"))
 		})
@@ -1471,17 +1353,13 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 
 			log.Printf("DEBUG: Processing recipe '%s' with %d paths", recipeKey, len(recipePaths))
 
-			// Try to create at least one tree for each recipe
 			treeCreated := false
 
-			// First attempt: use paths if available
 			if len(recipePaths) > 0 {
-				// Sort paths by length (shorter paths first for simpler trees)
 				sort.Slice(recipePaths, func(i, j int) bool {
 					return len(recipePaths[i]) < len(recipePaths[j])
 				})
 
-				// Try each path until we get a valid tree for this recipe
 				for _, path := range recipePaths {
 					tree := convertPathToTree(path, elementName, h.elements, baseElements)
 
@@ -1500,14 +1378,11 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 				}
 			}
 
-			// Second attempt: manually create tree from recipe ingredients
 			if !treeCreated {
 				log.Printf("DEBUG: Creating manual tree for recipe: %s", recipeKey)
 
-				// Get recipe ingredients from database or from path
 				recipe, exists := dbRecipesByKey[recipeKey]
 				if !exists && len(recipePaths) > 0 {
-					// Extract ingredients from the first path
 					for _, node := range recipePaths[0] {
 						if node.Element == elementName && node.Ingredients != nil && len(node.Ingredients) > 0 {
 							recipe.Ingredients = node.Ingredients
@@ -1516,7 +1391,6 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 					}
 				}
 
-				// Check if all ingredients in this recipe are traceable before creating the tree
 				if len(recipe.Ingredients) > 0 && alg.IsRecipeTraceable(recipe.Ingredients, baseElements, graph.NewElementGraph(h.elements)) {
 					tree := map[string]interface{}{
 						"name":        elementName,
@@ -1524,7 +1398,6 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 						"ingredients": make([]interface{}, 0, len(recipe.Ingredients)),
 					}
 
-					// Add ingredient subtrees
 					for _, ingredient := range recipe.Ingredients {
 						isIngBase := false
 						for _, base := range baseElements {
@@ -1546,9 +1419,7 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 							"ingredients":   []interface{}{},
 						}
 
-						// For non-base ingredients, try to find a path or expand them
 						if !isIngBase {
-							// Try to find a path for this ingredient
 							var ingPath []model.Node
 							for _, path := range paths {
 								subPath := extractSubPath(path, ingredient)
@@ -1569,10 +1440,8 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 						tree["ingredients"] = append(tree["ingredients"].([]interface{}), ingTree)
 					}
 
-					// Make sure all ingredients are fully expanded
 					ensureIngredientsExpanded(tree, h.elements, baseElements, make(map[string]bool))
 
-					// Add to trees if unique
 					signature := generateDetailedTreeSignature(tree)
 					if !uniqueSignatures[signature] {
 						uniqueSignatures[signature] = true
@@ -1585,7 +1454,6 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 				}
 			}
 
-			// If we have enough trees, stop adding more
 			if len(trees) >= count {
 				log.Printf("DEBUG: Reached requested tree count (%d), stopping tree generation", count)
 				break
@@ -1595,18 +1463,15 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 		if len(trees) < count {
 			log.Printf("DEBUG: Only generated %d/%d trees, trying to create more variations", len(trees), count)
 
-			// Try using direct recipes from the element data
 			for _, recipe := range element.Recipes {
 				if len(trees) >= count {
 					break
 				}
 
-				// Skip empty recipes
 				if len(recipe.Ingredients) == 0 {
 					continue
 				}
 
-				// Check if this recipe is traceable before creating a tree for it
 				if !alg.IsRecipeTraceable(recipe.Ingredients, baseElements, graph.NewElementGraph(h.elements)) {
 					log.Printf("DEBUG: Skipping untraceable recipe for variation: %v", recipe.Ingredients)
 					continue
@@ -1618,7 +1483,6 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 					"ingredients": make([]interface{}, 0, len(recipe.Ingredients)),
 				}
 
-				// Create ingredient subtrees
 				for _, ingredient := range recipe.Ingredients {
 					isIngBase := false
 					for _, base := range baseElements {
@@ -1643,11 +1507,9 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 					tree["ingredients"] = append(tree["ingredients"].([]interface{}), ingTree)
 				}
 
-				// Ensure ingredients are expanded, using a random approach for variety
 				visited := make(map[string]bool)
 				ensureIngredientsRandomlyExpanded(tree, h.elements, baseElements, visited, len(trees))
 
-				// Check if this tree is unique
 				signature := generateDetailedTreeSignature(tree)
 				if !uniqueSignatures[signature] {
 					uniqueSignatures[signature] = true
@@ -1678,7 +1540,6 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 			return
 		}
 	} else {
-		// Return standard path results
 		result := map[string]interface{}{
 			"paths":        paths,
 			"nodesVisited": visitedCount,
@@ -1697,7 +1558,6 @@ func (h *Handler) HandleBidirectionalSearch(w http.ResponseWriter, r *http.Reque
 	log.Printf("DEBUG: Successfully sent bidirectional search response")
 }
 
-// Helper function to expand ingredients with some randomness for variety
 func ensureIngredientsRandomlyExpanded(tree map[string]interface{}, elements map[string]model.Element, baseElements []string, visited map[string]bool, seed int) {
 	if tree == nil {
 		return
@@ -1724,7 +1584,6 @@ func ensureIngredientsRandomlyExpanded(tree map[string]interface{}, elements map
 		return
 	}
 
-	// Check if this element is traceable before expanding
 	if !alg.IsElementTraceable(elementName, baseElements, graph.NewElementGraph(elements)) {
 		tree["unmakeable"] = true
 		return
@@ -1735,11 +1594,9 @@ func ensureIngredientsRandomlyExpanded(tree map[string]interface{}, elements map
 	if (!ok || len(ingredients) == 0) && !isBase {
 		elemData, exists := elements[elementName]
 		if exists && len(elemData.Recipes) > 0 {
-			// Find a traceable recipe
 			var validRecipe model.ElementRecipe
 			foundValidRecipe := false
 
-			// Try up to 3 random recipes
 			for attempt := 0; attempt < 3 && !foundValidRecipe; attempt++ {
 				recipeIdx := (seed + attempt) % len(elemData.Recipes)
 				recipe := elemData.Recipes[recipeIdx]
@@ -1779,7 +1636,6 @@ func ensureIngredientsRandomlyExpanded(tree map[string]interface{}, elements map
 				}
 
 				if !ingIsBase {
-					// Only expand if the ingredient is traceable
 					if alg.IsElementTraceable(ingName, baseElements, graph.NewElementGraph(elements)) {
 						ensureIngredientsRandomlyExpanded(ingTree, elements, baseElements, visited, seed+1)
 					} else {
@@ -1793,7 +1649,6 @@ func ensureIngredientsRandomlyExpanded(tree map[string]interface{}, elements map
 			tree["ingredients"] = newIngredients
 		}
 	} else {
-		// Expand existing ingredients
 		for i, ing := range ingredients {
 			if ingTree, ok := ing.(map[string]interface{}); ok {
 				ingName, hasName := ingTree["name"].(string)
@@ -1807,7 +1662,6 @@ func ensureIngredientsRandomlyExpanded(tree map[string]interface{}, elements map
 	}
 }
 
-// Helper function to extract a sufbpath leading to a target element
 func extractSubPath(path []model.Node, targetElement string) []model.Node {
 	for i, node := range path {
 		if node.Element == targetElement {

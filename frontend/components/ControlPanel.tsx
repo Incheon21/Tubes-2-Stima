@@ -61,7 +61,6 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
     
     const count = parseInt(value);
     
-    // Set minimum of 1
     if (count < 1) {
       setTreeCount(1);
     } else {
@@ -243,7 +242,6 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             </div>
           )}
           
-          {/* Algorithm Selection */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <label className="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">
@@ -402,7 +400,6 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             </div>
           </div>
           
-          {/* About Recipe Explorer / How It Works Section */}
           <div className="mt-8 group">
             <div className="p-6 bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-50 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-blue-900/20 rounded-xl border border-indigo-100 dark:border-indigo-700/50 transition-all duration-500 group-hover:shadow-xl dark:group-hover:shadow-indigo-900/20 relative overflow-hidden">
               <div className="absolute -top-10 -right-10 w-24 h-24 bg-indigo-100 dark:bg-indigo-700 rounded-full opacity-50 group-hover:animate-ping-slow"></div>

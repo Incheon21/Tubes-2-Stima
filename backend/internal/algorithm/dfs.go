@@ -292,13 +292,11 @@ func MultiThreadedDFS(elements map[string]model.Element, target string, maxResul
 			continue
 		}
 
-		// Skip recipes with duplicate ingredients
 		if hasDuplicateIngredients(recipe.Ingredients) {
 			log.Printf("DEBUG: Skipping recipe with duplicate ingredients: %v", recipe.Ingredients)
 			continue
 		}
 
-		// Skip self-reference recipes
 		selfReference := false
 		for _, ing := range recipe.Ingredients {
 			if ing == target {
@@ -315,7 +313,6 @@ func MultiThreadedDFS(elements map[string]model.Element, target string, maxResul
 		validRecipes = append(validRecipes, recipe)
 	}
 
-	// Log all valid recipes before filtering
 	log.Printf("DEBUG: Found %d valid recipes for '%s' before traceability check",
 		len(validRecipes), target)
 
@@ -323,19 +320,16 @@ func MultiThreadedDFS(elements map[string]model.Element, target string, maxResul
 		log.Printf("DEBUG: Recipe %d: %v", i+1, recipe.Ingredients)
 	}
 
-	// Filter recipes to only include those with traceable ingredients
 	validRecipes = filterTraceableRecipes(g, validRecipes, baseElements)
 
 	log.Printf("Found %d valid traceable recipes for '%s' (filtered out %d invalid recipes)",
 		len(validRecipes), target, len(targetNode.RecipesToMakeThisElement)-len(validRecipes))
 
-	// Log all traceable recipes
 	for i, recipe := range validRecipes {
 		log.Printf("DEBUG: Traceable recipe %d: %v", i+1, recipe.Ingredients)
 	}
 
-	// Increase buffer size to handle more paths
-	resultChan := make(chan []model.Node, maxResults*20) // Increased buffer size
+	resultChan := make(chan []model.Node, maxResults*20)
 	visitCountChan := make(chan int, 1)
 
 	var wg sync.WaitGroup
@@ -344,28 +338,26 @@ func MultiThreadedDFS(elements map[string]model.Element, target string, maxResul
 	uniquePathSignatures := make(map[string]bool)
 	totalVisitedCount := 0
 
-	// Add more diverse strategies with different parameters
 	strategies := []struct {
 		name            string
 		maxDepth        int
 		favorSimplicity bool
 	}{
-		{"deep", 40, false},    // Deeper search
-		{"simple", 20, true},   // Focus on simple recipes
-		{"balanced", 25, true}, // Balanced approach
-		{"varied", 30, false},  // More variety
-		{"thorough", 35, true}, // More thorough search
-		{"wide", 28, false},    // Wide search
-		{"diverse", 32, true},  // Add more strategies for diversity
+		{"deep", 40, false},
+		{"simple", 20, true},  
+		{"balanced", 25, true},
+		{"varied", 30, false}, 
+		{"thorough", 35, true}, 
+		{"wide", 28, false},  
+		{"diverse", 32, true}, 
 		{"explorer", 38, false},
-		{"complete", 45, true}, // Added more strategies
+		{"complete", 45, true}, 
 		{"exhaustive", 50, false},
 	}
 
 	log.Printf("Starting %d DFS goroutines with varied strategies to find recipes for '%s'",
 		len(strategies), target)
 
-	// Create a separate goroutine for each recipe to ensure all recipes are explored
 	for recipeIndex, recipe := range validRecipes {
 		for strategyIndex, strategy := range strategies {
 			wg.Add(1)
@@ -381,12 +373,11 @@ func MultiThreadedDFS(elements map[string]model.Element, target string, maxResul
 				localCount := 0
 				localResults := [][]model.Node{}
 
-				// Start with target element
 				path := []*model.Node{
 					{
 						Element:     target,
 						ImagePath:   targetNode.ImagePath,
-						Ingredients: recipe.Ingredients, // Store recipe ingredients for better tracking
+						Ingredients: recipe.Ingredients,
 					},
 				}
 
@@ -396,12 +387,10 @@ func MultiThreadedDFS(elements map[string]model.Element, target string, maxResul
 				exploreWithStrategy(g, recipe, path, localVisited, &localCount, &localResults,
 					maxResults, baseElements, strat.maxDepth, strat.favorSimplicity)
 
-				// Submit ALL found paths for this recipe
 				if len(localResults) > 0 {
 					log.Printf("DEBUG: Goroutine '%s' found %d paths for recipe %d",
 						strat.name, len(localResults), recipeIdx+1)
 
-					// Submit paths from this recipe exploration
 					for _, foundPath := range localResults {
 						mu.Lock()
 						pathSignature := GeneratePathSignature(foundPath)

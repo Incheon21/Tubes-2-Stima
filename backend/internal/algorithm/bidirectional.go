@@ -1416,7 +1416,7 @@ func validateIngredientsInPath(path []model.Node) bool {
 			continue
 		}
 
-		if currentNode.Ingredients == nil || len(currentNode.Ingredients) == 0 {
+		if len(currentNode.Ingredients) == 0 {
 			found := false
 			for j := 0; j < i && !found; j++ {
 				prevElem := path[j].Element
