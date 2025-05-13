@@ -35,12 +35,12 @@ const RecipeExplorer = () => {
     treesFound: 0
   });
 
-  const serverUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
+  const serverUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api';
 
   const loadElements = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get<ElementData[]>(`${serverUrl}/api/elements/`);      
+      const response = await axios.get<ElementData[]>(`${serverUrl}/elements/`);      
       console.log("API response:", response.data);
       setAllElements(response.data);
       setIsLoading(false);
@@ -68,13 +68,13 @@ const RecipeExplorer = () => {
       let url: string;
       
       if (algorithm === 'bfs') {
-        url = `${serverUrl}/api/bfs-tree/${encodeURIComponent(target)}?count=${treeCount}&singlePath=false`;
+        url = `${serverUrl}/bfs-tree/${encodeURIComponent(target)}?count=${treeCount}&singlePath=false`;
       } else if (algorithm === 'dfs') {
-        url = `${serverUrl}/api/dfs-tree/${encodeURIComponent(target)}?count=${treeCount}`;
+        url = `${serverUrl}/dfs-tree/${encodeURIComponent(target)}?count=${treeCount}`;
       } else if (algorithm === 'bidirectional') {
-        url = `${serverUrl}/api/bidirectional/${encodeURIComponent(target)}?count=${treeCount}&multithreaded=true&tree=true`;
+        url = `${serverUrl}/bidirectional/${encodeURIComponent(target)}?count=${treeCount}&multithreaded=true&tree=true`;
       } else {
-        url = `${serverUrl}/api/${treeType}/${encodeURIComponent(target)}?count=${treeCount}&algorithm=${algorithm}`;
+        url = `${serverUrl}/${treeType}/${encodeURIComponent(target)}?count=${treeCount}&algorithm=${algorithm}`;
       }
       
       const response = await axios.get<RecipeResult>(url);
