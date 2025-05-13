@@ -51,17 +51,18 @@ docker compose up
 **Menjalankan Backend**
 1. Pindah ke director backend
 2. Jalankan perintah:
-'''bash
+
+```bash
 go run .
 ```
 
 **Menjalankan Frontend**
-Menjalankan Frontend
+
 Buka terminal baru.
 Pindah ke direktori frontend.
 Jalankan perintah:
 
-👨‍💻 Author
+## 👨‍💻 Author
 Nama	NIM
 Alvin Christopher Santausa	13523033
 Kenneth Poenadi	13523040
