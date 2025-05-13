@@ -35,7 +35,7 @@ const RecipeExplorer = () => {
     treesFound: 0
   });
 
-  const serverUrl = 'http://localhost:8080';
+  const serverUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
 
   const loadElements = async () => {
     try {
