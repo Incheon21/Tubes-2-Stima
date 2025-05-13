@@ -45,7 +45,6 @@ func DFS(elements map[string]model.Element, target string, maxResults int, debug
 		log.Printf("DEBUG: Target %s has %d recipes to explore", target, len(targetNode.RecipesToMakeThisElement))
 	}
 
-	// Filter recipes to include only those with traceable ingredients
 	traceableRecipes := filterTraceableRecipes(g, targetNode.RecipesToMakeThisElement, baseElements)
 
 	if debug {
@@ -176,7 +175,6 @@ func Explore(g *graph.ElementGraph, recipe *graph.Recipe, currentPath []*model.N
 				break
 			}
 		}
-		// Backtrack
 		delete(visited, ingredient)
 	}
 }
@@ -286,7 +284,6 @@ func MultiThreadedDFS(elements map[string]model.Element, target string, maxResul
 		}
 	}
 
-	// Filter out invalid recipes first
 	validRecipes := make([]*graph.Recipe, 0, len(targetNode.RecipesToMakeThisElement))
 	log.Printf("DEBUG: Target '%s' has %d recipes to check", target, len(targetNode.RecipesToMakeThisElement))
 
@@ -415,7 +412,6 @@ func MultiThreadedDFS(elements map[string]model.Element, target string, maxResul
 						mu.Unlock()
 					}
 
-					// If single path mode, signal completion
 					if singlePath {
 						log.Printf("DEBUG: Single path found, signaling completion")
 					}
@@ -429,14 +425,12 @@ func MultiThreadedDFS(elements map[string]model.Element, target string, maxResul
 				mu.Unlock()
 			}(recipe, strategy, recipeIndex, strategyIndex)
 
-			// If in single path mode, only need one strategy per recipe
 			if singlePath {
 				break
 			}
 		}
 	}
 
-	// Wait for all goroutines to complete and close channels
 	go func() {
 		wg.Wait()
 		visitCountChan <- totalVisitedCount
@@ -446,23 +440,19 @@ func MultiThreadedDFS(elements map[string]model.Element, target string, maxResul
 			len(uniquePathSignatures))
 	}()
 
-	// Collect all results without early breaking
 	results := make([][]model.Node, 0, maxResults*2)
 	for path := range resultChan {
 		results = append(results, path)
 	}
 
-	// Get total visited count
 	visitedCount := <-visitCountChan
 
-	// Group paths by recipe signature for better diversity
 	recipeGroups := make(map[string][][]model.Node)
 	for _, path := range results {
 		if len(path) == 0 {
 			continue
 		}
 
-		// Find target node in path to get its ingredients
 		var targetPathNode *model.Node
 		for i := range path {
 			if path[i].Element == target {
@@ -471,7 +461,6 @@ func MultiThreadedDFS(elements map[string]model.Element, target string, maxResul
 			}
 		}
 
-		// Group by ingredients used to make the target
 		if targetPathNode != nil && targetPathNode.Ingredients != nil && len(targetPathNode.Ingredients) > 0 {
 			sortedIngs := make([]string, len(targetPathNode.Ingredients))
 			copy(sortedIngs, targetPathNode.Ingredients)
@@ -485,25 +474,20 @@ func MultiThreadedDFS(elements map[string]model.Element, target string, maxResul
 		}
 	}
 
-	// Log all found recipe groups
 	log.Printf("DEBUG: Found %d distinct recipe groups:", len(recipeGroups))
 	for recipeKey, paths := range recipeGroups {
 		log.Printf("DEBUG: Recipe %s has %d paths", recipeKey, len(paths))
 	}
 
-	// Select diverse paths from each recipe group
 	finalResults := make([][]model.Node, 0, maxResults)
 
-	// Process recipe groups to ensure recipe diversity
 	recipeKeys := make([]string, 0, len(recipeGroups))
 	for key := range recipeGroups {
 		recipeKeys = append(recipeKeys, key)
 	}
 
-	// Sort recipe keys for consistent ordering
 	sort.Strings(recipeKeys)
 
-	// Take paths from each recipe group to ensure diversity
 	pathsPerRecipe := 1
 	if maxResults > 0 && len(recipeGroups) > 0 {
 		pathsPerRecipe = max(1, maxResults/len(recipeGroups))
@@ -512,34 +496,28 @@ func MultiThreadedDFS(elements map[string]model.Element, target string, maxResul
 	for _, recipeKey := range recipeKeys {
 		paths := recipeGroups[recipeKey]
 
-		// Sort by path length (shorter first)
 		sort.Slice(paths, func(i, j int) bool {
 			return len(paths[i]) < len(paths[j])
 		})
 
-		// Take up to pathsPerRecipe paths from this recipe
 		for i := 0; i < min(pathsPerRecipe, len(paths)); i++ {
 			finalResults = append(finalResults, paths[i])
 		}
 	}
 
-	// If we still need more paths, add remaining ones
 	if maxResults > 0 && len(finalResults) < maxResults {
 		for _, recipeKey := range recipeKeys {
 			paths := recipeGroups[recipeKey]
-			// Start from pathsPerRecipe to get additional paths
 			for i := pathsPerRecipe; i < len(paths) && len(finalResults) < maxResults; i++ {
 				finalResults = append(finalResults, paths[i])
 			}
 		}
 	}
 
-	// If final results is empty, use all results
 	if len(finalResults) == 0 {
 		finalResults = results
 	}
 
-	// Apply final limit if needed
 	if maxResults > 0 && len(finalResults) > maxResults {
 		finalResults = finalResults[:maxResults]
 	}
@@ -554,7 +532,6 @@ func MultiThreadedDFS(elements map[string]model.Element, target string, maxResul
 	return finalResults, visitedCount
 }
 
-// Check if a recipe contains duplicate ingredients
 func hasDuplicateIngredients(ingredients []string) bool {
 	seen := make(map[string]bool)
 	for _, ingredient := range ingredients {
@@ -566,8 +543,6 @@ func hasDuplicateIngredients(ingredients []string) bool {
 	return false
 }
 
-// Update exploreWithStrategy to ensure it explores more path variations
-
 func exploreWithStrategy(g *graph.ElementGraph, recipe *graph.Recipe, currentPath []*model.Node, visited map[string]bool, visitCount *int, results *[][]model.Node, maxResults int, baseElements []string, maxDepth int, favorSimplicity bool) {
 	if len(currentPath) > maxDepth {
 		return
@@ -578,12 +553,10 @@ func exploreWithStrategy(g *graph.ElementGraph, recipe *graph.Recipe, currentPat
 		return
 	}
 
-	// Skip recipes with duplicate ingredients
 	if hasDuplicateIngredients(ingredients) {
 		return
 	}
 
-	// Skip self-reference recipes
 	target := currentPath[0].Element
 	for _, ing := range ingredients {
 		if ing == target {
@@ -591,9 +564,7 @@ func exploreWithStrategy(g *graph.ElementGraph, recipe *graph.Recipe, currentPat
 		}
 	}
 
-	// Check if all ingredients are traceable
 	for _, ingredient := range ingredients {
-		// Skip base elements - they're always traceable
 		isBase := false
 		for _, base := range baseElements {
 			if ingredient == base {
@@ -602,18 +573,15 @@ func exploreWithStrategy(g *graph.ElementGraph, recipe *graph.Recipe, currentPat
 			}
 		}
 
-		// If not a base element and not traceable, skip this recipe entirely
 		if !isBase && !IsElementTraceable(ingredient, baseElements, g) {
 			log.Printf("DEBUG: Skipping recipe for '%s' with untraceable ingredient: %s", recipe.Result, ingredient)
 			return
 		}
 	}
 
-	// Create a new path with the current element and its ingredients
 	newPath := make([]*model.Node, len(currentPath))
 	copy(newPath, currentPath)
 
-	// Check if all ingredients are base elements
 	allIngredientsAreBaseElements := true
 	ingredientNodes := make([]*model.Node, 0, len(ingredients))
 
@@ -621,15 +589,13 @@ func exploreWithStrategy(g *graph.ElementGraph, recipe *graph.Recipe, currentPat
 		ingredientNode := g.Nodes[ingredient]
 		*visitCount++
 
-		// Create ingredient node with position info for better path diversity
 		ingredientNodeObj := &model.Node{
 			Element:     ingredient,
 			ImagePath:   ingredientNode.ImagePath,
-			Position:    idx + 1, // Add position information
-			Ingredients: nil,     // ElementGraphNode doesn't have Ingredients field
+			Position:    idx + 1, 
+			Ingredients: nil, 
 		}
 
-		// Check if this is a base element
 		isBase := false
 		for _, base := range baseElements {
 			if ingredient == base {
@@ -638,7 +604,6 @@ func exploreWithStrategy(g *graph.ElementGraph, recipe *graph.Recipe, currentPat
 			}
 		}
 
-		// If not a base element and has recipes, need to explore further
 		if !isBase && len(ingredientNode.RecipesToMakeThisElement) > 0 {
 			allIngredientsAreBaseElements = false
 		}
@@ -646,24 +611,19 @@ func exploreWithStrategy(g *graph.ElementGraph, recipe *graph.Recipe, currentPat
 		ingredientNodes = append(ingredientNodes, ingredientNodeObj)
 	}
 
-	// Store recipe information in the target node
 	if len(newPath) > 0 && newPath[0].Element == recipe.Result {
 		newPath[0].Ingredients = recipe.Ingredients
 	}
 
-	// Add ingredient nodes to the path
 	newPath = append(newPath, ingredientNodes...)
 
-	// If all ingredients are base elements, we found a complete path
 	if allIngredientsAreBaseElements {
 		finalPath := make([]model.Node, len(newPath))
 		for i, node := range newPath {
 			finalPath[i] = *node
-			// Add path position for uniqueness
 			finalPath[i].Position = i
 		}
 
-		// Reverse the path for correct display (base elements first)
 		for i, j := 0, len(finalPath)-1; i < j; i, j = i+1, j-1 {
 			finalPath[i], finalPath[j] = finalPath[j], finalPath[i]
 		}
@@ -672,25 +632,21 @@ func exploreWithStrategy(g *graph.ElementGraph, recipe *graph.Recipe, currentPat
 		return
 	}
 
-	// Sort ingredients to control exploration order
 	recipeIngredients := make([]string, len(ingredients))
 	copy(recipeIngredients, ingredients)
 
-	// Try different exploration orders based on strategy
 	if favorSimplicity {
-		// Prioritize base elements first for simple strategies
 		sort.SliceStable(recipeIngredients, func(i, j int) bool {
 			iIsBase := isBaseElement(recipeIngredients[i], baseElements)
 			jIsBase := isBaseElement(recipeIngredients[j], baseElements)
 			return iIsBase && !jIsBase
 		})
 	} else {
-		// For exploratory strategies, try different orders
-		if *visitCount%3 == 0 { // Sometimes reverse order
+		if *visitCount%3 == 0 {
 			for i, j := 0, len(recipeIngredients)-1; i < j; i, j = i+1, j-1 {
 				recipeIngredients[i], recipeIngredients[j] = recipeIngredients[j], recipeIngredients[i]
 			}
-		} else if *visitCount%3 == 1 { // Sometimes randomize (using visitCount as pseudo-random)
+		} else if *visitCount%3 == 1 {
 			for i := range recipeIngredients {
 				if i > 0 {
 					j := (*visitCount + i) % i
@@ -700,15 +656,12 @@ func exploreWithStrategy(g *graph.ElementGraph, recipe *graph.Recipe, currentPat
 		}
 	}
 
-	// For each non-base ingredient, explore all its recipes
 	for ingIndex, ingredient := range recipeIngredients {
-		// Skip base elements
 		isBase := isBaseElement(ingredient, baseElements)
 		if isBase || visited[ingredient] {
 			continue
 		}
 
-		// Mark visited to prevent cycles
 		visited[ingredient] = true
 
 		ingredientNode := g.Nodes[ingredient]
@@ -716,18 +669,14 @@ func exploreWithStrategy(g *graph.ElementGraph, recipe *graph.Recipe, currentPat
 			delete(visited, ingredient)
 			continue
 		}
-
-		// Get all recipes for this ingredient
 		allRecipes := ingredientNode.RecipesToMakeThisElement
 		validRecipes := make([]*graph.Recipe, 0, len(allRecipes))
 
-		// Filter out invalid recipes
 		for _, r := range allRecipes {
 			if len(r.Ingredients) == 0 || hasDuplicateIngredients(r.Ingredients) {
 				continue
 			}
 
-			// Check for self-referential recipes
 			selfRef := false
 			for _, ing := range r.Ingredients {
 				if ing == r.Result {
@@ -737,7 +686,6 @@ func exploreWithStrategy(g *graph.ElementGraph, recipe *graph.Recipe, currentPat
 			}
 
 			if !selfRef {
-				// Check if all ingredients in this sub-recipe are traceable
 				allTraceable := true
 				for _, ing := range r.Ingredients {
 					if !isBaseElement(ing, baseElements) && !IsElementTraceable(ing, baseElements, g) {
@@ -752,12 +700,7 @@ func exploreWithStrategy(g *graph.ElementGraph, recipe *graph.Recipe, currentPat
 			}
 		}
 
-		// CRITICAL CHANGE: Ensure we find multiple ways to create each ingredient
-		// Instead of just sorting, we need to try different recipes and orderings
-
-		// First sort by strategy preference
 		if favorSimplicity {
-			// Sort by number of base elements (more base elements first)
 			sort.Slice(validRecipes, func(i, j int) bool {
 				iBaseCount := countBaseElements(validRecipes[i].Ingredients, baseElements)
 				jBaseCount := countBaseElements(validRecipes[j].Ingredients, baseElements)
@@ -766,14 +709,10 @@ func exploreWithStrategy(g *graph.ElementGraph, recipe *graph.Recipe, currentPat
 					return iBaseCount > jBaseCount
 				}
 
-				// Shorter recipes preferred
 				return len(validRecipes[i].Ingredients) < len(validRecipes[j].Ingredients)
 			})
 		} else {
-			// Use more random ordering for non-simplicity strategies
-			// This is crucial for finding more path variations
 			if *visitCount%2 == 0 {
-				// Sometimes randomize recipe order using visitCount as seed
 				for i := range validRecipes {
 					if i > 0 {
 						j := (*visitCount + i + ingIndex) % i
@@ -783,37 +722,29 @@ func exploreWithStrategy(g *graph.ElementGraph, recipe *graph.Recipe, currentPat
 			}
 		}
 
-		// Try ALL recipes for this ingredient - important for finding all combinations!
-		// and ensure we look for enough variations
 		recipesToTry := len(validRecipes)
 		if maxResults > 0 && recipesToTry > maxResults/2 {
-			// Limit recipe exploration for performance if we want a limited number of paths
 			recipesToTry = max(2, maxResults/2)
 		}
 
 		for i := 0; i < min(recipesToTry, len(validRecipes)); i++ {
 			subRecipe := validRecipes[i]
 
-			// Create a copy of the path for this branch
 			ingredientPath := make([]*model.Node, len(newPath))
 			copy(ingredientPath, newPath)
 
-			// Explore this recipe
 			exploreWithStrategy(g, subRecipe, ingredientPath, visited, visitCount,
 				results, maxResults, baseElements, maxDepth, favorSimplicity)
 
-			// Limit results if needed, but keep exploring other branches
 			if len(*results) >= maxResults*10 && maxResults > 0 {
 				break
 			}
 		}
 
-		// Backtrack
 		delete(visited, ingredient)
 	}
 }
 
-// Helper function to check if an element is a base element
 func isBaseElement(element string, baseElements []string) bool {
 	for _, base := range baseElements {
 		if element == base {
@@ -823,7 +754,6 @@ func isBaseElement(element string, baseElements []string) bool {
 	return false
 }
 
-// Helper function to count base elements in a recipe
 func countBaseElements(ingredients []string, baseElements []string) int {
 	count := 0
 	for _, ing := range ingredients {
@@ -842,10 +772,8 @@ func filterTraceableRecipes(g *graph.ElementGraph, recipes []*graph.Recipe, base
 			continue
 		}
 
-		// Check if all ingredients are traceable
 		allIngredientsTraceable := true
 		for _, ingredient := range recipe.Ingredients {
-			// Skip checking base elements
 			isBaseElement := false
 			for _, base := range baseElements {
 				if ingredient == base {
@@ -854,7 +782,6 @@ func filterTraceableRecipes(g *graph.ElementGraph, recipes []*graph.Recipe, base
 				}
 			}
 
-			// If not base element, check if it's traceable
 			if !isBaseElement && !IsElementTraceable(ingredient, baseElements, g) {
 				log.Printf("DEBUG: Recipe ingredient '%s' is not traceable to base elements", ingredient)
 				allIngredientsTraceable = false
