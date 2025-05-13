@@ -1,47 +1,62 @@
-Tugas Besar Strategi Algoritma — Tubes-2-Stima
-#Deskripsi
-Program ini merupakan aplikasi pencari resep dari elemen pada permainan Little Alchemy 2.
+# **Tugas Besar Strategi Algoritma — Tubes-2-Stima**
 
-#Algoritma
-Algoritma pencarian yang diimplementasikan adalah Depth First Search (DFS), Breadth First Search (BFS), dan Bidirectional Search:
-- DFS adalah pencarian secara mendalam kepada salah satu elemen pembentuk. Jadi, pencarian dilakukan untuk menemukan pembentuk (elemen dasar) dari salah satu elemen pembentuk awal sebelum berpindah ke elemen selanjutnya.
+Program ini merupakan aplikasi **pencari resep dari elemen pada permainan Little Alchemy 2**.
 
-BFS bekerja secara melebar dengan mencari seluruh elemen pembentuk di setiap tingkatan secara bersamaan.
+---
 
-Bidirectional merupakan pencarian dengan 2 arah berbeda secara bersamaan. Akan ada pencarian maju dan mundur yang bergerak dari sumber yang berbeda dengan arah yang berbeda. Ketika elemen yang dicek sama, maka hasil akan diberikan.
+## **Deskripsi**
+Program ini menggunakan algoritma pencarian untuk menemukan elemen-elemen pembentuk pada permainan **Little Alchemy 2**. Berikut algoritma pencarian yang diimplementasikan:
 
-🛠️ Requirement
-Instalasi Node.js
+### **Algoritma Pencarian**
+- **Depth First Search (DFS)**  
+  Pencarian dilakukan secara mendalam pada salah satu elemen pembentuk terlebih dahulu hingga dasar sebelum berpindah ke elemen berikutnya.
 
-Instalasi Docker
+- **Breadth First Search (BFS)**  
+  Pencarian dilakukan secara melebar dengan mencari semua elemen pembentuk di setiap tingkatan secara bersamaan.
 
-Instalasi bahasa Go
+- **Bidirectional Search**  
+  Pencarian dilakukan dari dua arah secara bersamaan: maju dari elemen awal dan mundur dari elemen target. Ketika kedua arah bertemu pada elemen yang sama, hasil pencarian akan diberikan.
 
-🧪 Command
-💻 Menggunakan Docker:
-Cukup jalankan perintah berikut:
+---
 
+## **Dibuat Dengan**
+<div align="center">
+
+![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Go](https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white)
+
+</div>
+
+---
+
+## **🛠️ Requirement**
+Sebelum menjalankan aplikasi, pastikan Anda sudah menginstal hal-hal berikut:
+1. **Node.js**
+2. **Docker**
+3. **Bahasa Go**
+
+---
+
+## **🧪 Perintah**
+
+### **💻 Menggunakan Docker**
+Cukup jalankan perintah berikut di terminal:
+```bash
 docker compose up
-⚙️ Tanpa Docker:
-Jalankan Backend
-Pindah ke direktori backend lalu jalankan:
+```
 
-bash
-Copy
-Edit
+## Tanpa Docker
+
+**Menjalankan Backend**
+1. Pindah ke director backend
+2. Jalankan perintah:
+'''bash
 go run .
-Jalankan Frontend
-Buka terminal baru, pindah ke direktori frontend lalu jalankan:
+```
 
-bash
-Copy
-Edit
-npm install
-npm run dev
 👨‍💻 Author
-Alvin Christopher Santausa  13523033
-
-Kenneth Poenadi       13523040
-
-Ivan Wirawan         13523046
-
+Nama	NIM
+Alvin Christopher Santausa	13523033
+Kenneth Poenadi	13523040
+Ivan Wirawan	13523046
