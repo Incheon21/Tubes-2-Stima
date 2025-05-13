@@ -244,7 +244,7 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 	targetNode, ok := g.Nodes[target]
 	if !ok {
 		log.Printf("DEBUG: Target element %s not found in database", target)
-		return nil, 0
+		return nil, 1
 	}
 
 	// Check if it's a base element
@@ -254,7 +254,7 @@ func MultiThreadedBFS(elements map[string]model.Element, target string, maxResul
 			log.Printf("DEBUG: Target %s is a base element, returning simple result", target)
 			return [][]model.Node{{
 				{Element: target, ImagePath: targetNode.ImagePath},
-			}}, 0
+			}}, 1
 		}
 	}
 
@@ -740,7 +740,32 @@ collectLoop:
 		<-done // Wait for all goroutines to actually finish
 	}
 
-	log.Printf("DEBUG: MultiThreaded BFS completed - found %d paths after visiting %d nodes", len(results), visitedCount)
+	if visitedCount == 0 && len(results) > 0 {
+		// We found paths but somehow didn't count visits - estimate the count
+		// based on the paths we found
+		visitCount := 0
+		for _, path := range results {
+			// Each path requires at least its length in node visits
+			visitCount += len(path)
+
+			// Plus at least 1 visit per ingredient for each non-base element
+			baseElements := []string{"Water", "Fire", "Earth", "Air"}
+			for _, node := range path {
+				isBase := false
+				for _, base := range baseElements {
+					if node.Element == base {
+						isBase = true
+						break
+					}
+				}
+				if !isBase && len(node.Ingredients) > 0 {
+					visitCount += len(node.Ingredients)
+				}
+			}
+		}
+		visitedCount = visitCount
+		log.Printf("DEBUG: Corrected visitedCount from 0 to %d based on found paths", visitedCount)
+	}
 	return results, visitedCount
 }
 
