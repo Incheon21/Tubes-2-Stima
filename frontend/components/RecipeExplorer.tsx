@@ -71,7 +71,7 @@ const RecipeExplorer = () => {
         url = `${serverUrl}/bfs-tree/${encodeURIComponent(target)}?count=${treeCount}&singlePath=false`;
       } else if (algorithm === 'dfs') {
         url = `${serverUrl}/dfs-tree/${encodeURIComponent(target)}?count=${treeCount}`;
-      } else if (algorithm === 'bidirectional') {
+      } else if (algorithm === 'bidire') {
         url = `${serverUrl}/bidirectional/${encodeURIComponent(target)}?count=${treeCount}&multithreaded=true&tree=true`;
       } else {
         url = `${serverUrl}/${treeType}/${encodeURIComponent(target)}?count=${treeCount}&algorithm=${algorithm}`;

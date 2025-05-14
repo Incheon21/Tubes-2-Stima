@@ -71,7 +71,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   const algorithmDescriptions = {
     bfs: 'Breadth-First Search finds the shortest paths by exploring all neighbors before moving deeper.',
     dfs: 'Depth-First Search explores each branch as far as possible before backtracking.',
-    bidirectional: 'Searches from both start and goal simultaneously, often faster for complex recipes.'
+    bidire: 'Searches from both start and goal simultaneously, often faster for complex recipes.'
   };
 
   return (
